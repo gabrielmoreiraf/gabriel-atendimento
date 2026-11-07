@@ -20,10 +20,10 @@ export function AgenteAnalista({ padroes, onTratar }: Props) {
   return (
     <section className="analista" aria-labelledby="analista-titulo">
       <header className="analista__cabeca">
-        <h2 id="analista-titulo">Agente analista</h2>
+        <h2 id="analista-titulo">Padrões</h2>
         <p>
-          Trabalha em equipe com o Gabriel: acha a causa comum, abre um incidente e avisa os
-          clientes afetados de uma vez.
+          O agente analista olha a base inteira, não uma conversa: acha a causa comum, abre um
+          incidente e avisa os clientes afetados de uma vez. Clique em Tratar.
         </p>
       </header>
       {padroes.length === 0 ? (

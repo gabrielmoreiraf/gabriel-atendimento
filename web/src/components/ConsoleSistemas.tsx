@@ -3,11 +3,11 @@ import { formatarDataHora, formatarRs } from "../formato";
 
 export function ConsoleSistemas({ acoes }: { acoes: RegistroAcao[] }) {
   return (
-    <section className="painel console" aria-labelledby="console-titulo">
-      <header className="painel__cabeca">
-        <h2 id="console-titulo">Console dos sistemas</h2>
-        <span className="painel__meta">{acoes.length} ações · ao vivo</span>
-      </header>
+    <details className="painel console">
+      <summary className="painel__cabeca">
+        <h2 id="console-titulo">Log de todos os sistemas</h2>
+        <span className="painel__meta">{acoes.length} ações · abrir</span>
+      </summary>
       {acoes.length === 0 ? (
         <p className="vazio">Nenhuma ação executada ainda. Cada ação do agente aparece aqui.</p>
       ) : (
@@ -52,6 +52,6 @@ export function ConsoleSistemas({ acoes }: { acoes: RegistroAcao[] }) {
           </table>
         </div>
       )}
-    </section>
+    </details>
   );
 }

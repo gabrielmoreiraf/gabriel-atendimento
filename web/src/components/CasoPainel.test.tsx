@@ -54,6 +54,37 @@ describe("CasoPainel", () => {
     expect(screen.queryByText(/\d{3}\.\d{3}\.\d{3}-\d{2}/)).toBeNull();
   });
 
+  it("test_HP_09_passo_4_mostra_so_as_acoes_desta_conversa", () => {
+    const acao = (id: string, conversa: string, acaoNome: string) => ({
+      acao_id: id,
+      conversation_id: conversa,
+      order_id: null,
+      data_hora: "2026-11-02T08:01:00",
+      sistema: "OMS de trocas e reenvios",
+      acao: acaoNome,
+      valor_rs: 90,
+      executado_por: "agente",
+      aprovado_por: null,
+      referencia_sistema: `REF-${id}`,
+    });
+    render(
+      <CasoPainel
+        caso={caso}
+        carregando={false}
+        erro={null}
+        acoes={[acao("1", "AT9", "reenviar_produto"), acao("2", "AT8", "estornar_pagamento")]}
+      />,
+    );
+    expect(screen.getByText("Reenviar produto")).toBeInTheDocument();
+    expect(screen.queryByText("Estornar pagamento")).not.toBeInTheDocument();
+  });
+
+  it("test_HP_09_antes_de_processar_explica_o_primeiro_passo", () => {
+    render(<CasoPainel caso={null} carregando={false} erro={null} filaProcessada={false} />);
+    expect(screen.getByRole("heading", { name: "Como usar" })).toBeInTheDocument();
+    expect(screen.getByText("Processar fila")).toBeInTheDocument();
+  });
+
   it("test_HP_09_sem_caso_pede_para_escolher_na_fila", () => {
     render(<CasoPainel caso={null} carregando={false} erro={null} />);
     expect(screen.getByText(/escolha uma conversa/i)).toBeInTheDocument();

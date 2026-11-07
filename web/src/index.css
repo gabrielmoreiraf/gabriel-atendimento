@@ -1883,7 +1883,7 @@ html {
 }
 
 /* Telas largas: placar não estoura e as colunas laterais respiram */
-@media (min-width: 1024px) and (max-width: 1279px) {
+@media (min-width: 1024px) and (max-width: 1439px) {
   .placar__item dd {
     font-size: 26px;
   }
@@ -2024,4 +2024,121 @@ html {
 }
 .barra .logo svg {
   flex: none;
+}
+
+/* Caso contado em quatro passos: pediu, conferiu, decidiu, fez */
+.caso__passo {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-right: var(--esp-2);
+  border-radius: 50%;
+  background: var(--primaria);
+  color: var(--primaria-tx);
+  font-size: 13px;
+  font-weight: 700;
+  vertical-align: 2px;
+}
+.caso__feitas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+  margin: 0 0 var(--esp-3);
+  padding: 0;
+  list-style: none;
+}
+.caso__feitas li {
+  padding: var(--esp-2) var(--esp-3);
+  border-left: 3px solid var(--st-resolvida-dot);
+  border-radius: var(--raio-campo);
+  background: var(--superficie-2);
+  font-size: var(--tam-rotulo);
+}
+.caso__subtitulo {
+  margin: var(--esp-2) 0 var(--esp-1);
+  font-size: var(--tam-rotulo);
+  font-weight: 700;
+  color: var(--texto-2);
+}
+/* Primeiro acesso: o centro diz por onde começar */
+.caso__inicio {
+  max-width: 560px;
+  margin: auto;
+  padding: var(--esp-8) var(--esp-6);
+}
+.caso__inicio h2 {
+  margin-bottom: var(--esp-3);
+  font-size: var(--tam-painel);
+  font-weight: 800;
+}
+.caso__inicio ol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-3);
+  padding-left: 1.3em;
+  font-size: var(--tam-corpo);
+  color: var(--texto);
+}
+.caso__inicio li::marker {
+  color: var(--primaria);
+  font-weight: 800;
+}
+.centro .caso:has(.caso__inicio) {
+  display: grid;
+}
+
+/* Log de todos os sistemas: fechado por padrão, abre por baixo do caso */
+.console > summary {
+  cursor: pointer;
+  list-style: none;
+}
+.console > summary::-webkit-details-marker {
+  display: none;
+}
+.console > summary h2::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: var(--esp-2);
+  color: var(--primaria);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.console[open] > summary h2::before {
+  transform: rotate(90deg);
+}
+@media (min-width: 1024px) {
+  .grade > .centro {
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .centro > .console {
+    max-height: 45vh;
+  }
+  .centro > .console[open] {
+    height: 45vh;
+  }
+}
+
+/* Rótulo da decisão já vem escrito como frase; o selo de estado da fila desce de linha se faltar espaço */
+.decisao__resultado {
+  text-transform: none;
+}
+.fila__rodape {
+  flex-wrap: wrap;
+  row-gap: var(--esp-1);
+}
+.placar__item {
+  min-width: 0;
+}
+.placar__item dd {
+  overflow-wrap: anywhere;
+}
+/* Número do placar sempre numa linha; o tamanho acompanha a largura do cartão */
+.caso__bloco .decisao__resultado,
+.canal__decidida {
+  text-transform: none;
+}
+.placar__item dd {
+  overflow-wrap: normal;
+  white-space: nowrap;
+  font-size: clamp(18px, 1.4vw, 32px);
 }

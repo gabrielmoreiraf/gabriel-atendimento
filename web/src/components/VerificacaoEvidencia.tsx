@@ -26,6 +26,18 @@ const ROTULO_SINAL: Record<string, string> = {
   sem_exif: "Foto sem data de captura",
 };
 
+const ROTULO_DECISAO: Record<string, string> = {
+  executar: "Resolver sozinho, dentro da alçada",
+  pedir_aprovacao: "Pedir aprovação ao supervisor",
+  sinalizar_suspeita: "Segurar e sinalizar suspeita",
+  escalar: "Chamar uma pessoa",
+  negar: "Negar pela política",
+  bloquear: "Bloqueado pela política",
+};
+
+export const rotuloDecisao = (resultado: string) =>
+  ROTULO_DECISAO[resultado] ?? resultado.replaceAll("_", " ");
+
 export const rotuloSinal = (tipo: string) => ROTULO_SINAL[tipo] ?? tipo.replaceAll("_", " ");
 
 export function VerificacaoEvidencia({
@@ -56,10 +68,11 @@ export function VerificacaoEvidencia({
   return (
     <section className="verificacao" id="verificacao" aria-labelledby="verificacao-titulo">
       <header className="verificacao__cabeca">
-        <h2 id="verificacao-titulo">Verificação de evidência</h2>
+        <h2 id="verificacao-titulo">Conferir fotos</h2>
         <p>
           Reclamações com foto. Antes de reenviar ou estornar, o Gabriel confere se a foto é nova,
-          quando foi tirada, a data de entrega e a personalização do pedido.
+          quando foi tirada, a data de entrega e a personalização do pedido. Clique em Verificar num
+          caso.
         </p>
       </header>
       <div className="verificacao__grade">
@@ -197,7 +210,7 @@ function Resultado({ caso }: { caso: Caso }) {
           <h3>Decisão da política</h3>
           {decisao ? (
             <>
-              <p className="decisao__resultado">{decisao.resultado.replaceAll("_", " ")}</p>
+              <p className="decisao__resultado">{rotuloDecisao(decisao.resultado)}</p>
               <p>{decisao.motivo}</p>
             </>
           ) : (

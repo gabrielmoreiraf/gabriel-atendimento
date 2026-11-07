@@ -17,7 +17,6 @@ import { CanalTime } from "./components/CanalTime";
 import { CasoPainel } from "./components/CasoPainel";
 import { ConsoleSistemas } from "./components/ConsoleSistemas";
 import { Fila } from "./components/Fila";
-import { Mapa360 } from "./components/Mapa360";
 import { Placar } from "./components/Placar";
 import { VerificacaoEvidencia } from "./components/VerificacaoEvidencia";
 import { AGORA_ISO, formatarDataHora } from "./formato";
@@ -25,7 +24,7 @@ import { MascoteMarca } from "./landing/Mascote";
 import PillNav from "./vendor/reactbits/PillNav";
 import { alertasComoMensagens, juntarCanal } from "./vigia";
 
-type Tela = "operacao" | "evidencia" | "analista" | "mapa";
+type Tela = "operacao" | "evidencia" | "analista";
 
 interface Props {
   api: Api;
@@ -219,9 +218,8 @@ export default function App({ api, assinar, modo = "api" }: Props) {
 
   const telas: { id: Tela; rotulo: string }[] = [
     { id: "operacao", rotulo: "Operação" },
-    { id: "evidencia", rotulo: "Evidência" },
-    { id: "analista", rotulo: "Analista" },
-    { id: "mapa", rotulo: "Mapa 360°" },
+    { id: "evidencia", rotulo: "Conferir fotos" },
+    { id: "analista", rotulo: "Padrões" },
   ];
 
   return (
@@ -287,7 +285,13 @@ export default function App({ api, assinar, modo = "api" }: Props) {
           <main className="grade">
             <Fila itens={fila} selecionado={selecionado} onAbrir={abrir} />
             <div className="centro">
-              <CasoPainel caso={caso} carregando={carregandoCaso} erro={erroCaso} />
+              <CasoPainel
+                caso={caso}
+                carregando={carregandoCaso}
+                erro={erroCaso}
+                acoes={acoes}
+                filaProcessada={fila.some((c) => c.estado !== "aberta")}
+              />
               <ConsoleSistemas acoes={acoes} />
             </div>
             <CanalTime
@@ -313,15 +317,14 @@ export default function App({ api, assinar, modo = "api" }: Props) {
       {tela === "analista" ? (
         <AgenteAnalista key={`analista-${rodadaDemo}`} padroes={padroes} onTratar={tratarPadrao} />
       ) : null}
-      {tela === "mapa" ? <Mapa360 /> : null}
 
       <nav className="barra-inferior" aria-label="Telas no celular">
         {(
           [
             ["fila", "Fila"],
             ["canal", "Canal"],
-            ["evidencia", "Evidência"],
-            ["analista", "Analista"],
+            ["evidencia", "Fotos"],
+            ["analista", "Padrões"],
           ] as const
         ).map(([id, rotulo]) => {
           const atual =

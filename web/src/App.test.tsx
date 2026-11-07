@@ -20,7 +20,7 @@ describe("App (com API mock)", () => {
     render(<App api={criarApiMock()} assinar={() => () => {}} />);
     await userEvent.click(
       within(screen.getByRole("navigation", { name: "Telas" })).getByRole("link", {
-        name: "Evidência",
+        name: "Conferir fotos",
       }),
     );
     await waitFor(() => expect(screen.getAllByTestId("replay-item").length).toBeGreaterThan(0));
@@ -39,7 +39,7 @@ describe("App (com API mock)", () => {
     render(<App api={criarApiMock()} assinar={() => () => {}} />);
     await userEvent.click(
       within(screen.getByRole("navigation", { name: "Telas" })).getByRole("link", {
-        name: "Analista",
+        name: "Padrões",
       }),
     );
     await waitFor(() =>
@@ -62,7 +62,7 @@ describe("App (com API mock)", () => {
     render(<App api={criarApiMock()} assinar={() => () => {}} />);
     await userEvent.click(
       within(screen.getByRole("navigation", { name: "Telas" })).getByRole("link", {
-        name: "Evidência",
+        name: "Conferir fotos",
       }),
     );
     await waitFor(() => expect(screen.getAllByTestId("btn-replay").length).toBeGreaterThan(0));

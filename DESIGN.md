@@ -15,14 +15,15 @@ Fonte única dos valores: `tokens.css` (raiz), importado por `web/src/index.css`
 | Rota | Modo | O que é |
 | --- | --- | --- |
 | `/` | Persuade | Landing: hero azul com moldura limão, mascote e balões de chat; problema e resultados como listas tipográficas; cinco passos; Slack; visão 360°; chamada final |
-| `/app` | Operate | A ferramenta: abas Operação, Evidência, Analista e Mapa 360° |
+| `/app` | Operate | A ferramenta: abas Operação, Conferir fotos e Padrões |
 
 ## Ferramenta (`/app`)
 
 - Barra superior com o PillNav (React Bits, `web/src/vendor/reactbits/`), relógio da demo e Reiniciar.
-- Operação: placar em cartões (ponto de cor + rótulo) com **Processar fila**; fila com filtros por estado e sigla do canal; caso + console no centro; **canal do time em azul-marinho** à direita.
-- Evidência, Analista e Mapa: mesma moldura (largura máx. 1200px) e o mesmo título de tela.
-- Celular: barra inferior Fila · Canal · Evidência · Analista.
+- Operação: placar em cartões (ponto de cor + rótulo) com **Processar fila**; fila com filtros por estado e sigla do canal; no centro, o caso contado em quatro passos (o que o cliente pediu, o que o Gabriel conferiu, o que decidiu, o que fez); embaixo, o log de todos os sistemas, fechado por padrão; **canal do time em azul-marinho** à direita. Antes de processar, o centro mostra "Como usar".
+- Desktop: cada tela ocupa a altura da janela e cada painel rola por dentro.
+- Conferir fotos e Padrões: mesma moldura (largura máx. 1360px) e o mesmo título de tela. Rótulos de decisão e sinais em linguagem do atendente, nunca o código interno.
+- Celular: barra inferior Fila · Canal · Fotos · Padrões.
 - Estados da conversa sempre com rótulo em texto (nunca só cor): aberta, resolvida, aguardando aprovação, aguardando cliente, suspeita, escalada.
 
 ## Regras

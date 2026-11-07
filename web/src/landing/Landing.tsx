@@ -137,7 +137,10 @@ export function Landing() {
       <section className="lp-hero">
         <div className="lp-hero__texto">
           <h1>
-            O colega de atendimento que <em>confere antes de pagar</em>.
+            <span className="lp-h1__linha">O colega de atendimento</span>{" "}
+            <span className="lp-h1__linha">
+              que <em>confere antes de pagar</em>.
+            </span>
           </h1>
           <p className="lp-hero__sub">
             O Gabriel pega a fila, consulta pedido, rastreio e pagamento, confere a foto da
