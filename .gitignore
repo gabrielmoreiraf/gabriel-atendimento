@@ -21,3 +21,5 @@ docs/
 .env*
 # criado pelo vercel build local (Python 3.12); o uv local usa 3.14
 .python-version
+# base pré-gerada para o deploy no Vercel (dados pessoais sintéticos): nunca no git
+dados_demo/
