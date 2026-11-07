@@ -12,7 +12,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 from atendimento.contratos import FUSO, AcaoAnterior, Anexo, Item, Pedido
-from atendimento.privacidade import mascarar_cpf, mascarar_email, mascarar_telefone
+from atendimento.privacidade import mascarar, mascarar_cpf, mascarar_email, mascarar_telefone
 
 # Ações que movimentam dinheiro (custo para a empresa ou estorno ao cliente).
 FERRAMENTAS_COM_DINHEIRO = (
@@ -168,12 +168,39 @@ class Base:
         return [dict(linha) for linha in linhas]
 
     def mensagens(self, conversation_id: str) -> list[dict]:
+        """Mensagens da conversa, com o nome completo do cliente e CPF/cartão/telefone/e-mail
+        mascarados (HG-11): o nome vira `Primeiro S.` (`privacidade.mascarar`)."""
         linhas = self._linhas(
             "SELECT * FROM historico_mensagens WHERE conversation_id = ? "
             "ORDER BY timestamp, message_id",
             conversation_id,
         )
-        return [dict(linha) for linha in linhas]
+        nomes = (self._nome_do_cliente(conversation_id),)
+        mensagens = []
+        for linha in linhas:
+            mensagem = dict(linha)
+            if mensagem.get("texto"):
+                mensagem["texto"] = mascarar(mensagem["texto"], nomes=nomes)
+            mensagens.append(mensagem)
+        return mensagens
+
+    def _nome_do_cliente(self, conversation_id: str) -> str | None:
+        """Nome do cadastro do cliente dono da conversa (fila aberta ou histórico)."""
+        existentes = {
+            linha[0]
+            for linha in self._linhas("SELECT name FROM sqlite_master WHERE type = 'table'")
+        }
+        for tabela in ("fila_aberta", "historico_conversas"):
+            if tabela not in existentes or "clientes" not in existentes:
+                continue
+            linhas = self._linhas(
+                f"SELECT c.nome FROM {tabela} t JOIN clientes c ON c.customer_id = t.customer_id "
+                "WHERE t.conversation_id = ? LIMIT 1",
+                conversation_id,
+            )
+            if linhas and linhas[0][0]:
+                return linhas[0][0]
+        return None
 
     # ---------- cadastros ----------
 
@@ -182,13 +209,13 @@ class Base:
         if not linhas:
             return None
         cliente = dict(linhas[0])
-        for campo, mascarar in (
+        for campo, mascarar_campo in (
             ("cpf", mascarar_cpf),
             ("telefone", mascarar_telefone),
             ("email", mascarar_email),
         ):
             if cliente.get(campo):
-                cliente[campo] = mascarar(cliente[campo])
+                cliente[campo] = mascarar_campo(cliente[campo])
         return cliente
 
     def equipe(self) -> list[dict]:
