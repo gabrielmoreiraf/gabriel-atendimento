@@ -5,6 +5,7 @@ O canal real (WhatsApp Business) fica para integração futura; aqui ele é a te
 """
 
 import csv
+import re
 from pathlib import Path
 
 import pytest
@@ -54,6 +55,8 @@ def test_HP_mensagem_do_cliente_entra_na_fila_e_o_gabriel_responde(tmp_path, mon
     corpo = resposta.json()
     assert corpo["conversation_id"].startswith("WPP-")
     assert corpo["resposta"], "o Gabriel precisa responder o cliente"
+    # o cliente lê português, não o código do portal (ex.: "em_transferencia")
+    assert re.search(r"[a-z]+_[a-z]+", corpo["resposta"]) is None, corpo["resposta"]
     fila = [c["conversation_id"] for c in cliente.get("/api/fila").json()]
     assert corpo["conversation_id"] in fila
     caso = cliente.get(f"/api/conversas/{corpo['conversation_id']}").json()

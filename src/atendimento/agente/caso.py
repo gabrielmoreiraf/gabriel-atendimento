@@ -413,7 +413,8 @@ class Agente:
         previsao = _data_br(bruto.get("data_prometida") or ultimo.get("previsao_entrega"))
         if ultimo:
             situacao = (
-                f"Último status no portal da {transportadora}: {ultimo.get('status')}"
+                f"Último status no portal da {transportadora}: "
+                + str(ultimo.get("status") or "sem status").replace("_", " ")
                 + (f" ({ultimo['local']})" if ultimo.get("local") else "")
                 + f" em {_data_br(ultimo.get('data_hora_evento'))}."
             )

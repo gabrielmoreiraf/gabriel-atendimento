@@ -146,9 +146,11 @@ export function CasoPainel({ caso, carregando, erro, acoes = [], filaProcessada 
               </>
             ) : (
               <p className="muted">
-                {feitas.length > 0
-                  ? "Nada com valor em dinheiro para decidir: o Gabriel só consultou e respondeu."
-                  : "Ainda não processada. Clique em Processar fila."}
+                {feitas.some((a) => a.acao === "acionar_pessoa")
+                  ? "Chamar uma pessoa: o pedido não deu para o Gabriel resolver sozinho."
+                  : feitas.length > 0
+                    ? "Nada com valor em dinheiro para decidir: o Gabriel só consultou e respondeu."
+                    : "Ainda não processada. Clique em Processar fila."}
               </p>
             )}
           </div>
