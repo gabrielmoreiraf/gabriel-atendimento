@@ -343,3 +343,176 @@ def test_P5_api_sobe_e_desce_sem_slack_configurado(monkeypatch):
     agente, _ = _agente_com_aprovacao()
     with TestClient(criar_app(agente)) as cliente:
         assert cliente.get("/api/canal").status_code == 200
+
+
+# ---------- HG-10 (revisão): pedido de colaborador com dinheiro passa pela política ----------
+
+
+def _registros(agente):
+    return [r.acao for r in agente.base.registros]
+
+
+def test_HG_10_colaborador_pede_reembolso_de_300_abre_aprovacao_e_nao_reembolsa():
+    agente, _ = _agente_com_aprovacao()
+    cliente = ClienteFalso()
+    canal = _canal(agente, cliente)
+    resposta = canal.responder_mencao(
+        "<@U0FIO> reembolsa R$ 300,00 para o cliente do pedido GBH000002", "U0ATD"
+    )
+    assert "aprovação" in resposta
+    novas = [a for a in agente.aprovacoes.values() if a.acao.ferramenta == "reembolsar"]
+    assert len(novas) == 1 and novas[0].acao.valor_rs == 300.0
+    assert novas[0].estado == "pendente"
+    assert "reembolsar" not in _registros(agente)
+    assert "solicitar_aprovacao" in _registros(agente)
+    # a aprovação aparece no canal do time e vai para o Slack com botões
+    canal.sincronizar()
+    msg = next(p for p in cliente.postadas if novas[0].aprovacao_id in str(p["blocks"]))
+    assert any(b["type"] == "actions" for b in msg["blocks"])
+
+
+@pytest.mark.parametrize(
+    "texto",
+    [
+        "<@U0FIO> faz o reembolso de R$ 300 do pedido GBH000002",
+        "<@U0FIO> estorna R$ 300 no GBH000002",
+        "<@U0FIO> reembolsar 300 reais pedido GBH000002",
+    ],
+)
+def test_HG_10_variacoes_de_pedido_de_reembolso(texto):
+    agente, _ = _agente_com_aprovacao()
+    _canal(agente).responder_mencao(texto, "U0ATD")
+    assert any(a.acao.ferramenta == "reembolsar" for a in agente.aprovacoes.values())
+    assert "reembolsar" not in _registros(agente)
+
+
+def test_HG_10_dentro_da_alcada_tambem_nao_executa_e_escala():
+    agente, _ = _agente_com_aprovacao()
+    antes = len(agente.aprovacoes)
+    resposta = _canal(agente).responder_mencao(
+        "<@U0FIO> reembolsa R$ 50 no pedido GBH000002", "U0ATD"
+    )
+    assert "fluxo normal" in resposta
+    assert len(agente.aprovacoes) == antes
+    assert "reembolsar" not in _registros(agente)
+    assert agente.canal[-1]["tipo"] == "escalacao"
+
+
+def test_HG_10_pedido_sem_atendimento_aberto_escala_sem_abrir_aprovacao():
+    agente, _ = _agente_com_aprovacao()
+    antes = len(agente.aprovacoes)
+    resposta = _canal(agente).responder_mencao("<@U0FIO> reembolsa R$ 300 no GBH999999", "U0ATD")
+    assert len(agente.aprovacoes) == antes
+    assert "reembolsar" not in _registros(agente)
+    assert "GBH999999" in resposta
+
+
+def test_HG_03_supervisor_que_pediu_pelo_slack_nao_aprova_o_proprio_pedido():
+    agente, _ = _agente_com_aprovacao()
+    cliente = ClienteFalso()
+    canal = _canal(agente, cliente)
+    canal.responder_mencao("<@U0FIO> reembolsa R$ 300 no pedido GBH000002", "U0SUP1")
+    nova = next(a for a in agente.aprovacoes.values() if a.acao.ferramenta == "reembolsar")
+    canal.ao_clicar(_clique("fio_aprovar", nova.aprovacao_id, "U0SUP1"), cliente)
+    assert nova.estado == "pendente"
+    assert "própria" in cliente.efemeras[-1]["text"]
+
+
+def test_HG_10_resposta_ao_colaborador_fica_no_log():
+    agente, _ = _agente_com_aprovacao()
+    _canal(agente).responder_mencao("<@U0FIO> status do pedido GBH000002", "U0ATD")
+    assert "responder_colaborador" in _registros(agente)
+
+
+# ---------- erros de regra viram efêmera; Agente real ----------
+
+
+def test_HP_10_aprovacao_invalida_vira_efemera():
+    from atendimento.agente.aprovacoes import AprovacaoInvalida
+
+    class AgenteInvalido(AgenteSuspeita):
+        def aprovar(self, *a, **k):
+            raise AprovacaoInvalida("aprovação não cobre esta ação")
+
+    cliente = ClienteFalso()
+    _canal(AgenteInvalido(), cliente).ao_clicar(_clique("fio_aprovar", "APR-1"), cliente)
+    assert "não cobre" in cliente.efemeras[-1]["text"]
+
+
+def _agente_com_suspeita():
+    base = BaseFalsa()
+    base.conversa("AT1", ["O pote chegou amassado e vazou."], order_id="GBH3")
+    base.com_pedido(pedido("GBH3", valor=150.0))
+    base.com_anexo(anexo("AT1", "GBH3", "IMG1", hash_="hrep", captura=captura(31)))
+    base.com_anexo(anexo("AT9", "GBH999999", "IMG9", hash_="hrep", captura=captura(10)))
+    agente = Agente(base, FerramentasFalsas(base))
+    assert agente.processar("AT1").estado == "suspeita"
+    return agente, next(iter(agente.suspeitas))
+
+
+def test_HG_04_agente_real_quem_sinalizou_nao_decide_pelo_slack():
+    agente, suspeita_id = _agente_com_suspeita()
+    agente.suspeitas[suspeita_id].sinalizado_por = "supervisor_01"
+    cliente = ClienteFalso()
+    _canal(agente, cliente).ao_clicar(_clique("fio_procedente", suspeita_id), cliente)
+    assert agente.suspeitas[suspeita_id].estado == "pendente"
+    assert "HG-04" in cliente.efemeras[-1]["text"]
+
+
+def test_HG_04_agente_real_outro_supervisor_decide_pelo_slack():
+    agente, suspeita_id = _agente_com_suspeita()
+    cliente = ClienteFalso()
+    _canal(agente, cliente).ao_clicar(_clique("fio_improcedente", suspeita_id, "U0SUP2"), cliente)
+    assert agente.suspeitas[suspeita_id].estado == "improcedente"
+    assert not cliente.efemeras
+
+
+def test_HG_02_membro_mapeado_que_nao_e_supervisor_e_recusado():
+    agente, aprovacao_id = _agente_com_aprovacao()
+    config = config_do_ambiente({**TOKENS, "SLACK_SUPERVISORES": "U0ATD:atendente_01"})
+    cliente = ClienteFalso()
+    CanalSlack(agente, cliente, config).ao_clicar(
+        _clique("fio_aprovar", aprovacao_id, "U0ATD"), cliente
+    )
+    assert agente.aprovacoes[aprovacao_id].estado == "pendente"
+    assert "não é supervisor" in cliente.efemeras[-1]["text"]
+
+
+# ---------- subida sem rede e rate limit ----------
+
+
+def test_P5_app_bolt_nao_depende_da_rede_e_respeita_retry_after():
+    from slack_sdk.http_retry.builtin_handlers import RateLimitErrorRetryHandler
+
+    from atendimento.canal_slack.conexao import criar_app_bolt
+
+    app = criar_app_bolt(config_do_ambiente(TOKENS))  # sem rede: não chama auth.test
+    assert any(isinstance(h, RateLimitErrorRetryHandler) for h in app.client.retry_handlers)
+
+
+class ErroRateLimit(Exception):
+    def __init__(self):
+        super().__init__("ratelimited")
+        self.response = {"error": "ratelimited"}
+
+
+class ClienteLimitado(ClienteFalso):
+    def __init__(self, falhas_seguidas: int):
+        super().__init__()
+        self.restantes = falhas_seguidas
+
+    def chat_postMessage(self, **kw):
+        if self.restantes:
+            self.restantes -= 1
+            raise ErroRateLimit()
+        return super().chat_postMessage(**kw)
+
+
+def test_P5_rate_limit_nao_conta_como_tentativa_perdida():
+    agente, _ = _agente_com_aprovacao()
+    agente.canal[:] = agente.canal[:1]
+    cliente = ClienteLimitado(falhas_seguidas=5)
+    canal = _canal(agente, cliente)
+    for _ in range(6):
+        canal.sincronizar()
+    assert len(cliente.postadas) == 1
