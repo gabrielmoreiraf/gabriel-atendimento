@@ -17,3 +17,5 @@ var/
 ingestao/markdown/
 # base do desafio com dados pessoais (sintéticos): fica só na máquina do autor
 docs/
+.vercel
+.env*
