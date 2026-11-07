@@ -160,6 +160,11 @@ def criar_app(agente: Agente | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def ciclo(_app: FastAPI):
+        if os.environ.get("VERCEL"):
+            # no Vercel a subida fica leve: o agente nasce na primeira requisição (ag())
+            yield
+            desligando_app.set()
+            return
         ag().obter_analista()  # cria o único Analista do processo na subida
         # P5: espelho do canal do time no Slack; desligado sem ATENDIMENTO_SLACK=1 e tokens
         from atendimento.canal_slack import iniciar as iniciar_slack
