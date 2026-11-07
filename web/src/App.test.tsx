@@ -16,6 +16,37 @@ describe("App (com API mock)", () => {
     expect(within(screen.getByTestId("placar")).getByText("2")).toBeInTheDocument();
   });
 
+  it("test_HP_09_releitura_em_instancia_atrasada_nao_apaga_o_resultado", async () => {
+    // No Vercel a releitura pode cair numa instância que ainda não processou a fila
+    const api = criarApiMock();
+    const filaReal = api.fila.bind(api);
+    const processarReal = api.processarFila.bind(api);
+    const filaAntes = await filaReal();
+    let atrasadas = 0;
+    api.processarFila = async () => {
+      const placar = await processarReal();
+      atrasadas = 2; // as duas próximas leituras da fila vêm da instância atrasada
+      return placar;
+    };
+    api.fila = async () => {
+      if (atrasadas > 0) {
+        atrasadas -= 1;
+        return filaAntes;
+      }
+      return filaReal();
+    };
+    render(<App api={api} assinar={() => () => {}} />);
+    await waitFor(() => expect(screen.getAllByTestId("fila-item").length).toBeGreaterThan(0));
+    await userEvent.click(screen.getByTestId("btn-processar"));
+    await waitFor(
+      () =>
+        expect(
+          screen.getAllByTestId("fila-item").some((e) => !/Aberta/.test(e.textContent ?? "")),
+        ).toBe(true),
+      { timeout: 6000 },
+    );
+  }, 10000);
+
   it("test_EC_16_verificacao_de_evidencia_processa_caso_do_historico", async () => {
     render(<App api={criarApiMock()} assinar={() => () => {}} />);
     await userEvent.click(

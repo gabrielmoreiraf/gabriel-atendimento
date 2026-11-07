@@ -83,9 +83,11 @@ export default function App({ api, assinar, modo = "api" }: Props) {
     [api],
   );
 
-  const recarregar = useCallback(async () => {
+  const recarregar = useCallback(async (): Promise<ItemFila[] | null> => {
+    let lida: ItemFila[] | null = null;
     try {
       const [f, a, c, p] = await Promise.all([api.fila(), api.acoes(), api.canal(), api.placar()]);
+      lida = f;
       setFila(f);
       setAcoes(a);
       setCanal(c);
@@ -108,6 +110,7 @@ export default function App({ api, assinar, modo = "api" }: Props) {
       .then((r) => setAvisosVigia(alertasComoMensagens(r)))
       .catch(() => setAvisosVigia([]));
     if (selecionadoRef.current) await carregarCaso(selecionadoRef.current);
+    return lida;
   }, [api, carregarCaso]);
 
   // O canal diz de onde vem: espelhado no Slack quando o backend tem o Slack ligado.
@@ -172,8 +175,10 @@ export default function App({ api, assinar, modo = "api" }: Props) {
     setProcessando(true);
     setProgresso(null);
     setAvisoProcessar(null);
+    let processou = false;
     try {
       setPlacar(await api.processarFila());
+      processou = true;
     } catch (e) {
       // 409: já há uma rodada em andamento; a tela segue viva e mostra o motivo
       if (e instanceof ErroApi && e.status === 409) setAvisoProcessar(e.message);
@@ -183,7 +188,13 @@ export default function App({ api, assinar, modo = "api" }: Props) {
       setProcessando(false);
       setProgresso(null);
     }
-    await recarregar();
+    // No Vercel a releitura pode cair numa instância que ainda não processou (estado em memória
+    // por instância): se a fila voltar toda "aberta", lê de novo antes de desistir.
+    for (let tentativa = 0; tentativa < 6; tentativa++) {
+      const fila = await recarregar();
+      if (!processou || !fila?.length || fila.some((c) => c.estado !== "aberta")) break;
+      await new Promise((pronto) => setTimeout(pronto, 1000));
+    }
   }
 
   async function aprovar(id: string, supervisor: string, comentario?: string) {
