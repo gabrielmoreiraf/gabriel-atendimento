@@ -61,6 +61,7 @@ FERRAMENTAS_EXECUTAVEIS = (
     "rejeitar_acao",
     "sinalizar_suspeita",
     "acionar_pessoa",
+    "responder_colaborador",
     "registrar_cosmetovigilancia",
     "abrir_incidente",
     "notificar_clientes",
@@ -487,6 +488,12 @@ class Ferramentas:
             referencia = self._mensagem(acao, "cliente", texto)
             return self._registrar(
                 ferramenta, CENTRAL, acao=acao, referencia=referencia, acao_id=acao_id
+            )
+
+        if ferramenta == "responder_colaborador":  # HG-10: resposta a pedido no canal do time
+            referencia = self._mensagem(acao, "time", texto)
+            return self._registrar(
+                ferramenta, CANAL_DO_TIME, acao=acao, referencia=referencia, acao_id=acao_id
             )
 
         if ferramenta == "acionar_pessoa":
