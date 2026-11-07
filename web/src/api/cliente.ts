@@ -65,6 +65,7 @@ export interface Api {
   alertasVigia(agoraIso: string): Promise<RespostaVigia>;
   rodarVigia(agoraIso: string): Promise<unknown>;
   suspeitas(): Promise<SuspeitaPendente[]>;
+  reiniciarDemo(): Promise<unknown>;
   decidirSuspeita(
     suspeitaId: string,
     supervisorId: string,
@@ -91,6 +92,7 @@ export const apiHttp: Api = {
   tratarPadrao: (tipo) => post(`/analista/padroes/${encodeURIComponent(tipo)}/tratar`),
   alertasVigia: (agoraIso) => pedir(`/vigia/alertas?agora=${encodeURIComponent(agoraIso)}`),
   suspeitas: () => pedir("/suspeitas"),
+  reiniciarDemo: () => post("/demo/reiniciar"),
   decidirSuspeita: (id, supervisor_id, decisao, justificativa) =>
     post(`/suspeitas/${encodeURIComponent(id)}/decidir`, { supervisor_id, decisao, justificativa }),
   rodarVigia: (agoraIso) => post(`/vigia/rodar?agora=${encodeURIComponent(agoraIso)}`),
@@ -106,24 +108,84 @@ function lerEvento(dados: unknown): EventoApi | null {
   }
 }
 
+export interface OpcoesEventos {
+  /** Intervalo do polling de reserva enquanto o stream está fora (ms). */
+  pollingMs?: number;
+  /** Espera máxima entre tentativas de reconexão (ms). */
+  reconexaoMaxMs?: number;
+}
+
 /**
  * Assina o SSE `/api/eventos`. Eventos de `leitura` (progresso do leitor) chegam na hora,
  * com o próprio evento; os demais viram uma recarga agrupada, sem argumento.
- * Devolve a função que fecha a conexão.
+ *
+ * No Vercel a função do stream termina no tempo máximo: quando o stream cai, reconecta com
+ * `?desde=<último id>` (com espera crescente) e, enquanto estiver fora, recarrega por polling.
+ * Ids já vistos são descartados, então `desde` inclusivo ou exclusivo funciona igual.
+ * Devolve a função que fecha tudo.
  */
-export function assinarEventos(aoEvento: (evento?: EventoApi) => void): () => void {
+export function assinarEventos(
+  aoEvento: (evento?: EventoApi) => void,
+  { pollingMs = 5000, reconexaoMaxMs = 30_000 }: OpcoesEventos = {},
+): () => void {
   if (typeof EventSource === "undefined") return () => {};
-  // ao conectar, o backend reenvia o histórico: agrupa a rajada numa recarga só
+  // ao conectar, o backend pode reenviar o histórico: agrupa a rajada numa recarga só
   const recarregar = agrupar(() => aoEvento(), 250);
-  const fonte = new EventSource("/api/eventos");
-  fonte.onmessage = (msg: MessageEvent) => {
-    const ev = lerEvento(msg.data);
-    if (ev?.tipo === "leitura") aoEvento(ev);
-    else recarregar();
+  let fonte: EventSource | null = null;
+  let ultimoId: number | null = null;
+  let falhas = 0;
+  let encerrado = false;
+  let polling: ReturnType<typeof setInterval> | undefined;
+  let reconexao: ReturnType<typeof setTimeout> | undefined;
+
+  const pararPolling = () => {
+    clearInterval(polling);
+    polling = undefined;
   };
-  // eventos nomeados (event: acao / aprovacao / canal) também disparam recarga
-  for (const nome of ["acao", "aprovacao", "canal", "placar", "conversa", "incidente", "vigia"]) {
-    fonte.addEventListener(nome, () => recarregar());
+
+  function conectar() {
+    if (encerrado) return;
+    const url = ultimoId === null ? "/api/eventos" : `/api/eventos?desde=${ultimoId}`;
+    const atual = new EventSource(url);
+    fonte = atual;
+    atual.onopen = () => {
+      falhas = 0;
+      pararPolling();
+    };
+    atual.onmessage = (msg: MessageEvent) => {
+      const id = Number.parseInt(msg.lastEventId, 10);
+      if (Number.isFinite(id)) {
+        if (ultimoId !== null && id <= ultimoId) return; // já visto antes da reconexão
+        ultimoId = id;
+      }
+      const ev = lerEvento(msg.data);
+      if (ev?.tipo === "leitura") aoEvento(ev);
+      else recarregar();
+    };
+    // eventos nomeados (event: acao / aprovacao / canal) também disparam recarga
+    for (const nome of ["acao", "aprovacao", "canal", "placar", "conversa", "incidente", "vigia"]) {
+      atual.addEventListener(nome, () => recarregar());
+    }
+    atual.onerror = () => {
+      // controla a reconexão aqui (com `desde`), em vez da automática do navegador
+      atual.close();
+      if (encerrado) return;
+      if (polling === undefined) {
+        aoEvento();
+        polling = setInterval(() => aoEvento(), pollingMs);
+      }
+      const espera = Math.min(1000 * 2 ** falhas, reconexaoMaxMs);
+      falhas += 1;
+      clearTimeout(reconexao);
+      reconexao = setTimeout(conectar, espera);
+    };
   }
-  return () => fonte.close();
+
+  conectar();
+  return () => {
+    encerrado = true;
+    fonte?.close();
+    pararPolling();
+    clearTimeout(reconexao);
+  };
 }
