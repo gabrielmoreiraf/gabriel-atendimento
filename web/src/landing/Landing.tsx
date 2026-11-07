@@ -130,7 +130,7 @@ export function Landing() {
           collapse={barraAberta ? "never" : "always"}
         />
         <a className="pilula pilula--clara" href="/app" data-testid="lp-entrar-topo">
-          Abrir o Gabriel <Seta />
+          Chama o Gabriel <Seta />
         </a>
       </header>
 
@@ -149,7 +149,7 @@ export function Landing() {
           </p>
           <div className="lp-hero__acoes">
             <BotaoBrilho href="/app" testId="lp-entrar">
-              Abrir o Gabriel
+              Chama o Gabriel
             </BotaoBrilho>
             <a className="lp-link" href="#como">
               Ver como funciona
@@ -268,7 +268,7 @@ export function Landing() {
           <h2>Pronto para ver o Gabriel trabalhar?</h2>
           <p>Processe a fila das 8h, abra um caso suspeito e aprove pelo canal do time.</p>
           <BotaoBrilho href="/app" testId="lp-entrar-final">
-            Abrir o Gabriel
+            Chama o Gabriel
           </BotaoBrilho>
         </div>
         <Mascote tamanho={220} />

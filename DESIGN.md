@@ -32,5 +32,5 @@ Fonte única dos valores: `tokens.css` (raiz), importado por `web/src/index.css`
 - Dados pessoais chegam mascarados da API; a UI não desfaz máscara.
 - Movimento: um momento autoral por superfície (mascote flutuando e piscando na landing; realce de linha nova no console e no canal). Respeita `prefers-reduced-motion`.
 - Seleção de texto, cursor, barra de rolagem e anel de foco vêm da paleta. Alvos de clique ≥ 40px (44px no celular).
-- Microinterações do MicroKit UI (MIT) no botão "Abrir o Gabriel" e nos cartões dos cinco passos, com aviso de licença junto do código.
+- Microinterações do MicroKit UI (MIT) no botão "Chama o Gabriel" e nos cartões dos cinco passos, com aviso de licença junto do código.
 - `data-testid` estáveis para o E2E: `placar`, `btn-processar`, `fila-item`, `console-acao`, `canal-msg`, `btn-aprovar`, `btn-rejeitar`, `replay-item`, `btn-replay`, `sinal-evidencia`, `padrao-item`, `btn-tratar-padrao`, `resultado-padrao`, `btn-rodar-vigia`, `btn-vigia-0820`, `btn-reiniciar`, `lp-entrar`.
