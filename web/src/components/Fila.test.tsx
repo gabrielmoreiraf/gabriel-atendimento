@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type { ItemFila } from "../api/tipos";
@@ -35,6 +35,15 @@ describe("Fila", () => {
     expect(linhas[0]).toHaveTextContent("AT1");
     expect(linhas[0]).toHaveTextContent("Suspeita");
     expect(linhas[1]).toHaveTextContent("Aguardando aprovação");
+  });
+
+  it("test_HP_09_filtra_por_canal", async () => {
+    render(<Fila itens={itens} selecionado={null} onAbrir={vi.fn()} />);
+    const canais = screen.getByRole("group", { name: "Filtrar por canal" });
+    await userEvent.click(within(canais).getByRole("button", { name: /E-mail/ }));
+    const ids = screen.getAllByTestId("fila-item").map((b) => b.textContent);
+    expect(ids.some((t) => t?.includes("AT2"))).toBe(true);
+    expect(ids.some((t) => t?.includes("AT1"))).toBe(false);
   });
 
   it("test_HP_09_clicar_abre_o_caso", async () => {

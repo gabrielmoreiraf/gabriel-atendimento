@@ -26,9 +26,12 @@ const CANAL = {
 
 export function Fila({ itens, selecionado, onAbrir }: Props) {
   const [filtro, setFiltro] = useState<string>("todas");
-  const contagem = (estado: string) => itens.filter((c) => c.estado === estado).length;
+  const [canalFiltro, setCanalFiltro] = useState<string>("todos");
   const porCanal = (canal: string) => itens.filter((c) => c.canal === canal).length;
-  const visiveis = filtro === "todas" ? itens : itens.filter((c) => c.estado === filtro);
+  // o filtro de canal vem primeiro: as contagens por estado já respeitam o canal escolhido
+  const doCanal = canalFiltro === "todos" ? itens : itens.filter((c) => c.canal === canalFiltro);
+  const contagem = (estado: string) => doCanal.filter((c) => c.estado === estado).length;
+  const visiveis = filtro === "todas" ? doCanal : doCanal.filter((c) => c.estado === filtro);
   const estados = ORDEM_ESTADOS.filter((e) => e === "aberta" || contagem(e) > 0);
 
   return (
@@ -36,10 +39,27 @@ export function Fila({ itens, selecionado, onAbrir }: Props) {
       <header className="painel__cabeca fila__cabeca">
         <h2 id="fila-titulo">Fila</h2>
         <span className="painel__meta mono">{itens.length} conversas</span>
-        <p className="fila__canais">
-          WhatsApp {porCanal("whatsapp")} · E-mail {porCanal("email")} · Reclame Aqui{" "}
-          {porCanal("reclame_aqui")}
-        </p>
+        <fieldset className="canais" aria-label="Filtrar por canal">
+          <button
+            type="button"
+            className="canais__opcao"
+            aria-pressed={canalFiltro === "todos"}
+            onClick={() => setCanalFiltro("todos")}
+          >
+            Todos
+          </button>
+          {(Object.keys(CANAL) as (keyof typeof CANAL)[]).map((id) => (
+            <button
+              key={id}
+              type="button"
+              className="canais__opcao"
+              aria-pressed={canalFiltro === id}
+              onClick={() => setCanalFiltro(id)}
+            >
+              {CANAL[id].nome} <span className="mono">{porCanal(id)}</span>
+            </button>
+          ))}
+        </fieldset>
         <fieldset className="chips" aria-label="Filtrar por estado">
           <button
             type="button"
@@ -47,7 +67,7 @@ export function Fila({ itens, selecionado, onAbrir }: Props) {
             aria-pressed={filtro === "todas"}
             onClick={() => setFiltro("todas")}
           >
-            Todas <span className="mono">{itens.length}</span>
+            Todas <span className="mono">{doCanal.length}</span>
           </button>
           {estados.map((e) => (
             <button
