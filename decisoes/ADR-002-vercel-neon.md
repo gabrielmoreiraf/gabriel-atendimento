@@ -22,8 +22,8 @@ O modelo serverless do Vercel não guarda estado entre requisições (cada uma p
 | Eventos ao vivo | SSE do barramento em memória | SSE lendo a tabela de eventos (`?desde=`), com reconexão e fallback de polling |
 | Slack | Socket Mode (thread + WebSocket) | modo HTTP: `/api/slack/eventos` com verificação de assinatura (`SLACK_SIGNING_SECRET`); postagem feita na própria requisição que gera a mensagem |
 | Interface | Vite em `localhost:5173` | build estático no Vercel, mesma origem da API |
-| Acesso | local | **senha obrigatória** (Basic Auth por Routing Middleware) em tudo, exceto `/api/slack/eventos`, que é autenticado pela assinatura do Slack |
-| Reiniciar a demo | reiniciar o backend | `POST /api/demo/reiniciar` (protegido) limpa o estado do agente sem recarregar a base |
+| Acesso | local | **aberto, sem senha** (decisão do usuário); `/api/slack/eventos` autenticado pela assinatura do Slack |
+| Reiniciar a demo | reiniciar o backend | `POST /api/demo/reiniciar` limpa o estado do agente sem recarregar a base |
 
 SQLite continua sendo o banco dos testes unitários e do modo local: a camada de dados fala com os dois.
 
@@ -37,6 +37,6 @@ SQLite continua sendo o banco dos testes unitários e do modo local: a camada de
 
 - Refatoração do estado do agente para o banco; risco de regressão controlado pela suíte (552 testes) rodando em SQLite e uma bateria no Postgres.
 - A rodada da fila precisa caber no tempo máximo de função do plano Hobby; a leitura com Claude já é paralela.
-- Custo: com `ATENDIMENTO_LLM=1`, cada rodada consome a API da Anthropic; a senha da demo protege contra uso por terceiros.
+- Custo e exposição: sem senha (decisão do usuário), qualquer pessoa com a URL pode processar a fila (com `ATENDIMENTO_LLM=1`, isso consome a API da Anthropic), aprovar ações e ver os dados mascarados da base.
 - O Slack muda de configuração: Socket Mode desligado, Request URL apontando para o domínio do Vercel; o App-Level Token (`xapp`) deixa de ser necessário e entra o Signing Secret.
 - Dados pessoais passam a existir num serviço de terceiros (Neon); o acesso ao banco fica só nas variáveis de ambiente do Vercel e no `.env` local.
