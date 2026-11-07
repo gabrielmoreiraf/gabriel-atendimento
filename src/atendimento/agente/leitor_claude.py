@@ -191,10 +191,14 @@ class LeitorClaude:
             + self.tokens_saida * PRECO_SAIDA_POR_MTOK_USD
         ) / 1_000_000
 
-    def __call__(self, texto: str, *, cupons: Iterable[str] | None = None) -> Leitura:
+    aceita_nomes = True  # o agente passa o nome do cliente da conversa para mascarar
+
+    def __call__(
+        self, texto: str, *, cupons: Iterable[str] | None = None, nomes: Iterable[str] = ()
+    ) -> Leitura:
         cupons = list(cupons) if cupons is not None else None
         regras = ler(texto, cupons=cupons)
-        mascarado = mascarar(texto)
+        mascarado = mascarar(texto, nomes=tuple(nomes))  # nada pessoal chega à API
         try:
             dados = self._ler_do_cache(mascarado)
             if dados is None:

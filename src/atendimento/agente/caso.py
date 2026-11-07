@@ -261,11 +261,25 @@ class Agente:
 
     # ---------- leitura fora da trava ----------
     def _ler_conversa(self, cid: str, cupons: list[str]):
+        leitor = self.leitor or ler
         with self._trava:  # leitura rápida do SQLite; solta antes de chamar o leitor
             textos = [m["texto"] for m in self.base.mensagens(cid) if m.get("autor") == "cliente"]
+            nomes = self._nomes_do_cliente(cid) if getattr(leitor, "aceita_nomes", False) else ()
         if not any(t and t.strip() for t in textos):
             return None  # só o bot falou
-        return (self.leitor or ler)("\n".join(textos), cupons=cupons)
+        if nomes:
+            return leitor("\n".join(textos), cupons=cupons, nomes=nomes)
+        return leitor("\n".join(textos), cupons=cupons)
+
+    def _nomes_do_cliente(self, cid: str) -> tuple[str, ...]:
+        """Nome do cliente da conversa, para o leitor com Claude mascarar antes da API."""
+        try:
+            customer_id = self._conversa(cid).get("customer_id")
+        except KeyError:
+            return ()
+        cliente = self.base.cliente(customer_id) if customer_id else None
+        nome = (cliente or {}).get("nome")
+        return (nome,) if nome else ()
 
     def _pre_ler(self, cids: list[str]) -> dict:
         """Lê as conversas SEM segurar a trava (nunca chame com a trava segura) e emite o
