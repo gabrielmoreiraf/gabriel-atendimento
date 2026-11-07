@@ -138,8 +138,14 @@ def criar_app(agente: Agente | None = None) -> FastAPI:
         if "agente" not in estado:
             estado["agente"] = agente_real()
         estado["agente"].obter_analista()  # cria o único Analista do processo na subida
+        # P5: espelho do canal do time no Slack; desligado sem ATENDIMENTO_SLACK=1 e tokens
+        from atendimento.canal_slack import iniciar as iniciar_slack
+
+        slack = iniciar_slack(estado["agente"])
         yield
         desligando_app.set()
+        if slack is not None:
+            slack.parar()
 
     app = FastAPI(title="Atendimento ao Cliente: agente", lifespan=ciclo)
     app.add_middleware(
