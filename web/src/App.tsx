@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Api } from "./api/cliente";
+import { type Api, ErroApi } from "./api/cliente";
 import type {
   Caso,
+  EventoApi,
   ItemFila,
   ItemReplay,
   MensagemCanal,
   PadraoAnalista,
+  ProgressoLeitura,
   RegistroAcao,
   SuspeitaPendente,
   Placar as TPlacar,
@@ -23,7 +25,7 @@ import { alertasComoMensagens, juntarCanal } from "./vigia";
 interface Props {
   api: Api;
   /** Assina eventos ao vivo (SSE). Devolve a função que cancela. */
-  assinar: (aoEvento: () => void) => () => void;
+  assinar: (aoEvento: (evento?: EventoApi) => void) => () => void;
   modo?: "api" | "mock";
 }
 
@@ -39,6 +41,9 @@ export default function App({ api, assinar, modo = "api" }: Props) {
   const [carregandoCaso, setCarregandoCaso] = useState(false);
   const [erroCaso, setErroCaso] = useState<string | null>(null);
   const [processando, setProcessando] = useState(false);
+  const processandoRef = useRef(false);
+  const [progresso, setProgresso] = useState<ProgressoLeitura | null>(null);
+  const [avisoProcessar, setAvisoProcessar] = useState<string | null>(null);
   const [erroGeral, setErroGeral] = useState<string | null>(null);
   const [replay, setReplay] = useState<ItemReplay[]>([]);
   const [padroes, setPadroes] = useState<PadraoAnalista[]>([]);
@@ -100,7 +105,12 @@ export default function App({ api, assinar, modo = "api" }: Props) {
 
   useEffect(() => {
     recarregar();
-    return assinar(() => {
+    return assinar((evento) => {
+      // progresso do leitor: só interessa durante a rodada disparada nesta tela
+      if (evento?.tipo === "leitura") {
+        if (processandoRef.current) setProgresso(evento.payload as ProgressoLeitura);
+        return;
+      }
       recarregar();
     });
   }, [recarregar, assinar]);
@@ -113,13 +123,20 @@ export default function App({ api, assinar, modo = "api" }: Props) {
   }
 
   async function processar() {
+    processandoRef.current = true;
     setProcessando(true);
+    setProgresso(null);
+    setAvisoProcessar(null);
     try {
       setPlacar(await api.processarFila());
     } catch (e) {
-      setErroGeral(mensagemDe(e));
+      // 409: já há uma rodada em andamento; a tela segue viva e mostra o motivo
+      if (e instanceof ErroApi && e.status === 409) setAvisoProcessar(e.message);
+      else setErroGeral(mensagemDe(e));
     } finally {
+      processandoRef.current = false;
       setProcessando(false);
+      setProgresso(null);
     }
     await recarregar();
   }
@@ -181,7 +198,13 @@ export default function App({ api, assinar, modo = "api" }: Props) {
           <a className="topo__link" href="#verificacao">
             Verificação de evidência
           </a>
-          <Placar placar={placar} processando={processando} onProcessar={processar} />
+          <Placar
+            placar={placar}
+            processando={processando}
+            progresso={progresso}
+            aviso={avisoProcessar}
+            onProcessar={processar}
+          />
         </header>
         {erroGeral ? (
           <output className="erro erro--faixa">Falha ao falar com a API: {erroGeral}</output>

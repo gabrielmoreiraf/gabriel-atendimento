@@ -1,7 +1,9 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import App from "./App";
+import { ErroApi } from "./api/cliente";
+import type { EventoApi } from "./api/tipos";
 import { criarApiMock } from "./mocks/apiMock";
 
 describe("App (com API mock)", () => {
@@ -57,5 +59,51 @@ describe("App (com API mock)", () => {
     await userEvent.type(campo, "Hash repetido confirmado");
     await userEvent.click(screen.getAllByTestId("btn-suspeita-procedente")[0]);
     await waitFor(() => expect(screen.queryAllByTestId("btn-suspeita-procedente")).toHaveLength(0));
+  });
+
+  it("test_HP_09_botao_acompanha_leitura_e_decisao_pelo_sse", async () => {
+    const api = criarApiMock();
+    let terminar: (v: Awaited<ReturnType<typeof api.processarFila>>) => void = () => {};
+    api.processarFila = () =>
+      new Promise((r) => {
+        terminar = r;
+      });
+    let emitir: (e?: EventoApi) => void = () => {};
+    render(
+      <App
+        api={api}
+        assinar={(cb) => {
+          emitir = cb;
+          return () => {};
+        }}
+      />,
+    );
+    await waitFor(() => expect(screen.getAllByTestId("fila-item").length).toBeGreaterThan(0));
+    await userEvent.click(screen.getByTestId("btn-processar"));
+    act(() => emitir({ tipo: "leitura", payload: { lidas: 23, total: 65 } }));
+    expect(screen.getByTestId("btn-processar")).toHaveTextContent("Lendo 23/65…");
+    act(() => emitir({ tipo: "leitura", payload: { lidas: 65, total: 65 } }));
+    expect(screen.getByTestId("btn-processar")).toHaveTextContent("Decidindo…");
+    await act(async () => terminar({ ...(await api.placar()) }));
+    await waitFor(() =>
+      expect(screen.getByTestId("btn-processar")).toHaveTextContent("Processar fila"),
+    );
+  });
+
+  it("test_HG_12_rodada_em_andamento_409_mostra_aviso_sem_quebrar", async () => {
+    const api = criarApiMock();
+    api.processarFila = vi
+      .fn()
+      .mockRejectedValue(new ErroApi(409, "já há uma rodada da fila em andamento"));
+    render(<App api={api} assinar={() => () => {}} />);
+    await waitFor(() => expect(screen.getAllByTestId("fila-item").length).toBeGreaterThan(0));
+    await userEvent.click(screen.getByTestId("btn-processar"));
+    await waitFor(() =>
+      expect(screen.getByTestId("aviso-processar")).toHaveTextContent(
+        "já há uma rodada da fila em andamento",
+      ),
+    );
+    expect(screen.getAllByTestId("fila-item").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("btn-processar")).toBeEnabled();
   });
 });
