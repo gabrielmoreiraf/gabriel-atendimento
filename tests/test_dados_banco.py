@@ -156,3 +156,24 @@ def test_repr_nao_mostra_a_url(monkeypatch):
         assert "memory" not in repr(banco) or "sqlite" in repr(banco)
     finally:
         banco.fechar()
+
+
+def test_conexao_compativel_com_sqlite3(banco):
+    """`Base.conexao` antigo: execute com ?, fetchone/fetchall, linha por chave e posição."""
+    _tabela(banco)
+    conexao = banco.conexao_compativel
+    with conexao:
+        conexao.execute("INSERT INTO coisas (nome) VALUES (?)", ("a",))
+    linha = conexao.execute("SELECT COUNT(*) AS n, MAX(nome) AS m FROM coisas").fetchone()
+    assert linha[0] == 1 and linha["m"] == "a"
+    assert dict(linha) == {"n": 1, "m": "a"}
+    assert [dict(r) for r in conexao.execute("SELECT nome FROM coisas").fetchall()] == [
+        {"nome": "a"}
+    ]
+    assert [tuple(r) for r in conexao.execute("SELECT nome FROM coisas")] == [("a",)]
+
+
+def test_copiar_em_lote(banco):
+    _tabela(banco)
+    assert banco.copiar("coisas", ["nome"], [("x",), ("y",)]) == 2
+    assert banco.executar_um("SELECT COUNT(*) AS n FROM coisas")["n"] == 2

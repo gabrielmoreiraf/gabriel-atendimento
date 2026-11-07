@@ -10,6 +10,7 @@ Contrato 1 de `tasks/vercel/plan.md` (ADR-002):
   `datetime` com fuso; `JSON` → `dict`/`list` (parâmetro `dict`/`list` vira JSON).
 - `transacao()` aninhável; `trava(nome)`: `pg_advisory_lock` no Postgres, `threading.RLock`
   por nome no SQLite.
+- `copiar(tabela, colunas, linhas)`: carga em lote (COPY no Postgres).
 - `tipo_id_auto`: trecho de DDL para id autoincremental (`INTEGER PRIMARY KEY AUTOINCREMENT`
   / `BIGSERIAL PRIMARY KEY`). `tabelas()`: nomes das tabelas existentes.
 
@@ -23,14 +24,14 @@ import os
 import sqlite3
 import threading
 import zlib
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from datetime import date, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-__all__ = ["Banco", "conectar", "e_postgres"]
+__all__ = ["Banco", "ConexaoCompativel", "Linha", "conectar", "e_postgres"]
 
 CAMINHO_PADRAO = Path("var") / "atendimento.db"
 
@@ -46,6 +47,11 @@ def conectar(url: str | os.PathLike | None = None, *, esquema: str | None = None
     if e_postgres(url):
         return _BancoPostgres(str(url), esquema=esquema)
     return _BancoSqlite(Path(url))
+
+
+def _ident(nome: str) -> str:
+    """Identificador entre aspas duplas (nomes de tabela e coluna vindos dos CSV)."""
+    return '"' + nome.replace('"', '""') + '"'
 
 
 def _para_python(valor: Any) -> Any:
@@ -98,6 +104,21 @@ class Banco:
             if self._profundidade == 0:
                 self._confirmar()
 
+    def copiar(self, tabela: str, colunas: Sequence[str], linhas: Iterable[Sequence[Any]]) -> int:
+        """Insere em lote (COPY no Postgres, executemany no SQLite). Devolve quantas linhas."""
+        lote = [tuple(linha) for linha in linhas]
+        with self.trava_conexao:
+            self._copiar(tabela, list(colunas), lote)
+            if self._profundidade == 0:
+                self._confirmar()
+        return len(lote)
+
+    @property
+    def conexao_compativel(self) -> ConexaoCompativel:
+        """Imita `sqlite3.Connection` (execute com ?, fetchone/fetchall, `with` = transação)
+        sobre este Banco, nos dois dialetos. Só para código antigo; código novo usa `executar`."""
+        return ConexaoCompativel(self)
+
     def trava(self, nome: str):
         raise NotImplementedError
 
@@ -120,11 +141,89 @@ class Banco:
     def _executar_muitos(self, sql: str, lote: list[tuple]) -> None:
         raise NotImplementedError
 
+    def _copiar(self, tabela: str, colunas: list[str], lote: list[tuple]) -> None:
+        marcadores = ", ".join("?" for _ in colunas)
+        nomes = ", ".join(_ident(c) for c in colunas)
+        self._executar_muitos(f"INSERT INTO {_ident(tabela)} ({nomes}) VALUES ({marcadores})", lote)
+
     def _confirmar(self) -> None:
         self.conexao.commit()
 
     def _desfazer(self) -> None:
         self.conexao.rollback()
+
+
+# ---------- compatibilidade com sqlite3 ----------
+
+
+class Linha(Mapping):
+    """Linha como `sqlite3.Row`: por nome (`linha["x"]`) ou posição (`linha[0]`); iterar dá os
+    valores; `dict(linha)` e `linha.keys()` funcionam."""
+
+    __slots__ = ("_dados",)
+
+    def __init__(self, dados: dict):
+        self._dados = dados
+
+    def __getitem__(self, chave):
+        if isinstance(chave, int | slice):
+            return list(self._dados.values())[chave]
+        return self._dados[chave]
+
+    def __iter__(self):
+        return iter(self._dados.values())
+
+    def __len__(self) -> int:
+        return len(self._dados)
+
+    def keys(self):
+        return self._dados.keys()
+
+    def items(self):
+        return self._dados.items()
+
+    def values(self):
+        return self._dados.values()
+
+    def __eq__(self, outro) -> bool:
+        if isinstance(outro, Linha):
+            return self._dados == outro._dados
+        return NotImplemented
+
+    def __repr__(self) -> str:
+        return f"Linha({self._dados!r})"
+
+
+class _Resultado:
+    def __init__(self, linhas: list[dict]):
+        self._linhas = [Linha(linha) for linha in linhas]
+
+    def fetchone(self) -> Linha | None:
+        return self._linhas[0] if self._linhas else None
+
+    def fetchall(self) -> list[Linha]:
+        return list(self._linhas)
+
+    def __iter__(self):
+        return iter(self._linhas)
+
+
+class ConexaoCompativel:
+    def __init__(self, banco: Banco):
+        self.banco = banco
+        self._transacoes: list = []
+
+    def execute(self, sql: str, params: Sequence[Any] = ()) -> _Resultado:
+        return _Resultado(self.banco.executar(sql, params))
+
+    def __enter__(self) -> ConexaoCompativel:
+        contexto = self.banco.transacao()
+        contexto.__enter__()
+        self._transacoes.append(contexto)
+        return self
+
+    def __exit__(self, *excecao) -> bool:
+        return bool(self._transacoes.pop().__exit__(*excecao))
 
 
 # ---------- SQLite ----------
@@ -243,6 +342,13 @@ class _BancoPostgres(Banco):
     def _executar_muitos(self, sql: str, lote: list[tuple]) -> None:
         with self.conexao.cursor() as cursor:
             cursor.executemany(_traduzir(sql), [self._parametros(p) for p in lote])
+
+    def _copiar(self, tabela: str, colunas: list[str], lote: list[tuple]) -> None:
+        nomes = ", ".join(_ident(c) for c in colunas)
+        with self.conexao.cursor() as cursor:
+            with cursor.copy(f"COPY {_ident(tabela)} ({nomes}) FROM STDIN") as copia:
+                for linha in lote:
+                    copia.write_row(linha)
 
     @contextmanager
     def transacao(self) -> Iterator[Banco]:
