@@ -1053,3 +1053,10 @@ code {
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
 }
+
+.topo__acoes {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}

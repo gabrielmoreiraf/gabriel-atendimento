@@ -106,4 +106,24 @@ describe("App (com API mock)", () => {
     expect(screen.getAllByTestId("fila-item").length).toBeGreaterThan(0);
     expect(screen.getByTestId("btn-processar")).toBeEnabled();
   });
+
+  it("test_HG_13_reiniciar_demo_limpa_o_estado_e_recarrega", async () => {
+    render(<App api={criarApiMock()} assinar={() => () => {}} />);
+    await waitFor(() => expect(screen.getAllByTestId("fila-item").length).toBeGreaterThan(0));
+    await userEvent.click(screen.getByTestId("btn-processar"));
+    await waitFor(() => expect(screen.getAllByTestId("console-acao").length).toBeGreaterThan(0));
+    await userEvent.click(screen.getByTestId("btn-reiniciar"));
+    await waitFor(() => expect(screen.queryAllByTestId("console-acao")).toHaveLength(0));
+    expect(screen.getAllByTestId("fila-item")[0]).toHaveTextContent("Aberta");
+  });
+
+  it("test_HG_13_falha_ao_reiniciar_aparece_sem_quebrar", async () => {
+    const api = criarApiMock();
+    api.reiniciarDemo = vi.fn().mockRejectedValue(new ErroApi(500, "banco fora do ar"));
+    render(<App api={api} assinar={() => () => {}} />);
+    await waitFor(() => expect(screen.getAllByTestId("fila-item").length).toBeGreaterThan(0));
+    await userEvent.click(screen.getByTestId("btn-reiniciar"));
+    await waitFor(() => expect(screen.getByText(/banco fora do ar/)).toBeInTheDocument());
+    expect(screen.getByTestId("btn-reiniciar")).toBeEnabled();
+  });
 });

@@ -1,4 +1,4 @@
-// Rotas que outros workers ainda estão plugando (replay, analista, vigia): enquanto a API
+// Rotas que outros workers ainda estão plugando (replay, analista, vigia, reiniciar): enquanto a API
 // devolver 404, a tela usa o mock. Qualquer outro erro da API aparece na tela.
 import { type Api, ErroApi } from "../api/cliente";
 
@@ -13,6 +13,7 @@ const ROTAS_NOVAS = [
   "rodarVigia",
   "suspeitas",
   "decidirSuspeita",
+  "reiniciarDemo",
 ] as const;
 
 export function comRotasDeReserva(real: Api, reserva: Api): Api {

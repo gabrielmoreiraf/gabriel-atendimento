@@ -22,6 +22,13 @@ export function criarApiMock(): Api {
   let placar: Placar = { ...placarZeroMock };
   let suspeitas: SuspeitaPendente[] = [];
   const copia = <T>(v: T): T => structuredClone(v);
+  const zerar = () => {
+    fila = filaMock.map((c) => ({ ...c }));
+    acoes = [];
+    canal = [];
+    placar = { ...placarZeroMock };
+    suspeitas = [];
+  };
 
   return {
     fila: async () => copia(fila),
@@ -108,6 +115,10 @@ export function criarApiMock(): Api {
       const item = replayMock.find((c) => c.conversation_id === suspeita.conversation_id);
       if (!item) throw new ErroApi(404, "conversa da suspeita não encontrada");
       return resultadoReplayMock(item);
+    },
+    reiniciarDemo: async () => {
+      zerar();
+      return { ok: true };
     },
     casosReplay: async () => copia(replayMock),
     processarReplay: async (id) => {

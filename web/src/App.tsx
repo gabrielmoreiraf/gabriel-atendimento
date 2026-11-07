@@ -44,6 +44,9 @@ export default function App({ api, assinar, modo = "api" }: Props) {
   const processandoRef = useRef(false);
   const [progresso, setProgresso] = useState<ProgressoLeitura | null>(null);
   const [avisoProcessar, setAvisoProcessar] = useState<string | null>(null);
+  const [reiniciando, setReiniciando] = useState(false);
+  // muda a cada reinício: remonta os painéis que guardam resultado local (replay, analista)
+  const [rodadaDemo, setRodadaDemo] = useState(0);
   const [erroGeral, setErroGeral] = useState<string | null>(null);
   const [replay, setReplay] = useState<ItemReplay[]>([]);
   const [padroes, setPadroes] = useState<PadraoAnalista[]>([]);
@@ -122,6 +125,28 @@ export default function App({ api, assinar, modo = "api" }: Props) {
     carregarCaso(id);
   }
 
+  async function reiniciarDemo() {
+    setReiniciando(true);
+    setAvisoProcessar(null);
+    try {
+      await api.reiniciarDemo();
+      selecionadoRef.current = null;
+      setSelecionado(null);
+      setCaso(null);
+      setErroCaso(null);
+      setProgresso(null);
+      relogioRef.current = AGORA_ISO;
+      setRelogio(AGORA_ISO);
+      setRodadaDemo((n) => n + 1);
+      setErroGeral(null);
+    } catch (e) {
+      setAvisoProcessar(`Não consegui reiniciar a demo: ${mensagemDe(e)}`);
+    } finally {
+      setReiniciando(false);
+    }
+    await recarregar();
+  }
+
   async function processar() {
     processandoRef.current = true;
     setProcessando(true);
@@ -195,9 +220,20 @@ export default function App({ api, assinar, modo = "api" }: Props) {
               ) : null}
             </p>
           </div>
-          <a className="topo__link" href="#verificacao">
-            Verificação de evidência
-          </a>
+          <div className="topo__acoes">
+            <a className="topo__link" href="#verificacao">
+              Verificação de evidência
+            </a>
+            <button
+              type="button"
+              className="botao"
+              data-testid="btn-reiniciar"
+              disabled={reiniciando || processando}
+              onClick={reiniciarDemo}
+            >
+              {reiniciando ? "Reiniciando…" : "Reiniciar demo"}
+            </button>
+          </div>
           <Placar
             placar={placar}
             processando={processando}
@@ -226,12 +262,13 @@ export default function App({ api, assinar, modo = "api" }: Props) {
         </main>
       </div>
       <VerificacaoEvidencia
+        key={`verificacao-${rodadaDemo}`}
         casos={replay}
         onProcessar={processarReplay}
         suspeitas={suspeitas}
         onDecidirSuspeita={decidirSuspeita}
       />
-      <AgenteAnalista padroes={padroes} onTratar={tratarPadrao} />
+      <AgenteAnalista key={`analista-${rodadaDemo}`} padroes={padroes} onTratar={tratarPadrao} />
     </div>
   );
 }
