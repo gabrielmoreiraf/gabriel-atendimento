@@ -15,3 +15,5 @@ var/
 *.pem
 # saída gerada pelo markitdown (python3 -I ingestao/... recria)
 ingestao/markdown/
+# base do desafio com dados pessoais (sintéticos): fica só na máquina do autor
+docs/

@@ -16,6 +16,12 @@ O plano cobre cinco frentes da área (visão 360°). A prova de conceito demonst
 
 Na PoC, a F2 executa a ação no fim de cada caso. Detalhes em [`REQUISITOS.md`](REQUISITOS.md) §1.2 e [`SPEC.md`](SPEC.md).
 
+## Dados
+
+A base do desafio (24 CSVs em `docs/`, com `dicionario_de_dados.md` e `parametros.md`) **não está neste repositório**. Os dados são sintéticos, mas têm nome, CPF, e-mail e telefone de clientes, então ficam só na máquina do autor. Para rodar o app ou os testes de integração, peça a base ao autor e coloque os arquivos em `docs/` na raiz do projeto. A pasta está no `.gitignore` e nunca deve entrar em commit.
+
+Sem `docs/`, rode `uv run pytest -m "not integracao"`: os 428 testes unitários usam recortes mínimos e sem dado pessoal em `tests/fixtures/`. Os 9 testes de integração (`-m integracao`) leem a base e só passam com ela.
+
 ## Como rodar
 
 Pré-requisitos: [`uv`](https://docs.astral.sh/uv/), Node 22 e `pnpm`.
@@ -108,7 +114,7 @@ tests/            pytest, com fixtures mínimas em tests/fixtures/
 e2e/              jornada Playwright
 ingestao/         enunciado, análise de requisitos, linha de base e avaliação offline
 decisoes/         ADRs
-docs/             bases de dados originais (somente leitura)
+docs/             bases de dados originais (fora do repositório; somente leitura)
 var/              banco SQLite gerado (ignorado)
 ```
 
