@@ -1,4 +1,5 @@
-"""Leitura da base SQLite por ID, devolvendo os contratos de `contratos.py`.
+"""Leitura da base (SQLite ou Postgres, via `atendimento.dados.banco`) por ID, devolvendo
+os contratos de `contratos.py`.
 
 Joins sempre pelos IDs do dicionário de dados. Datas com fuso `contratos.FUSO`.
 Dados pessoais do cliente (CPF, e-mail, telefone) saem mascarados.
@@ -6,12 +7,11 @@ Dados pessoais do cliente (CPF, e-mail, telefone) saem mascarados.
 
 from __future__ import annotations
 
-import sqlite3
-import threading
 from datetime import date, datetime
 from pathlib import Path
 
 from atendimento.contratos import FUSO, AcaoAnterior, Anexo, Item, Pedido
+from atendimento.dados.banco import Banco, conectar
 from atendimento.privacidade import mascarar, mascarar_cpf, mascarar_email, mascarar_telefone
 
 # Ações que movimentam dinheiro (custo para a empresa ou estorno ao cliente).
@@ -45,16 +45,17 @@ def _float(valor: str | None) -> float:
 class Base:
     """Acesso de leitura à base gerada por `atendimento.dados.carga`."""
 
-    def __init__(self, caminho_db: str | Path):
-        self.caminho_db = Path(caminho_db)
-        self.conexao = sqlite3.connect(self.caminho_db, check_same_thread=False)
-        self.conexao.row_factory = sqlite3.Row
-        # A API usa a mesma conexão em mais de uma thread: serializa o acesso (E2E: IndexError).
-        self.trava = threading.RLock()
+    def __init__(self, caminho_db: str | Path | Banco):
+        """`caminho_db`: arquivo SQLite, URL `postgres://` ou um `Banco` já aberto."""
+        self.banco = caminho_db if isinstance(caminho_db, Banco) else conectar(caminho_db)
+        self.caminho_db = getattr(self.banco, "caminho", None)
+        # Compatibilidade: código que ainda usa a conexão crua e a trava da conexão
+        # (vigia, analista, caso). Novo código: use `self.banco`.
+        self.conexao = self.banco.conexao
+        self.trava = self.banco.trava_conexao
 
-    def _linhas(self, sql: str, *parametros) -> list[sqlite3.Row]:
-        with self.trava:
-            return self.conexao.execute(sql, parametros).fetchall()
+    def _linhas(self, sql: str, *parametros) -> list[dict]:
+        return self.banco.executar(sql, parametros)
 
     # ---------- pedidos ----------
 
@@ -97,7 +98,7 @@ class Base:
     # ---------- anexos ----------
 
     @staticmethod
-    def _anexo(linha: sqlite3.Row) -> Anexo:
+    def _anexo(linha: dict) -> Anexo:
         return Anexo(
             anexo_id=linha["anexo_id"],
             conversation_id=linha["conversation_id"],
@@ -156,10 +157,10 @@ class Base:
         em `acoes_agente`) ficam de fora.
         """
         return self._linhas(
-            "SELECT COUNT(*) FROM trocas_reenvios WHERE customer_id = ? AND tipo = 'reenvio' "
+            "SELECT COUNT(*) AS n FROM trocas_reenvios WHERE customer_id = ? AND tipo = 'reenvio' "
             "AND acao_id NOT IN (SELECT acao_id FROM acoes_agente WHERE acao_id IS NOT NULL)",
             customer_id,
-        )[0][0]
+        )[0]["n"]
 
     # ---------- conversas ----------
 
@@ -186,10 +187,7 @@ class Base:
 
     def _nome_do_cliente(self, conversation_id: str) -> str | None:
         """Nome do cadastro do cliente dono da conversa (fila aberta ou histórico)."""
-        existentes = {
-            linha[0]
-            for linha in self._linhas("SELECT name FROM sqlite_master WHERE type = 'table'")
-        }
+        existentes = self.banco.tabelas()
         for tabela in ("fila_aberta", "historico_conversas"):
             if tabela not in existentes or "clientes" not in existentes:
                 continue
@@ -198,8 +196,8 @@ class Base:
                 "WHERE t.conversation_id = ? LIMIT 1",
                 conversation_id,
             )
-            if linhas and linhas[0][0]:
-                return linhas[0][0]
+            if linhas and linhas[0]["nome"]:
+                return linhas[0]["nome"]
         return None
 
     # ---------- cadastros ----------

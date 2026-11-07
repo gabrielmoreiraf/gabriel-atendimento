@@ -119,7 +119,8 @@ class Ferramentas:
     def __init__(self, base: Base, agora: datetime = AGORA):
         self.base = base
         self.agora = agora
-        self._con = base.conexao
+        self._banco = base.banco
+        self._con = base.conexao  # compatibilidade: código antigo que lê a conexão crua
         self._catalogo = base.ferramentas()
 
     # ---------- API pública ----------
@@ -159,7 +160,7 @@ class Ferramentas:
             suspeita_id = self._suspeita_decidivel(acao, decisao)
         if acao.ferramenta in ("cancelar_pedido", "alterar_endereco"):
             self._antes_da_separacao(acao)
-        with self._con:
+        with self._banco.transacao():
             if suspeita_id:
                 return self._decidir_suspeita(acao, suspeita_id, decisao)
             return self._executar(acao, acao_pendente, area)
@@ -175,7 +176,7 @@ class Ferramentas:
         """Eventos do portal da transportadora para o pedido, do mais antigo ao mais recente."""
         eventos = [
             dict(linha)
-            for linha in self._con.execute(
+            for linha in self._banco.executar(
                 "SELECT * FROM rastreio_portais_transportadoras WHERE pedido_ref = ? "
                 "ORDER BY data_hora_evento",
                 (order_id,),
@@ -183,7 +184,7 @@ class Ferramentas:
         ]
         pedido = self.base.pedido_bruto(order_id)
         portal = eventos[-1]["portal"] if eventos else (pedido or {}).get("transportadora", "")
-        with self._con:
+        with self._banco.transacao():
             self._registrar(
                 "consultar_rastreio",
                 f"Portal {portal}".strip(),
@@ -214,7 +215,7 @@ class Ferramentas:
             )
         )
         transacoes = []
-        for linha in self._con.execute(
+        for linha in self._banco.executar(
             "SELECT * FROM pagamentos_gateway WHERE order_id = ? ORDER BY data_hora_criacao",
             (order_id,),
         ):
@@ -223,7 +224,7 @@ class Ferramentas:
                 transacao["cartao_final"] = "****"
             transacoes.append(transacao)
         referencia = transacoes[-1]["transacao_id"] if transacoes else ""
-        with self._con:
+        with self._banco.transacao():
             self._registrar(
                 "verificar_pagamento",
                 GATEWAY,
@@ -260,7 +261,7 @@ class Ferramentas:
         sem_resposta = {"sku": sku or None, "resposta": None, "precisa_pessoa": True}
         if not sku:
             return {**sem_resposta, "motivo": "sem SKU identificado na conversa"}
-        ficha = self._con.execute("SELECT * FROM produtos WHERE sku = ?", (sku,)).fetchone()
+        ficha = self._banco.executar_um("SELECT * FROM produtos WHERE sku = ?", (sku,))
         if ficha is None:
             return {**sem_resposta, "motivo": f"SKU {sku} sem ficha no catálogo"}
         partes = [
@@ -282,7 +283,7 @@ class Ferramentas:
             conversation_id=conversation_id,
             motivo=texto,
         )
-        with self._con:
+        with self._banco.transacao():
             referencia = self._mensagem(acao, "cliente", texto)
             self._registrar("responder_duvida", CATALOGO, acao=acao, referencia=referencia)
         return {"sku": sku, "resposta": texto, "precisa_pessoa": False, "motivo": None}
@@ -322,7 +323,7 @@ class Ferramentas:
             conversation_id=conversation_id,
             order_id=order_id,
         )
-        with self._con:
+        with self._banco.transacao():
             self._registrar("validar_cupom", CUPONS, acao=acao, referencia=referencia or codigo)
         return {
             "codigo": codigo,
@@ -334,7 +335,7 @@ class Ferramentas:
         }
 
     def _regras_do_cupom(self, codigo: str, order_id: str | None):
-        cupom = self._con.execute("SELECT * FROM cupons WHERE codigo = ?", (codigo,)).fetchone()
+        cupom = self._banco.executar_um("SELECT * FROM cupons WHERE codigo = ?", (codigo,))
         if cupom is None:
             return "cupom_inexistente", f"O cupom {codigo} não existe na plataforma.", None
         inicio = date.fromisoformat(cupom["inicio_vigencia"])
@@ -347,10 +348,10 @@ class Ferramentas:
                 return "fora_da_vigencia", f"Cupom {codigo} fora da {vigencia}.", None
             return None, f"Cupom {codigo} ativo ({cupom['descricao']}; {vigencia}).", None
 
-        uso_aqui = self._con.execute(
+        uso_aqui = self._banco.executar_um(
             "SELECT * FROM uso_cupons WHERE codigo = ? AND order_id = ? ORDER BY data_hora DESC",
             (codigo, order_id),
-        ).fetchone()
+        )
         referencia = uso_aqui["uso_id"] if uso_aqui else None
         data_pedido = date.fromisoformat(pedido["data_pedido"][:10])
         if not inicio <= data_pedido <= fim:
@@ -373,11 +374,11 @@ class Ferramentas:
             )
         cliente = pedido["customer_id"]
         if cupom["primeira_compra"] == "sim":
-            (anteriores,) = self._con.execute(
-                "SELECT COUNT(*) FROM pedidos WHERE customer_id = ? AND order_id != ? "
+            anteriores = self._banco.executar_um(
+                "SELECT COUNT(*) AS n FROM pedidos WHERE customer_id = ? AND order_id != ? "
                 "AND substr(data_pedido, 1, 10) < ?",
                 (cliente, order_id, data_pedido.isoformat()),
-            ).fetchone()
+            )["n"]
             if anteriores:
                 return (
                     "exclusivo_primeira_compra",
@@ -392,11 +393,11 @@ class Ferramentas:
             if not limite:
                 continue
             parametros = (codigo, order_id, cliente) if filtro else (codigo, order_id)
-            (usos,) = self._con.execute(
-                "SELECT COUNT(*) FROM uso_cupons WHERE codigo = ? AND status = 'aplicado' "
+            usos = self._banco.executar_um(
+                "SELECT COUNT(*) AS n FROM uso_cupons WHERE codigo = ? AND status = 'aplicado' "
                 f"AND order_id != ? {filtro}",
                 parametros,
-            ).fetchone()
+            )["n"]
             if usos >= int(limite):
                 return nome, f"{usos} uso(s) já aplicados; limite {int(limite)}.", referencia
         if uso_aqui is not None and uso_aqui["status"] == "recusado":
@@ -409,9 +410,9 @@ class Ferramentas:
 
     @_com_trava
     def aprovacao(self, aprovacao_id: str) -> dict | None:
-        linha = self._con.execute(
+        linha = self._banco.executar_um(
             "SELECT * FROM aprovacoes WHERE aprovacao_id = ?", (aprovacao_id,)
-        ).fetchone()
+        )
         if linha is None:
             return None
         aprovacao = dict(linha)
@@ -422,7 +423,7 @@ class Ferramentas:
 
     @_com_trava
     def acoes_registradas(self) -> list[RegistroAcao]:
-        linhas = self._con.execute("SELECT * FROM acoes_agente ORDER BY acao_id").fetchall()
+        linhas = self._banco.executar("SELECT * FROM acoes_agente ORDER BY acao_id")
         return [self._registro(linha) for linha in linhas]
 
     # ---------- travas ----------
@@ -437,8 +438,8 @@ class Ferramentas:
 
     def _bloquear(self, acao: AcaoProposta, motivo: str) -> None:
         """Grava a tentativa em `tentativas_bloqueadas` (fora da transação da ação) e recusa."""
-        with self._con:
-            self._con.execute(
+        with self._banco.transacao():
+            self._banco.executar(
                 "INSERT INTO tentativas_bloqueadas VALUES (?, ?, ?, ?, ?, ?, ?)",
                 (
                     acao.ferramenta,
@@ -460,18 +461,18 @@ class Ferramentas:
         """
         sku = sku_do_motivo(acao.motivo) if acao.ferramenta in _TIPO_OMS else None
         if sku:
-            linha = self._con.execute(
+            linha = self._banco.executar_um(
                 "SELECT a.* FROM acoes_agente a JOIN trocas_reenvios t ON t.acao_id = a.acao_id "
-                "WHERE a.acao = ? AND a.order_id IS ? AND a.conversation_id IS ? "
+                "WHERE a.acao = ? AND a.order_id IS NOT DISTINCT FROM ? AND a.conversation_id IS NOT DISTINCT FROM ? "
                 "AND t.sku_enviado = ? ORDER BY a.acao_id LIMIT 1",
                 (acao.ferramenta, acao.order_id, acao.conversation_id, sku),
-            ).fetchone()
+            )
             return self._registro(linha) if linha else None
-        linha = self._con.execute(
-            "SELECT * FROM acoes_agente WHERE acao = ? AND order_id IS ? "
-            "AND conversation_id IS ? ORDER BY acao_id LIMIT 1",
+        linha = self._banco.executar_um(
+            "SELECT * FROM acoes_agente WHERE acao = ? AND order_id IS NOT DISTINCT FROM ? "
+            "AND conversation_id IS NOT DISTINCT FROM ? ORDER BY acao_id LIMIT 1",
             (acao.ferramenta, acao.order_id, acao.conversation_id),
-        ).fetchone()
+        )
         return self._registro(linha) if linha else None
 
     # ---------- execução ----------
@@ -504,7 +505,7 @@ class Ferramentas:
             )
 
         if ferramenta == "classificar_conversa":
-            self._con.execute(
+            self._banco.executar(
                 "INSERT INTO classificacoes VALUES (?, ?, ?, ?)",
                 (acao.conversation_id, acao.categoria, acao.executado_por, agora),
             )
@@ -518,7 +519,7 @@ class Ferramentas:
 
         if ferramenta == "sinalizar_suspeita":
             referencia = self._proximo("SUS-", 6, [("suspeitas", "suspeita_id")])
-            self._con.execute(
+            self._banco.executar(
                 "INSERT INTO suspeitas VALUES (?, ?, ?, ?, ?, 'pendente', ?)",
                 (referencia, acao.conversation_id, acao.order_id, acao.executado_por, texto, agora),
             )
@@ -578,16 +579,16 @@ class Ferramentas:
         maximo = limites.get("max_por_dia")
         if maximo is None:
             return
-        (enviados,) = self._con.execute(
-            "SELECT COUNT(*) FROM acoes_agente WHERE acao = ? AND data_hora LIKE ?",
+        enviados = self._banco.executar_um(
+            "SELECT COUNT(*) AS n FROM acoes_agente WHERE acao = ? AND data_hora LIKE ?",
             (acao.ferramenta, _agora_texto(self.agora)[:10] + "%"),
-        ).fetchone()
+        )["n"]
         if enviados >= int(maximo):
             raise FerramentaNaoPermitida(f"{acao.ferramenta}: máximo de {maximo} por dia atingido")
 
     def _mensagem(self, acao: AcaoProposta, destino: str, texto: str) -> str:
         mensagem_id = self._proximo("MSG-", 6, [("mensagens_enviadas", "mensagem_id")])
-        self._con.execute(
+        self._banco.executar(
             "INSERT INTO mensagens_enviadas VALUES (?, ?, ?, ?, ?, ?, ?)",
             (
                 mensagem_id,
@@ -620,11 +621,11 @@ class Ferramentas:
         """HG-04: suspeita pendente da conversa, decidida por quem não a sinalizou."""
         if decisao not in DECISOES_SUSPEITA:
             raise ValueError(f"decidir_suspeita exige decisao em {DECISOES_SUSPEITA}: {decisao!r}")
-        linha = self._con.execute(
-            "SELECT suspeita_id, sinalizado_por FROM suspeitas WHERE conversation_id IS ? "
+        linha = self._banco.executar_um(
+            "SELECT suspeita_id, sinalizado_por FROM suspeitas WHERE conversation_id IS NOT DISTINCT FROM ? "
             "AND estado = 'pendente' ORDER BY suspeita_id DESC LIMIT 1",
             (acao.conversation_id,),
-        ).fetchone()
+        )
         if linha is None:
             raise ValueError(f"sem suspeita pendente em {acao.conversation_id}")
         if linha["sinalizado_por"] == acao.executado_por:
@@ -634,7 +635,7 @@ class Ferramentas:
         return linha["suspeita_id"]
 
     def _decidir_suspeita(self, acao: AcaoProposta, suspeita_id: str, decisao: str) -> RegistroAcao:
-        self._con.execute(
+        self._banco.executar(
             "UPDATE suspeitas SET estado = ? WHERE suspeita_id = ?", (decisao, suspeita_id)
         )
         return self._registrar(
@@ -651,7 +652,7 @@ class Ferramentas:
         sigla = _SIGLA_CHAMADO.get(transportadora, transportadora[:3].upper())
         prefixo = f"{sigla}-{self.agora.year}"
         referencia = self._proximo(prefixo, 5, [("chamados_transportadora", "chamado_id")])
-        self._con.execute(
+        self._banco.executar(
             "INSERT INTO chamados_transportadora (chamado_id, transportadora, order_id, "
             "codigo_rastreio, conversation_id, acao_id, aberto_por, data_abertura, motivo, status) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'aberto')",
@@ -686,7 +687,7 @@ class Ferramentas:
         tipo, sistema = _TIPO_OMS[acao.ferramenta]
         aprovado_por = self._aprovador(acao)
         referencia = self._proximo("OMS", 6, [("trocas_reenvios", "solicitacao_id")])
-        self._con.execute(
+        self._banco.executar(
             "INSERT INTO trocas_reenvios (solicitacao_id, acao_id, conversation_id, customer_id, "
             "order_id_original, tipo, motivo_registrado, data_solicitacao, solicitado_por, "
             "aprovado_por, sku_enviado, status) "
@@ -716,21 +717,21 @@ class Ferramentas:
 
     def _reembolsar(self, acao: AcaoProposta, texto: str, acao_id: str) -> RegistroAcao:
         pedido = self._pedido_obrigatorio(acao)
-        transacao = self._con.execute(
+        transacao = self._banco.executar_um(
             "SELECT transacao_id FROM pagamentos_gateway WHERE order_id = ? "
             "AND status IN ('paga', 'capturada') ORDER BY data_hora_criacao DESC LIMIT 1",
             (acao.order_id,),
-        ).fetchone()
+        )
         aprovado_por = self._aprovador(acao)
         referencia = self._proximo("EST", 6, [("estornos", "estorno_id")])
         tipo = "parcial" if acao.valor_rs < float(pedido["valor"]) else "total"
-        self._con.execute(
+        self._banco.executar(
             "INSERT INTO estornos (estorno_id, transacao_id, order_id, conversation_id, acao_id, "
             "tipo, valor, motivo, solicitado_por, aprovado_por, data_hora_solicitacao, status) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'em_processamento')",
             (
                 referencia,
-                transacao[0] if transacao else None,
+                transacao["transacao_id"] if transacao else None,
                 acao.order_id,
                 acao.conversation_id,
                 acao_id,
@@ -758,7 +759,7 @@ class Ferramentas:
             raise ValueError("solicitar_aprovacao exige acao_pendente")
         referencia = self._proximo("APR-", 6, [("aprovacoes", "aprovacao_id")])
         serializada = {**asdict(pendente), "papel": pendente.papel.value}
-        self._con.execute(
+        self._banco.executar(
             "INSERT INTO aprovacoes VALUES (?, ?, ?, 'pendente', NULL, ?, ?, NULL)",
             (
                 referencia,
@@ -784,7 +785,7 @@ class Ferramentas:
         if aprovacao["estado"] != "pendente":
             raise ValueError(f"aprovação {acao.aprovacao_id} já está {aprovacao['estado']}")
         estado = "aprovada" if acao.ferramenta == "aprovar_acao" else "rejeitada"
-        self._con.execute(
+        self._banco.executar(
             "UPDATE aprovacoes SET estado = ?, decidido_por = ?, comentario = ?, decidido_em = ? "
             "WHERE aprovacao_id = ?",
             (estado, acao.executado_por, texto, _agora_texto(self.agora), acao.aprovacao_id),
@@ -813,9 +814,10 @@ class Ferramentas:
         ]
         maior = 0
         for tabela, coluna in fontes:
-            for (valor,) in self._con.execute(
-                f"SELECT {coluna} FROM {tabela} WHERE {coluna} LIKE ?", (prefixo + "%",)
+            for linha in self._banco.executar(
+                f"SELECT {coluna} AS valor FROM {tabela} WHERE {coluna} LIKE ?", (prefixo + "%",)
             ):
+                valor = linha["valor"]
                 sufixo = valor[len(prefixo) :]
                 if sufixo.isdigit():
                     maior = max(maior, int(sufixo))
@@ -842,7 +844,7 @@ class Ferramentas:
             aprovado_por = aprovado_por or acao.aprovado_por
         valor_rs = valor_rs or 0.0
         acao_id = acao_id or self._proximo("AG", 6, [("acoes_agente", "acao_id")])
-        self._con.execute(
+        self._banco.executar(
             "INSERT INTO acoes_agente VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 acao_id,
