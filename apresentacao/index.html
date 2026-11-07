@@ -35,6 +35,14 @@
   --color-canal-surface: oklch(0.28 0.035 265);
   --color-canal-text: oklch(0.95 0.01 265);
   --color-canal-muted: oklch(0.78 0.02 265);
+  --slack-bg: oklch(1 0 0);
+  --slack-text: oklch(0.2 0.01 330);
+  --slack-muted: oklch(0.5 0.005 330);
+  --slack-border: oklch(0.88 0.005 330);
+  --slack-badge: oklch(0.93 0.004 330);
+  --slack-avatar: oklch(0.36 0.15 260);
+  --slack-primary: oklch(0.5 0.1 165);
+  --slack-danger: oklch(0.56 0.2 5);
   --radius-sm: 4px;
   --radius-md: 8px;
   color-scheme: light;
@@ -61,6 +69,11 @@
     --color-escalada-bg: oklch(0.31 0.06 300);
     --color-canal-bg: oklch(0.14 0.02 265);
     --color-canal-surface: oklch(0.2 0.025 265);
+    --slack-bg: oklch(0.21 0.006 330);
+    --slack-text: oklch(0.92 0.004 330);
+    --slack-muted: oklch(0.7 0.005 330);
+    --slack-border: oklch(0.33 0.006 330);
+    --slack-badge: oklch(0.3 0.006 330);
     color-scheme: dark;
   }
 }
@@ -85,6 +98,11 @@
   --color-escalada-bg: oklch(0.31 0.06 300);
   --color-canal-bg: oklch(0.14 0.02 265);
   --color-canal-surface: oklch(0.2 0.025 265);
+  --slack-bg: oklch(0.21 0.006 330);
+  --slack-text: oklch(0.92 0.004 330);
+  --slack-muted: oklch(0.7 0.005 330);
+  --slack-border: oklch(0.33 0.006 330);
+  --slack-badge: oklch(0.3 0.006 330);
   color-scheme: dark;
 }
 
@@ -210,6 +228,35 @@ li + li { margin-top: 0.5cqw; }
 .msg .botao { font: 600 1.05cqw/1 var(--font-sans); padding: 0.7cqw 1.1cqw; border-radius: var(--radius-sm); background: var(--color-accent); color: var(--color-on-accent); }
 .msg .botao.sec { background: transparent; border: 1px solid var(--color-canal-muted); color: var(--color-canal-text); }
 
+/* Reprodução de uma mensagem do Slack (Block Kit: section, context, actions). Sem print real. */
+.slack {
+  background: var(--slack-bg); color: var(--slack-text);
+  border: 1px solid var(--slack-border); border-radius: var(--radius-md);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.slack .canal-nome { font: 700 1.2cqw/1 var(--font-sans); padding: 1cqw 1.3cqw; border-bottom: 1px solid var(--slack-border); }
+.slack .canal-nome span { font-weight: 400; color: var(--slack-muted); margin-left: 0.6cqw; }
+.slack .post { display: grid; grid-template-columns: 3cqw 1fr; gap: 0.9cqw; padding: 1.1cqw 1.3cqw; }
+.slack .avatar { width: 3cqw; height: 3cqw; border-radius: 0.6cqw; background: var(--slack-avatar); color: oklch(0.99 0 0); display: grid; place-items: center; font: 700 0.9cqw/1 var(--font-mono); }
+.slack .autor { font: 700 1.15cqw/1.2 var(--font-sans); }
+.slack .autor .app { font: 600 0.7cqw/1 var(--font-sans); color: var(--slack-muted); background: var(--slack-badge); padding: 0.15cqw 0.35cqw; border-radius: 0.2cqw; margin-left: 0.4cqw; vertical-align: 0.15cqw; }
+.slack .autor time { font-weight: 400; font-size: 0.85cqw; color: var(--slack-muted); margin-left: 0.5cqw; }
+.slack .secao { font-size: 1.12cqw; line-height: 1.45; margin-top: 0.3cqw; }
+.slack .contexto { font-size: 0.9cqw; color: var(--slack-muted); margin-top: 0.5cqw; }
+.slack .acoes { display: flex; gap: 0.6cqw; margin-top: 0.8cqw; }
+.slack .btn { font: 700 0.95cqw/1 var(--font-sans); padding: 0.6cqw 1cqw; border-radius: 0.3cqw; color: oklch(0.99 0 0); }
+.slack .btn.primary { background: var(--slack-primary); }
+.slack .btn.danger { background: var(--slack-danger); }
+.slack .depois { border-top: 1px dashed var(--slack-border); padding: 0.9cqw 1.3cqw 1.1cqw 5.2cqw; }
+.slack .depois .rotulo { font: 600 0.85cqw/1 var(--font-mono); color: var(--slack-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.slack .depois .contexto { color: var(--slack-text); }
+.slack .editado { color: var(--slack-muted); font-size: 0.85cqw; margin-left: 0.3cqw; }
+.prova { font: 400 1cqw/1.5 var(--font-mono); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.8cqw 1.1cqw; }
+.prova b { color: var(--color-resolvida); font-weight: 600; }
+.pontos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1cqw; }
+.pontos p { font-size: 1.15cqw; line-height: 1.4; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.9cqw 1.1cqw; }
+.pontos b { display: block; font-size: 1.2cqw; margin-bottom: 0.3cqw; }
+
 /* Console de ações */
 .console { font: 400 1.1cqw/1.6 var(--font-mono); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.1cqw 1.3cqw; }
 .console div { display: grid; grid-template-columns: 9cqw 1fr 8cqw; gap: 1cqw; }
@@ -274,7 +321,7 @@ body.com-notas .slide.ativo .notas {
   <p class="marca">FIO<span>o colega de atendimento</span></p>
   <h1>Confere a reclamação antes de mexer no dinheiro</h1>
   <p class="muted" style="font-size:1.8cqw; max-width:52ch">Ele trabalha a fila, age nos sistemas dentro da alçada e chama o supervisor no canal do time quando a decisão não é dele.</p>
-  <div class="rodape"><span>Base: 02/11/2026, 08h</span><span>1 / 10</span></div>
+  <div class="rodape"><span>Base: 02/11/2026, 08h</span><span>1 / 11</span></div>
   <aside class="notas">
     <b>Fala:</b> este é o FIO. O nome vem de seguir o fio do pedido pelos sistemas, do ERP ao portal da transportadora, e de achar a causa comum dos contatos repetidos. O resto do pitch explica por que ele começa pela verificação e pela alçada.<br>
     <b>Fonte:</b> o "agora" do projeto é 02/11/2026 08:00 (<code>AGENTS.md</code>, <code>docs/parametros.md</code>). Os dados são sintéticos e não há dado pessoal neste deck.
@@ -302,7 +349,7 @@ body.com-notas .slide.ativo .notas {
       <div class="cartao"><div class="numero">~4.000</div><p class="legenda">conversas por mês por WhatsApp, e-mail e Reclame Aqui</p></div>
     </div>
   </div>
-  <div class="rodape"><span>Fonte nas notas (N)</span><span>2 / 10</span></div>
+  <div class="rodape"><span>Fonte nas notas (N)</span><span>2 / 11</span></div>
   <aside class="notas">
     <b>Fala:</b> além do volume, pesa onde o custo cai. O canal mais caro custa quase 9 vezes o WhatsApp, e um terço das conversas é gente voltando pelo mesmo pedido.<br>
     <b>Fontes:</b> custo por canal: <code>docs/parametros.md</code> e <code>politicas.csv</code> (<code>custo_por_conversa_rs</code>). Conversas e custo por canal: <code>ingestao/baseline_metricas.md</code> M1 (<code>historico_conversas.canal</code>); 11,6% e 50,4%: M12. Recontato 32,9% (982 conversas em 453 pares cliente+pedido): M4. 12,2 min (média de <code>tempo_por_conversa.minutos_trabalhados</code>), 1,83 e 11 sistemas: M3. ~4.000/mês: <code>docs/parametros.md</code>. Largura das barras = participação no custo total (32,7% / 16,9% / 50,4%, calculado de M1).
@@ -333,7 +380,7 @@ body.com-notas .slide.ativo .notas {
       </ul>
     </div>
   </div>
-  <div class="rodape"><span>Requisitos P1 a P5 e N1 a N4</span><span>3 / 10</span></div>
+  <div class="rodape"><span>Requisitos P1 a P5 e N1 a N4</span><span>3 / 11</span></div>
   <aside class="notas">
     <b>Fala:</b> o enunciado define o colega pelo que ele faz e pelo que ele não é. Cada linha à direita tem um teste de aceite que reprova a entrega se ela virar chatbot ou painel.<br>
     <b>Fontes:</b> <code>ingestao/desafio/enunciado.md</code> ("Um agente é um colega de trabalho" e "O que não é"); <code>REQUISITOS.md</code> §1.0: P1 a P5 e N1 a N4, com os testes HP-09 (N1), HG-01 (N2), HP-11 (N3), HG-17/HG-20 (N4).
@@ -352,7 +399,7 @@ body.com-notas .slide.ativo .notas {
     <div class="frente"><span class="id">F5 · D5</span><h3>Prevenção de recontato</h3><p>Detecta padrão por transportadora e UF, máquina, lote ou gateway. Abre incidente e avisa os clientes antes.</p><p class="pessoa"><b>Pessoa:</b> analista valida o escopo; até 300 avisos/dia</p></div>
   </div>
   <p class="legenda">F3 trava o dinheiro de F2 até a decisão. F4 atravessa as outras quatro. F5 reduz o que entra em F1.</p>
-  <div class="rodape"><span>REQUISITOS.md §1.2</span><span>4 / 10</span></div>
+  <div class="rodape"><span>REQUISITOS.md §1.2</span><span>4 / 11</span></div>
   <aside class="notas">
     <b>Fala:</b> o plano cobre a área inteira. Provamos F3 e F4 porque é onde o erro custa dinheiro nos dois sentidos, e F2 entra como executor no fim de cada caso.<br>
     <b>Fontes:</b> frentes F1 a F5 e "onde a pessoa decide": <code>REQUISITOS.md</code> §1.2. Alçadas R$ 100 (reembolso) e R$ 200 (reenvio, reimpressão, troca): <code>politicas.csv</code> <code>limites_por_papel.atendente.*</code>. 300 avisos/dia: <code>limites_por_papel.analista.notificacoes_proativas_por_dia</code>. Suspeita em 24 h: <code>politicas.csv</code> <code>reclamacao_suspeita.*</code>. Escolha da PoC: <code>SPEC.md</code> Q1. A visão está desenhada em <code>prototipo/index.html</code>.
@@ -385,7 +432,7 @@ body.com-notas .slide.ativo .notas {
       </div>
     </div>
   </div>
-  <div class="rodape"><span>Cenários EC-15 a EC-19, HG-07, HG-08</span><span>5 / 10</span></div>
+  <div class="rodape"><span>Cenários EC-15 a EC-19, HG-07, HG-08</span><span>5 / 11</span></div>
   <aside class="notas">
     <b>Fala:</b> o enunciado avisa que "há casos de avaria que não é real". O agente cruza a foto com o que os sistemas já têm, e a conta de custo diz quando vale chamar o supervisor.<br>
     <b>Fontes:</b> 382 anexos, 212 sem EXIF (55,5%), 17 com hash repetido (8 hashes), 11 com captura antes da entrega, 10 com <code>exif_software</code>: <code>ingestao/baseline_metricas.md</code> M6 (<code>anexos_conversas</code> × <code>pedidos.data_entrega</code>). Custos de errar (45%, ½ LTV, 30% × R$ 42, R$ 6): <code>docs/parametros.md</code>, "Reclamações que não procedem". Regra de suspeita: <code>SPEC.md</code> Q15. Resposta sem acusação: HG-07.
@@ -417,7 +464,7 @@ body.com-notas .slide.ativo .notas {
       <p><span class="estado e-escalada">escalada</span></p><p class="legenda">reação adversa: orienta suspender o uso e aciona a qualidade</p>
     </div>
   </div>
-  <div class="rodape"><span>Cenários EC-01, EC-02, EC-22, HG-03, HG-05, HG-06, HG-22</span><span>6 / 10</span></div>
+  <div class="rodape"><span>Cenários EC-01, EC-02, EC-22, HG-03, HG-05, HG-06, HG-22</span><span>6 / 11</span></div>
   <aside class="notas">
     <b>Fala:</b> no histórico, as 132 ações acima do limite tiveram aprovação. O problema estava na soma: 64 vezes o mesmo pedido recebeu ações que, somadas, passavam do limite. O agente soma o histórico do pedido antes de agir: reexecutado sobre esses casos, ele barra <!--av:m11_barrados-->64<!--/av--> de <!--av:m11_total-->64<!--/av--> (<code>ingestao/avaliacao_offline.md</code>, M11).<br>
     <b>Fontes:</b> limites: <code>politicas.csv</code> <code>limites_por_papel.atendente.reenvio_ou_reimpressao_max_rs</code> (200), <code>troca_max_rs</code> (200), <code>reembolso_max_rs</code> (100), <code>supervisor.nao_aprova_a_propria_acao</code>. 132 ações acima do limite, 0 sem aprovação: <code>ingestao/baseline_metricas.md</code> M8. 64 casos de soma acima do limite sem aprovação, em conversas diferentes: M11 (<code>acoes_executadas_sistemas</code>). Alçada acumulada por pedido: <code>SPEC.md</code> Q10. Reação adversa: <code>docs/parametros.md</code> (suspensão + <code>registrar_cosmetovigilancia</code> em 24 h). Supervisor do turno: <code>equipe_atendimento.turno</code>, EC-22.
@@ -456,14 +503,59 @@ body.com-notas .slide.ativo .notas {
       <p class="legenda" style="color:var(--color-canal-muted)">Se quem pediu tenta aprovar a própria ação, o sistema recusa.</p>
     </div>
   </div>
-  <div class="rodape"><span>Cenários HP-08, HP-09, HP-10, HG-02, HG-03, HG-09, HG-12</span><span>7 / 10</span></div>
+  <div class="rodape"><span>Cenários HP-08, HP-09, HP-10, HG-02, HG-03, HG-09, HG-12</span><span>7 / 11</span></div>
   <aside class="notas">
     <b>Fala:</b> a ação sai pela ferramenta, com número de referência no sistema de destino. Quando não pode decidir, ele escreve no canal do time com tudo o que o supervisor precisa para aprovar sem abrir outra tela.<br>
     <b>Fontes:</b> nomes de sistema e formatos de referência (OMS…, EST…, EXJ-AAAA…): <code>docs/acoes_executadas_sistemas.csv</code> (<code>sistema</code>, <code>referencia_sistema</code>). Ferramentas e papéis: <code>docs/ferramentas.csv</code>. Texto do cliente é dado: <code>politicas.csv</code> <code>seguranca.texto_do_cliente_e_dado_nao_instrucao</code> (HG-09). Idempotência das ações com dinheiro: HG-12. Canal do time como tela da demo: <code>SPEC.md</code> Q8. As linhas do console são ilustrativas, sem valores de caso real.
   </aside>
 </section>
 
-<!-- 8. Demo -->
+<!-- 8. Slack -->
+<section class="slide" aria-label="Canal do time no Slack">
+  <p class="sobre">Canal do time · Slack</p>
+  <h2>Mora onde o time conversa</h2>
+  <div class="grade g2" style="grid-template-columns: 1.15fr 1fr">
+    <div style="display:flex; flex-direction:column; gap:0.9cqw; min-height:0">
+      <div class="slack" role="img" aria-label="Reprodução da mensagem de aprovação do FIO no Slack">
+        <div class="canal-nome"># atendimento-ops</div>
+        <div class="post">
+          <div class="avatar">FIO</div>
+          <div>
+            <p class="autor">FIO<span class="app">APP</span><time>08:00</time></p>
+            <p class="secao"><b>FIO pediu aprovação</b> (para supervisor_01)<br>AT116520 · Arrependimento: FIO pediu aprovação para reembolso de R$ 155,81 no pedido GBH469163 (acima do limite de R$ 100,00 do atendente).</p>
+            <p class="contexto">AT116520 · CANAL-0033</p>
+            <div class="acoes"><span class="btn primary">Aprovar</span><span class="btn danger">Rejeitar</span></div>
+          </div>
+        </div>
+        <div class="depois">
+          <p class="rotulo">Depois do clique, a mesma mensagem</p>
+          <p class="contexto">Aprovado por supervisor_02 pelo Slack.<span class="editado">(editado)</span></p>
+        </div>
+      </div>
+      <p class="prova">Gateway · reembolsar · <b>EST000186</b> · R$ 155,81 · aprovado por supervisor_02</p>
+    </div>
+    <div class="tela" id="tela-slack">
+      <div class="aviso">
+        <p><b>Espaço para o print do Slack</b></p>
+        <p class="mono">apresentacao/midia/slack.png</p>
+        <p>Enquanto ele não existe, vale a reprodução ao lado</p>
+      </div>
+      <img id="slack-img" src="midia/slack.png" alt="Print do canal #atendimento-ops com a aprovação feita pelo botão" hidden>
+    </div>
+  </div>
+  <div class="pontos">
+    <p><b>Só o que pede alguém</b>Aprovação, suspeita, escalação, incidente novo e alerta de SLA, mais um resumo por rodada. A rotina fica na tela.</p>
+    <p><b>Mesmas regras da tela</b>Quem pediu não aprova a própria ação, e quem sinalizou a suspeita não a decide.</p>
+    <p><b>@FIO passa pela política</b>Um colaborador pode pedir uma ação, e o FIO a trata como qualquer caso. A alçada não muda.</p>
+  </div>
+  <div class="rodape"><span>Cenários HP-10, HG-10 · requisito P5</span><span>8 / 11</span></div>
+  <aside class="notas">
+    <b>Fala:</b> o supervisor não precisa abrir a nossa tela. O pedido de aprovação chega no canal que o time já usa, com pedido, valor, regra e evidências, e o botão chama o mesmo método da tela. Hoje fizemos isso de verdade: o FIO pediu aprovação para reembolsar R$ 155,81 na AT116520, supervisor_02 aprovou pelo Slack e o estorno saiu no gateway com a referência EST000186.<br>
+    <b>Fontes:</b> mensagem reproduzida em HTML com o texto que o código atual gera para a AT116520 (<code>GET /api/canal</code> numa base nova depois de <code>POST /api/fila/processar</code>: CANAL-0033, APR-000002) e com os blocos de <code>src/atendimento/canal_slack/blocos.py</code>. A aprovação real de hoje usou a redação anterior do canal, com os mesmos pedido, valor e limite (título, texto, contexto, botões Aprovar/Rejeitar e a linha de desfecho após o clique). Execução no servidor ligado ao Slack: <code>GET /api/acoes</code>, AG000226 (<code>aprovar_acao</code> por supervisor_02) e AG000227 (<code>reembolsar</code>, R$ 155,81, <code>referencia_sistema</code> EST000186, aprovado por supervisor_02). Limite de R$ 100 para reembolso: <code>docs/politicas.csv</code>. Regras dos botões: <code>src/atendimento/canal_slack/canal.py</code> (<code>ao_clicar</code> chama <code>aprovar</code>, <code>rejeitar</code> e <code>decidir_suspeita</code> do agente). O que vai ao Slack e o resumo por rodada: <code>deve_ir_ao_slack</code> e <code>_resumir_rodada</code> no mesmo arquivo. Pedido de colaborador: HG-10 (R$ 300 abre aprovação, não reembolsa). Desligado por padrão: <code>ATENDIMENTO_SLACK=0</code> em <code>.env.example</code>; app em <code>config/slack_manifest.json</code>, Socket Mode, tokens só no <code>.env</code>. Os IDs mostrados são da base sintética e não identificam ninguém.
+  </aside>
+</section>
+
+<!-- 9. Demo -->
 <section class="slide" aria-label="Demonstração">
   <p class="sobre">Demo</p>
   <h2>A fila das 8h tratada de ponta a ponta</h2>
@@ -483,14 +575,14 @@ body.com-notas .slide.ativo .notas {
     <span class="estado e-aprovacao">4 · aprovação no canal</span>
     <span class="estado e-escalada">5 · analista abre incidente</span>
   </div>
-  <div class="rodape"><span>e2e/README.md</span><span>8 / 10</span></div>
+  <div class="rodape"><span>e2e/README.md</span><span>9 / 11</span></div>
   <aside class="notas">
     <b>Roteiro (segue a jornada de <code>e2e/jornada.mjs</code>):</b> 1) clicar em Processar fila: o console recebe as ações e o placar muda; 2) abrir AT116568, a única reação adversa da fila: estado escalada, com a decisão da política; 3) a fila das 8h não tem caso suspeito, então mostrar a Verificação de evidência no caso real AT104936 do histórico: captura antes da entrega, hash repetido e reenvios anteriores, com resposta neutra ao cliente; quem sinalizou não consegue decidir (HTTP 403) e o supervisor decide a suspeita na tela; 4) no canal do time, a autoaprovação é recusada (HTTP 403) e outro supervisor aprova; a ação aparece no console com o aprovador; 5) o agente analista trata o padrão, abre um incidente e avisa só os clientes com consentimento.<br>
     <b>Fontes:</b> <code>.scratch/e2e/relatorio.json</code> (26 verificações, 0 falhas, na execução das 11h20); vídeo copiado de <code>.scratch/e2e/jornada.webm</code> e <code>jornada.mp4</code>. AT116568 é a única conversa da fila com possível reação adversa: <code>ingestao/baseline_metricas.md</code> M10. As telas mostram dados pessoais já mascarados pela API.
   </aside>
 </section>
 
-<!-- 9. Resultados -->
+<!-- 10. Resultados -->
 <section class="slide" aria-label="Resultados e salvaguardas">
   <p class="sobre">Resultados · motor reexecutado sobre o histórico</p>
   <h2>Reexecutado sobre o histórico, o motor segura o dinheiro que a política não cobre</h2>
@@ -517,7 +609,7 @@ body.com-notas .slide.ativo .notas {
       </ul>
     </div>
   </div>
-  <div class="rodape"><span>ingestao/avaliacao_offline.md</span><span>9 / 10</span></div>
+  <div class="rodape"><span>ingestao/avaliacao_offline.md</span><span>10 / 11</span></div>
   <aside class="notas">
     <b>Fala:</b> rodamos o motor de políticas e o verificador sobre as ações com dinheiro que o time já executou. Cada divergência mostrada tem regra objetiva: soma da alçada no pedido, prazo, entrega ainda não registrada, segunda troca.<br>
     <b>Fontes:</b> <code>ingestao/avaliacao_offline.md</code>, gerado por <code>uv run python -m atendimento.avaliacao</code>. §1: <!--av:acoes_total-->790<!--/av--> ações com dinheiro; divergências por regra objetiva: <!--av:motivos--><code>alcada_acumulada</code> 51, <code>prazo</code> 24, <code>antes_do_recebimento</code> 10, <code>troca_repetida</code> 8<!--/av-->, somando <!--av:obj_n-->93<!--/av--> ações (<!--av:obj_pct-->11,8<!--/av-->%) e R$ <!--av:obj_valor-->11.204,37<!--/av-->. M11: <!--av:m11_barrados-->64<!--/av--> de <!--av:m11_total-->64<!--/av--> somas acima da alçada barradas (<!--av:m11_pedir_aprovacao-->37<!--/av--> pedem aprovação, <!--av:m11_escalar-->19<!--/av--> escalam, <!--av:m11_negar-->8<!--/av--> negam). §2: <!--av:susp_anexo-->280<!--/av--> conversas com anexo, <!--av:susp_marcadas-->25<!--/av--> suspeitas, <!--av:susp_dinheiro-->23<!--/av--> receberam reenvio; custo evitado estimado R$ <!--av:susp_custo-->1.356,91<!--/av--> (valor do pedido × 0,45, <code>parametros.md</code>), valor esperado e não fraude confirmada. Placar da fila: <code>POST /api/fila/processar</code> e <code>GET /api/placar</code> em base nova (34/2/18/0 suspeitas/11; custo evitado R$ 636,00 = custo por conversa do canal nas resolvidas sozinho, <code>src/atendimento/agente/caso.py</code>). AT116568: única reação adversa da fila (<code>baseline_metricas.md</code> M10), escalada na jornada E2E (<code>.scratch/e2e/relatorio.json</code>). Máscara de dado pessoal: <code>AGENTS.md</code> regra 6, HG-11. Travas: HG-02, HG-03, HG-12, com testes em <code>tests/</code>.<br>
@@ -525,7 +617,7 @@ body.com-notas .slide.ativo .notas {
   </aside>
 </section>
 
-<!-- 10. Próximos passos -->
+<!-- 11. Próximos passos -->
 <section class="slide" aria-label="Próximos passos">
   <p class="sobre">Próximos passos</p>
   <h2>Da frente provada para a área inteira</h2>
@@ -541,16 +633,16 @@ body.com-notas .slide.ativo .notas {
     <div class="cartao">
       <h3>Para sair da demo</h3>
       <ul>
-        <li>Canal do time no Slack, com o mesmo pedido de aprovação da demo</li>
-        <li>Leitor de mensagens melhor: hoje acerta a categoria em <!--av:cat_pct-->60,1<!--/av-->% das conversas e erra mais em Outros, Dúvida e Reclamação de produto. O LLM entra atrás da mesma interface, e a decisão continua no motor de políticas</li>
+        <li><b>Leitor com Claude</b>, já pronto atrás de <span class="mono">ATENDIMENTO_LLM</span>: na mesma amostra de 300 conversas, o acerto de categoria sobe de 53,7% (regras) para 62,0%, e as 27 reações adversas continuam reconhecidas. O Claude só lê o texto, já mascarado, e a decisão fica no motor de políticas. Se a API falha, o FIO volta às regras</li>
+        <li>Guardar aprovações e suspeitas pendentes em banco, para sobreviverem a um reinício</li>
         <li>Ligar as ferramentas às APIs reais de OMS, gateway e portais, mantendo o log e as alçadas</li>
       </ul>
     </div>
   </div>
-  <div class="rodape"><span>Obrigado</span><span>10 / 10</span></div>
+  <div class="rodape"><span>Obrigado</span><span>11 / 11</span></div>
   <aside class="notas">
     <b>Fala:</b> fechar voltando ao começo: o custo está no Reclame Aqui e no recontato. F5 ataca o recontato, e F3 com F4 evitam pagar o que não procede sem travar quem tem razão.<br>
-    <b>Fontes:</b> 18 WhatsApp sem resposta humana e SLA de 30 min: <code>ingestao/baseline_metricas.md</code> M5, <code>politicas.csv</code> <code>sla_primeira_resposta.whatsapp.minutos</code>. Rastreio + Atraso = 36,3%: M12 (M2). 12 pedidos com 2+ cobranças sem estorno: M7. Slack e LLM: <code>SPEC.md</code> Q8 e "LLM". Acerto do leitor: <code>ingestao/avaliacao_offline.md</code> §3 (<code>atendimento.agente.leitor.ler</code> contra <code>historico_conversas.tag_agente</code>).
+    <b>Fontes:</b> 18 WhatsApp sem resposta humana e SLA de 30 min: <code>ingestao/baseline_metricas.md</code> M5, <code>politicas.csv</code> <code>sla_primeira_resposta.whatsapp.minutos</code>. Rastreio + Atraso = 36,3%: M12 (M2). 12 pedidos com 2+ cobranças sem estorno: M7. Leitor com Claude: <code>ingestao/avaliacao_leitor_claude.md</code> (<code>uv run python -m atendimento.avaliacao --leitor claude --amostra 300</code>, amostra estratificada pela <code>tag_agente</code>, semente 42): regras 161 de 300 (53,7%), Claude com a rede de segurança 186 de 300 (62,0%); cosmetovigilância vista como sensível 27 de 27 nos dois; 0 quedas para as regras nessa execução. O texto vai mascarado à API, inclusive o nome do cliente (<code>privacidade.mascarar</code>). Na base inteira, o leitor por regras acerta <!--av:cat_pct-->60,1<!--/av-->% (<code>ingestao/avaliacao_offline.md</code> §3); os 53,7% são a mesma régua na amostra de 300. Pendências em memória: limitação 1 do <code>README.md</code>.
   </aside>
 </section>
 
@@ -596,6 +688,11 @@ body.com-notas .slide.ativo .notas {
   video.addEventListener("loadedmetadata", mostrarMidia);
   img.addEventListener("load", mostrarMidia);
   mostrarMidia();
+
+  var slackImg = document.getElementById("slack-img");
+  function mostrarSlack() { if (slackImg.complete && slackImg.naturalWidth) slackImg.hidden = false; }
+  slackImg.addEventListener("load", mostrarSlack);
+  mostrarSlack();
 })();
 </script>
 </body>

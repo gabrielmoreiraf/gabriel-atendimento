@@ -5,7 +5,8 @@
 - **Navegar:** setas, espaço ou clique. `#5` na URL abre o slide 5.
 - **Notas do apresentador:** tecla `N`. Cada número do deck tem a fonte na nota do slide.
 - **PDF:** tecla `P` (ou Ctrl/Cmd+P), destino "Salvar como PDF", sem margens, com gráficos de fundo. Sai um slide por página em 1280×720. Para imprimir com as notas, aperte `N` antes.
-- **Demo (slide 8):** a mídia vem da jornada E2E em `.scratch/e2e/`: `jornada.webm` → `midia/demo.webm`, `jornada.mp4` → `midia/demo.mp4` e um print → `midia/demo.png`. O navegador toca o primeiro formato que suportar (Chromium sem codecs proprietários não toca `.mp4`). No PDF entra o print.
+- **Slack (slide 8):** o slide traz a mensagem de aprovação reproduzida em HTML. Para pôr o print real ao lado, salve-o como `midia/slack.png`, sem nome, e-mail ou foto de pessoas; ele aparece sozinho quando o arquivo existe.
+- **Demo (slide 9):** a mídia vem da jornada E2E em `.scratch/e2e/`: `jornada.webm` → `midia/demo.webm`, `jornada.mp4` → `midia/demo.mp4` e um print → `midia/demo.png`. O navegador toca o primeiro formato que suportar (Chromium sem codecs proprietários não toca `.mp4`). No PDF entra o print.
 
 Identidade visual: os valores de `tokens.css` e `DESIGN.md` (raiz) estão copiados no `<style>` do deck para ele abrir sozinho. A fonte IBM Plex vem do Google Fonts; sem internet, cai na fonte do sistema.
 
