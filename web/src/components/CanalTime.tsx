@@ -1,7 +1,7 @@
 import { useId, useState } from "react";
 import type { MensagemCanal } from "../api/tipos";
 import { SUPERVISORES } from "../equipe";
-import { RELOGIO_0820_ISO, formatarDataHora } from "../formato";
+import { RELOGIO_0820_ISO } from "../formato";
 import { DecisaoSuspeita, type DecisaoTipo } from "./DecisaoSuspeita";
 
 interface Props {
