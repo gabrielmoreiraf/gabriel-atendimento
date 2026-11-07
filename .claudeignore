@@ -1,0 +1,7 @@
+graph.json
+graphify-out/
+.scratch/
+evidencias/
+.venv/
+.ruff_cache/
+.pytest_cache/

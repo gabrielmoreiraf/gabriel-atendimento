@@ -1,0 +1,17 @@
+.env
+.scratch/
+evidencias/
+graphify-out/
+graph.json
+__pycache__/
+.pytest_cache/
+.DS_Store
+.venv/
+.ruff_cache/
+node_modules/
+web/dist/
+var/
+.env.local
+*.pem
+# saída gerada pelo markitdown (python3 -I ingestao/... recria)
+ingestao/markdown/
