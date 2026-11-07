@@ -19,6 +19,7 @@ from atendimento.agente.aprovacoes import Aprovacao, AprovacaoInvalida, Aprovaca
 from atendimento.agente.caso import EXECUTOR, RodadaEmAndamento
 from atendimento.canal_slack.blocos import montar
 from atendimento.canal_slack.config import ConfigSlack
+from atendimento.canal_slack.registro import RegistroMemoria
 from atendimento.contratos import AcaoProposta, Papel, Resultado
 from atendimento.politicas import decidir
 from atendimento.privacidade import mascarar
@@ -116,20 +117,41 @@ def _motivo(erro: Exception) -> str:
     return f"{type(erro).__name__}" + (f" ({codigo})" if codigo else "")
 
 
+class _IncidentesVistos:
+    """Conjunto de incidentes já anunciados, guardado no registro (sobrevive à requisição)."""
+
+    def __init__(self, registro):
+        self.registro = registro
+
+    def __contains__(self, incidente_id: str) -> bool:
+        return self.registro.incidente_visto(incidente_id)
+
+    def add(self, incidente_id: str) -> None:
+        self.registro.marcar_incidente(incidente_id)
+
+
 class CanalSlack:
-    def __init__(self, agente, cliente, config: ConfigSlack):
+    def __init__(
+        self,
+        agente,
+        cliente,
+        config: ConfigSlack,
+        *,
+        registro=None,
+        observar_rodadas: bool = True,
+    ):
         self.agente = agente
         self.cliente = cliente
         self.config = config
+        self.registro = registro if registro is not None else RegistroMemoria()
         self.falhas: list[str] = []
-        self._postadas: dict[str, dict] = {}  # id da mensagem do canal -> {ts, estado}
         self._tentativas: dict[str, int] = {}
         self._ignoradas: set[str] = set()  # mensagens que ficam só no app
-        self._incidentes: set[str] = set()
+        self._incidentes = _IncidentesVistos(self.registro)
         self._rodada_terminando = False
-        self._ultimo_placar: dict | None = None
         self._trava = threading.RLock()
-        self._observar_rodadas()
+        if observar_rodadas:  # Socket Mode; no modo HTTP quem avisa é o gancho
+            self._observar_rodadas()
 
     # ---------- espelho ----------
 
@@ -147,44 +169,50 @@ class CanalSlack:
         self.falhas.append(motivo)
         logger.warning("Slack: falha ao espelhar %s", motivo)
 
+    def publicar(self, mensagem: dict) -> bool:
+        """Posta a mensagem se for nova e acionável, ou atualiza (chat_update) a já postada se
+        o estado mudou. Nunca levanta. Devolve False se o Slack pediu para esperar (rate limit).
+        É o que o gancho do modo HTTP chama logo depois de gravar a mensagem do canal."""
+        mid = mensagem.get("id")
+        if not mid or mid in self._ignoradas:
+            return True
+        with self._trava:
+            postada = self.registro.mensagem(mid)
+            if postada is None and mid not in self._tentativas:
+                if not deve_ir_ao_slack(mensagem, self._incidentes):
+                    self._ignoradas.add(mid)
+                    return True
+            estado = self._estado(mensagem)
+            try:
+                if postada is None:
+                    if self._tentativas.get(mid, 0) >= MAX_TENTATIVAS:
+                        return True
+                    self._tentativas[mid] = self._tentativas.get(mid, 0) + 1
+                    texto, blocos = montar(mensagem, pendente=estado == "pendente")
+                    resposta = self.cliente.chat_postMessage(
+                        channel=self.config.canal_id, text=texto, blocks=blocos
+                    )
+                    self.registro.salvar_mensagem(mid, resposta["ts"], estado)
+                elif estado != postada["estado"]:
+                    desfecho = f"Situação: {estado}" if estado else None
+                    texto, blocos = montar(mensagem, pendente=False, desfecho=desfecho)
+                    self.cliente.chat_update(
+                        channel=self.config.canal_id, ts=postada["ts"], text=texto, blocks=blocos
+                    )
+                    self.registro.salvar_mensagem(mid, postada["ts"], estado)
+            except Exception as erro:  # Slack fora do ar não derruba o agente
+                self._falhou(mid, erro)
+                if _limitado(erro):  # respeita o limite: devolve a vez
+                    self._tentativas[mid] = max(0, self._tentativas.get(mid, 1) - 1)
+                    return False
+            return True
+
     def sincronizar(self) -> None:
-        """Posta mensagens novas e atualiza as que mudaram de estado. Nunca levanta."""
+        """Socket Mode: percorre o canal do time, publica e, no fim da rodada, o resumo."""
         with self._trava:
             for mensagem in list(getattr(self.agente, "canal", [])):
-                mid = mensagem.get("id")
-                if not mid or mid in self._ignoradas:
-                    continue
-                postada = self._postadas.get(mid)
-                if postada is None and mid not in self._tentativas:
-                    if not deve_ir_ao_slack(mensagem, self._incidentes):
-                        self._ignoradas.add(mid)
-                        continue
-                estado = self._estado(mensagem)
-                try:
-                    if postada is None:
-                        if self._tentativas.get(mid, 0) >= MAX_TENTATIVAS:
-                            continue
-                        self._tentativas[mid] = self._tentativas.get(mid, 0) + 1
-                        texto, blocos = montar(mensagem, pendente=estado == "pendente")
-                        resposta = self.cliente.chat_postMessage(
-                            channel=self.config.canal_id, text=texto, blocks=blocos
-                        )
-                        self._postadas[mid] = {"ts": resposta["ts"], "estado": estado}
-                    elif estado != postada["estado"]:
-                        desfecho = f"Situação: {estado}" if estado else None
-                        texto, blocos = montar(mensagem, pendente=False, desfecho=desfecho)
-                        self.cliente.chat_update(
-                            channel=self.config.canal_id,
-                            ts=postada["ts"],
-                            text=texto,
-                            blocks=blocos,
-                        )
-                        postada["estado"] = estado
-                except Exception as erro:  # Slack fora do ar não derruba o agente
-                    self._falhou(mid, erro)
-                    if _limitado(erro):  # respeita o limite: devolve a vez e para esta rodada
-                        self._tentativas[mid] = max(0, self._tentativas.get(mid, 1) - 1)
-                        break
+                if not self.publicar(mensagem):
+                    break  # rate limit: para esta volta
             self._resumir_rodada()
 
     # ---------- resumo por rodada (HP-09) ----------
@@ -209,9 +237,15 @@ class CanalSlack:
         if not self._rodada_terminando:
             return
         self._rodada_terminando = False
-        placar = {k: v for k, v in self.agente.placar().items() if k != "replay"}
-        if placar == self._ultimo_placar:
-            return
+        if not self.postar_resumo(self.agente.placar()):
+            self._rodada_terminando = True  # tenta de novo na próxima volta
+
+    def postar_resumo(self, placar: dict) -> bool:
+        """Uma mensagem com o placar da rodada; não repete placar igual ao último. Devolve
+        False só se o Slack falhou (para tentar de novo)."""
+        placar = {k: v for k, v in placar.items() if k != "replay"}
+        if placar == self.registro.ultimo_placar():
+            return True
         texto = self._texto_resumo(placar)
         try:
             self.cliente.chat_postMessage(
@@ -230,10 +264,11 @@ class CanalSlack:
                     },
                 ],
             )
-            self._ultimo_placar = placar
+            self.registro.salvar_placar(placar)
+            return True
         except Exception as erro:
-            self._rodada_terminando = True  # tenta de novo na próxima volta
             self._falhou("resumo", erro)
+            return False
 
     def _texto_resumo(self, placar: dict) -> str:
         hora = self.agente.agora.strftime("%H:%M")
@@ -251,10 +286,10 @@ class CanalSlack:
         return f"Rodada das {hora}: " + " · ".join(partes)
 
     def _mensagem_por_ts(self, ts: str) -> dict | None:
-        for mid, postada in self._postadas.items():
-            if postada["ts"] == ts:
-                return next((m for m in self.agente.canal if m.get("id") == mid), None)
-        return None
+        mid = self.registro.mensagem_por_ts(ts)
+        if mid is None:
+            return None
+        return next((m for m in getattr(self.agente, "canal", []) if m.get("id") == mid), None)
 
     # ---------- botões ----------
 
@@ -316,10 +351,11 @@ class CanalSlack:
                 )
             except Exception as erro:
                 self._falhou("atualizar", erro)
-            for mid, postada in self._postadas.items():
-                if postada["ts"] == ts:
-                    m = next((x for x in self.agente.canal if x.get("id") == mid), None)
-                    postada["estado"] = self._estado(m) if m else postada["estado"]
+            mid = self.registro.mensagem_por_ts(ts)
+            if mid is not None:
+                m = next((x for x in getattr(self.agente, "canal", []) if x.get("id") == mid), None)
+                if m is not None:
+                    self.registro.salvar_mensagem(mid, ts, self._estado(m))
 
     # ---------- HG-10: pedido de colaborador ----------
 

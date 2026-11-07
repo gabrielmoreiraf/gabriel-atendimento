@@ -24,18 +24,33 @@ INTERVALO_S = 1.0
 ACOES = re.compile(r"^fio_(aprovar|rejeitar|procedente|improcedente)$")
 
 
-def registrar_handlers(app, canal: CanalSlack) -> None:
+def registrar_handlers(app, canal, *, cliente_do_canal: bool = False) -> None:
+    """`canal`: um CanalSlack (Socket Mode) ou uma fábrica `canal()` chamada a cada
+    requisição (modo HTTP, em que o agente e o registro vêm do banco a cada chamada).
+    `cliente_do_canal=True` usa o cliente do canal (com retry de rate limit) em vez do
+    WebClient que o Bolt cria a cada requisição."""
+
+    def obter() -> CanalSlack:
+        return canal if isinstance(canal, CanalSlack) else canal()
+
     @app.action(ACOES)
     def clicar(ack, body, client):
-        ack()  # o Slack exige resposta em até 3 s; a decisão vem depois
+        ack()  # o Slack exige resposta em até 3 s
+        atual = obter()
         try:
-            canal.ao_clicar(body, client)
+            atual.ao_clicar(body, atual.cliente if cliente_do_canal else client)
         except Exception as erro:
-            canal._falhou("clique", erro)
+            atual._falhou("clique", erro)
 
     @app.event("app_mention")
     def mencionar(event, say):
-        canal.ao_mencionar(event, say)
+        atual = obter()
+        if cliente_do_canal:
+
+            def say(**kw):  # noqa: F811 - responde pelo cliente do canal
+                return atual.cliente.chat_postMessage(channel=event.get("channel"), **kw)
+
+        atual.ao_mencionar(event, say)
 
 
 class ConexaoSlack:
@@ -87,7 +102,7 @@ def criar_app_bolt(config):
 def iniciar(agente, ambiente: Mapping[str, str] | None = None) -> ConexaoSlack | None:
     """Liga o canal no Slack se `ATENDIMENTO_SLACK=1` e os tokens existem; senão, None."""
     config = config_do_ambiente(ambiente)
-    if config is None:
+    if config is None or config.modo != "socket":  # modo HTTP: sem thread (api/slack.py)
         return None
     try:
         from slack_bolt.adapter.socket_mode import SocketModeHandler
