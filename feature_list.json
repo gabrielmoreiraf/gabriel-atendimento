@@ -630,9 +630,9 @@
       ],
       "requisito": "REQUISITOS.md#2.3",
       "teste": "test_HG_10",
-      "passes": false,
-      "revisado_em": null,
-      "evidencia": null
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -q -> 552 passed, 0 skipped (17 HG_10 em tests/test_canal_slack.py, incl. avaria/reacao_adversa/fora do prazo/sem categoria/R$ 300); uv run ruff check . -> All checks passed! (commit b157ade)"
     },
     {
       "id": "HG-11",
