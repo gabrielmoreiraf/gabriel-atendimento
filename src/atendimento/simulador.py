@@ -8,8 +8,10 @@ aqui só muda de onde a mensagem chega, não como o agente decide.
 
 from __future__ import annotations
 
+import re
 from datetime import timedelta
 
+from atendimento.agente.redator import RedatorClaude, eh_conversa_social
 from atendimento.privacidade import mascarar
 
 PREFIXO = "WPP-"
@@ -91,13 +93,28 @@ def receber_mensagem(
     ):
         raise KeyError(customer_id)
     pedido = base.banco.executar_um(
-        "SELECT order_id, marca FROM pedidos WHERE customer_id = ? "
+        "SELECT order_id, marca, status_entrega FROM pedidos WHERE customer_id = ? "
         + ("AND order_id = ? " if order_id else "")
         + "ORDER BY data_pedido DESC LIMIT 1",
         (customer_id, order_id) if order_id else (customer_id,),
     )
     if order_id and pedido is None:
         raise KeyError(order_id)
+
+    cadastro = (
+        base.banco.executar_um("SELECT nome FROM clientes WHERE customer_id = ?", (customer_id,))
+        or {}
+    )
+    primeiro = ((cadastro.get("nome") or "").split() or [""])[0]
+    if eh_conversa_social(texto):
+        # cumprimento ou agradecimento não abre caso nem chama o supervisor
+        return {
+            "conversation_id": None,
+            "resposta": _conversa_social(texto, primeiro, pedido),
+            "estado": "conversa",
+            "categoria": "saudacao",
+            "mensagens": [{"autor": "cliente", "texto": texto}],
+        }
 
     # Cada mensagem do WhatsApp é um atendimento novo, decidido pelo que o cliente disse
     # agora: juntar o histórico fazia o leitor responder de novo a pergunta antiga. O chat
@@ -141,10 +158,36 @@ def receber_mensagem(
             )
 
     caso = agente.processar(cid)
+    oficial = caso.resposta_ao_cliente
+    redator = _redator(agente)
     return {
         "conversation_id": cid,
-        "resposta": caso.resposta_ao_cliente,
+        # a política decide e registra a oficial; o redator só muda o tom, com trava de fatos
+        "resposta": redator(texto, oficial, primeiro) if redator and oficial else oficial,
+        "resposta_oficial": oficial,
         "estado": caso.estado,
         "categoria": caso.categoria,
         "mensagens": [{"autor": m["autor"], "texto": m["texto"]} for m in base.mensagens(cid)],
     }
+
+
+def _conversa_social(texto: str, primeiro: str, pedido: dict | None) -> str:
+    nome = f", {primeiro}" if primeiro else ""
+    if re.search(r"obrigad|valeu|vlw|brigad", texto.lower()):
+        fim = f" do pedido {pedido['order_id']}" if pedido else ""
+        return f"Por nada{nome}! Se precisar de algo{fim}, é só me chamar por aqui."
+    if pedido:
+        status = (pedido.get("status_entrega") or "").replace("_", " ")
+        return (
+            f"Oi{nome}! Aqui é o Gabriel, do atendimento {pedido['marca']}. Vi aqui o seu pedido "
+            f"{pedido['order_id']}{f' ({status})' if status else ''}. Como posso te ajudar?"
+        )
+    return f"Oi{nome}! Aqui é o Gabriel, do atendimento. Como posso te ajudar?"
+
+
+def _redator(agente):
+    """Com o leitor Claude ligado (ATENDIMENTO_LLM=1), o redator reescreve a resposta oficial."""
+    if getattr(agente, "redator", None) is None:
+        leitor_claude = hasattr(getattr(agente, "leitor", None), "modelo")
+        agente.redator = RedatorClaude() if leitor_claude else False
+    return agente.redator or None

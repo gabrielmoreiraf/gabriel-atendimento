@@ -62,7 +62,8 @@ export interface ClienteSimulado {
 }
 
 export interface RespostaSimulada {
-  conversation_id: string;
+  /** null quando a mensagem é só cumprimento ou agradecimento (não abre caso). */
+  conversation_id: string | null;
   resposta: string;
   estado: string;
   mensagens: { autor: string; texto: string }[];

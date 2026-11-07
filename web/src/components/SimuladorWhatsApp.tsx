@@ -83,7 +83,9 @@ export function SimuladorWhatsApp({ api, onVerCaso }: Props) {
         texto: mensagem,
         anterior: ultima[id],
       });
-      setUltima((atual) => ({ ...atual, [id]: r.conversation_id }));
+      // cumprimento não abre caso: o botão continua apontando para o último atendimento
+      if (r.conversation_id)
+        setUltima((atual) => ({ ...atual, [id]: r.conversation_id as string }));
       setConversas((atual) => ({
         ...atual,
         [id]: [

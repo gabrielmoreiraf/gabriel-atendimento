@@ -97,3 +97,18 @@ def test_HG_simulador_cliente_desconhecido_da_404(tmp_path, monkeypatch):
     )
 
     assert resposta.status_code == 404
+
+
+def test_HP_oi_e_conversa_e_nao_abre_caso_para_o_supervisor(tmp_path, monkeypatch):
+    cliente = _cliente(tmp_path, monkeypatch)
+    antes = len(cliente.get("/api/fila").json())
+
+    corpo = cliente.post(
+        "/api/simulador/mensagem", json={"customer_id": CLIENTE, "order_id": PEDIDO, "texto": "oi"}
+    ).json()
+
+    assert corpo["conversation_id"] is None
+    assert corpo["categoria"] == "saudacao"
+    assert corpo["resposta"].startswith("Oi, Bruna")  # primeiro nome, nunca o completo
+    assert PEDIDO in corpo["resposta"]  # já conhece o pedido do cadastro
+    assert len(cliente.get("/api/fila").json()) == antes
