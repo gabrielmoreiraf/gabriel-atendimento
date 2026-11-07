@@ -26,7 +26,7 @@ def test_HG_19_cobranca_em_dobro_chama_o_analista_e_avisa_o_canal():
     caso = agente.processar("AT1")
     assert analista.chamadas == [("cobranca_em_dobro", ("GBH1",), ("AT1",))]
     assert caso.analista[0]["incidente"]["incidente_id"] == "INC-000001"
-    assert any("Chamei o agente analista: incidente INC-000001" in m["texto"] for m in agente.canal)
+    assert any("chamou o agente analista: incidente INC-000001" in m["texto"] for m in agente.canal)
 
 
 def test_HG_16_pedido_com_conversa_anterior_chama_analista_de_contato_repetido():

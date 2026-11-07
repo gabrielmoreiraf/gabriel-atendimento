@@ -148,7 +148,8 @@ def test_HG_06_reacao_adversa_orienta_suspensao_e_escala_para_cosmetovigilancia(
     assert "acionar_pessoa" in _ferramentas(caso)
     assert "registrar_cosmetovigilancia" not in _ferramentas(caso)  # é do supervisor (HG-02)
     escalacao = next(m for m in agente.canal if m["tipo"] == "escalacao")
-    assert "registrar_cosmetovigilancia" in escalacao["texto"]
+    assert "registro de cosmetovigilância" in escalacao["texto"]
+    assert escalacao["regra"] == "categorias.reacao_adversa.acoes_obrigatorias"
 
 
 def test_EC_16_hash_repetido_vira_suspeita_com_resposta_neutra():
@@ -393,7 +394,8 @@ def test_HG_06_reacao_adversa_aciona_qualidade_e_pede_registro_em_24h_ao_supervi
     assert ("acionar_pessoa", "qualidade") in ferramentas.areas
     escalacao = next(m for m in agente.canal if m["tipo"] == "escalacao")
     assert escalacao["para"].startswith("supervisor_")
-    assert "registrar_cosmetovigilancia" in escalacao["texto"]
+    assert "registro de cosmetovigilância" in escalacao["texto"]
+    assert escalacao["regra"] == "categorias.reacao_adversa.acoes_obrigatorias"
     assert "24 h" in escalacao["texto"]
     assert "LT2610-A" in escalacao["texto"]
     assert "suspenda o uso" in caso.resposta_ao_cliente

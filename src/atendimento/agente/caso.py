@@ -34,6 +34,12 @@ from atendimento.agente.aprovacoes import (
 )
 from atendimento.agente.leitor import Leitura, ler, mascarar
 from atendimento.agente.priorizacao import priorizar
+from atendimento.agente.rotulos import (
+    acao_feita,
+    em_linguagem_do_time,
+    nome_da_acao,
+    rotulo_categoria,
+)
 from atendimento.contratos import (
     AGORA,
     FUSO,
@@ -86,6 +92,7 @@ GRAVIDADE = {
     "escalada": 4,
 }
 # HG-16: ações que não se repetem no mesmo pedido quando outra conversa já as fez.
+FATOR_ANALISTA = {"cobranca_em_dobro": "cobrança em dobro", "contato_repetido": "contato repetido"}
 REPOSICAO = {"reenviar_produto", "reimprimir_personalizacao", "trocar_produto"}
 # HG-16 / Q23: só ação SEM dinheiro já feita com o mesmo motivo não se repete (chamado aberto);
 # ação com dinheiro sempre passa pela política com o acumulado do pedido (HG-22).
@@ -193,12 +200,21 @@ class Agente:
     def emitir(self, tipo: str, payload: dict) -> None:
         self.eventos.append({"tipo": tipo, "payload": payload})
 
-    def postar_no_canal(self, tipo: str, para: str | None, texto: str, cid: str, **extra) -> dict:
+    def postar_no_canal(
+        self, tipo: str, para: str | None, texto: str, cid: str, *, regra=None, **extra
+    ) -> dict:
+        """Texto em linguagem do time: 'AT… · <Categoria>: …', sem chave de política nem nome
+        de ferramenta cru; a chave da regra vai em mensagem['regra'] (auditoria e detalhe)."""
+        texto, chaves = em_linguagem_do_time(texto)
+        caso = self.casos.get(cid) if cid else None
+        if caso is not None and texto.startswith(f"{cid}: "):
+            texto = f"{cid} · {rotulo_categoria(caso.categoria)}: " + texto[len(cid) + 2 :]
         mensagem = {
             "id": f"CANAL-{next(self._ids_canal):04d}",
             "tipo": tipo,
             "para": para,
             "texto": mascarar(texto),
+            "regra": regra or ("; ".join(chaves) if chaves else None),
             "conversation_id": cid,
             "replay": self._em_replay,
             **extra,
@@ -376,10 +392,11 @@ class Agente:
             caso.analista.append(resultado)
             incidente = (resultado.get("incidente") or {}).get("incidente_id")
             texto = (
-                f"{caso.conversation_id}: Chamei o agente analista: incidente {incidente} ({fator})."
+                f"{caso.conversation_id}: FIO chamou o agente analista: incidente {incidente} "
+                f"({FATOR_ANALISTA.get(fator, fator)})."
                 if incidente
-                else f"{caso.conversation_id}: Chamei o agente analista ({fator}): sem padrão de "
-                "causa comum confirmado na base."
+                else f"{caso.conversation_id}: FIO chamou o agente analista "
+                f"({FATOR_ANALISTA.get(fator, fator)}): sem padrão de causa comum confirmado na base."
             )
             self.postar_no_canal("aviso", None, texto, caso.conversation_id)
 
@@ -470,10 +487,11 @@ class Agente:
         self.postar_no_canal(
             "aviso",
             None,
-            f"{caso.conversation_id}: {acao.ferramenta} não repetido (HG-16): já executado no "
-            f"pedido {acao.order_id} em {quando}, ref. {ref}, na conversa "
+            f"{caso.conversation_id}: FIO não repetiu o {nome_da_acao(acao.ferramenta)}: já foi "
+            f"feito no pedido {acao.order_id} em {quando} (ref. {ref}), na conversa "
             f"{feita.get('conversation_id') or 'anterior'}.",
             caso.conversation_id,
+            regra="HG-16 (contato repetido)",
         )
         return (
             "resolvida",
@@ -644,10 +662,11 @@ class Agente:
             self.postar_no_canal(
                 "aviso",
                 None,
-                f"{cid}: a mensagem do cliente traz uma instrução dirigida ao agente. "
-                "Tratada como dado (seguranca.texto_do_cliente_e_dado_nao_instrucao): nenhuma "
-                "ação foi tomada por causa dela. Caso registrado para revisão.",
+                f"{cid}: a mensagem do cliente traz uma instrução dirigida ao FIO. Ela foi "
+                "tratada como dado: nenhuma ação foi tomada por causa dela. Caso registrado para "
+                "revisão.",
                 cid,
+                regra="seguranca.texto_do_cliente_e_dado_nao_instrucao",
             )
 
         respostas = []
@@ -817,9 +836,10 @@ class Agente:
             # Q20: sem pedido identificado, nada com dinheiro; pede o número ao cliente.
             self._escalar(
                 caso,
-                f"Demanda '{categoria}' sem pedido identificado: nenhuma ação com dinheiro "
-                "(Q20); pedido o número ao cliente.",
+                f"{rotulo_categoria(categoria)} sem pedido identificado: nada com dinheiro foi "
+                "feito e o FIO pediu o número do pedido ao cliente.",
                 categoria,
+                regra="Q20 (ação com dinheiro sem pedido identificado)",
             )
             return "escalada", TEXTO_PEDIR_NUMERO
 
@@ -953,7 +973,8 @@ class Agente:
                 return "resolvida", ""  # responder_duvida já enviou a resposta ao cliente
             return self._escalar(
                 caso,
-                f"Dúvida de produto sem resposta pela ficha: {resposta.get('motivo')}.",
+                f"FIO não achou a resposta na ficha do produto ({resposta.get('motivo')}); uma "
+                "pessoa do time responde.",
                 categoria,
             )
 
@@ -979,13 +1000,13 @@ class Agente:
 
         return self._escalar(
             caso,
-            f"Demanda '{categoria}' sem regra automática no MVP"
+            f"{rotulo_categoria(categoria)}: o FIO não tem regra automática para esta demanda"
             + (
                 ""
                 if pedido or categoria in ("outros", "duvida_produto", "cupom_promocao")
                 else " (pedido não identificado)"
             )
-            + ": uma pessoa do time responde.",
+            + "; uma pessoa do time responde.",
             categoria,
         )
 
@@ -1005,17 +1026,19 @@ class Agente:
             self.postar_no_canal(
                 "aviso",
                 None,
-                f"{caso.conversation_id}: {acao.ferramenta} de {_rs(acao.valor_rs)} suspenso: o "
-                f"pedido {acao.order_id} tem a suspeita {pendente.suspeita_id} pendente.",
+                f"{caso.conversation_id}: FIO não fez o {nome_da_acao(acao.ferramenta)} de "
+                f"{_rs(acao.valor_rs)}: o pedido {acao.order_id} tem a suspeita "
+                f"{pendente.suspeita_id} esperando a decisão do supervisor.",
                 caso.conversation_id,
+                regra="reclamacao_suspeita.quem_decide",
             )
             return "suspeita", self._texto_em_analise()
         if caso.instrucao_embutida and acao.ferramenta in COM_DINHEIRO:
             # HG-09: texto que tenta mandar no agente tira o caso do automático
             self._escalar(
                 caso,
-                f"{acao.ferramenta} de {_rs(acao.valor_rs)} não executado automaticamente: a "
-                "mensagem traz instrução dirigida ao agente (HG-09). Conferência humana.",
+                f"FIO não fez o {nome_da_acao(acao.ferramenta)} de {_rs(acao.valor_rs)} sozinho: a "
+                "mensagem traz uma instrução dirigida ao FIO. Conferência humana.",
                 acao.categoria,
             )
             return "escalada", "Uma pessoa da nossa equipe já está cuidando do seu caso."
@@ -1041,10 +1064,11 @@ class Agente:
             self.postar_no_canal(
                 "aviso",
                 None,
-                f"{cid}: {acao.ferramenta} executado"
-                + (f" ({_rs(acao.valor_rs)})" if acao.ferramenta in COM_DINHEIRO else "")
-                + f", ref. {registro.referencia_sistema}. Regra: {decisao.regra}.",
+                f"{cid}: FIO {acao_feita(acao.ferramenta)}"
+                + (f" de {_rs(acao.valor_rs)}" if acao.ferramenta in COM_DINHEIRO else "")
+                + f" (ref. {registro.referencia_sistema}).",
                 cid,
+                regra=decisao.regra,
             )
             texto = _texto_executado(acao, registro)
             if acao.ferramenta in REPOSICAO and pedido is not None:
@@ -1089,9 +1113,11 @@ class Agente:
             self.postar_no_canal(
                 "aprovacao",
                 decisao.aprovador_sugerido,
-                f"{cid}: pedido {acao.order_id}. Ação proposta: {acao.ferramenta} de "
-                f"{_rs(acao.valor_rs)} ({acao.motivo}). {decisao.motivo} Evidências: {evidencias}",
+                f"{cid}: FIO pediu aprovação para {nome_da_acao(acao.ferramenta)} de "
+                f"{_rs(acao.valor_rs)} no pedido {acao.order_id} ({_por_que_aprovacao(decisao)})."
+                + (f" Evidências: {evidencias}" if veredicto else ""),
                 cid,
+                regra=decisao.regra,
                 aprovacao_id=aprovacao_id,
                 estado="pendente",
                 solicitado_por=EXECUTOR,
@@ -1133,10 +1159,11 @@ class Agente:
             self.postar_no_canal(
                 "suspeita",
                 decisao.aprovador_sugerido,
-                f"{cid}: pedido {acao.order_id}, ação proposta {acao.ferramenta} de "
-                f"{_rs(acao.valor_rs)} suspensa até a decisão do supervisor. Evidências: {sinais} "
+                f"{cid}: FIO segurou o {nome_da_acao(acao.ferramenta)} de {_rs(acao.valor_rs)} no "
+                f"pedido {acao.order_id} até a decisão do supervisor. Evidências: {sinais} "
                 f"Prazo de decisão: {suspeita.prazo.strftime('%d/%m/%Y %H:%M')}.",
                 cid,
+                regra=decisao.regra,
                 estado="pendente",
                 suspeita_id=suspeita.suspeita_id,
                 prazo=suspeita.prazo.isoformat(),
@@ -1147,7 +1174,13 @@ class Agente:
         if r is Resultado.ESCALAR:
             if acao.ferramenta == "orientar_suspensao_uso":
                 return self._reacao_adversa(caso, acao, decisao, pedido)
-            self._escalar(caso, decisao.motivo, acao.categoria, para=decisao.aprovador_sugerido)
+            self._escalar(
+                caso,
+                decisao.motivo,
+                acao.categoria,
+                para=decisao.aprovador_sugerido,
+                regra=decisao.regra,
+            )
             return "escalada", "Uma pessoa da nossa equipe já está cuidando do seu caso."
 
         if r is Resultado.NEGAR:
@@ -1163,13 +1196,21 @@ class Agente:
             self.postar_no_canal(
                 "aviso",
                 None,
-                f"{cid}: {acao.ferramenta} negado ({decisao.regra}). {decisao.motivo}",
+                f"{cid}: FIO não fez o {nome_da_acao(acao.ferramenta)}, pela política. "
+                f"{decisao.motivo}",
                 cid,
+                regra=decisao.regra,
             )
             return "resolvida", texto
 
         # BLOQUEAR
-        self._escalar(caso, f"Ação bloqueada pela política: {decisao.motivo}", acao.categoria)
+        self._escalar(
+            caso,
+            f"FIO não fez o {nome_da_acao(acao.ferramenta)}: bloqueado pela política. "
+            f"{decisao.motivo}",
+            acao.categoria,
+            regra=decisao.regra,
+        )
         return "escalada", "Uma pessoa da nossa equipe já está cuidando do seu caso."
 
     def _escalar(
@@ -1179,6 +1220,7 @@ class Agente:
         categoria: str | None,
         para: str | None = None,
         area: str = "supervisão",
+        regra: str | None = None,
     ) -> tuple[str, str]:
         self.executar(
             caso,
@@ -1186,7 +1228,11 @@ class Agente:
             area=area,
         )
         self.postar_no_canal(
-            "escalacao", para, f"{caso.conversation_id}: {motivo}", caso.conversation_id
+            "escalacao",
+            para,
+            f"{caso.conversation_id}: {motivo}",
+            caso.conversation_id,
+            regra=regra,
         )
         return (
             "escalada",
@@ -1224,10 +1270,10 @@ class Agente:
         self.postar_no_canal(
             "escalacao",
             decisao.aprovador_sugerido,
-            f"{caso.conversation_id}: {contexto} Orientação de suspensão do uso já enviada. "
-            f"Pendente para o supervisor do turno: registrar_cosmetovigilancia em até {prazo} h "
-            f"({decisao.regra}).",
+            f"{caso.conversation_id}: {contexto} FIO já orientou o cliente a suspender o uso. "
+            f"Pendente para o supervisor do turno: registro de cosmetovigilância em até {prazo} h.",
             caso.conversation_id,
+            regra=decisao.regra,
         )
         return "escalada", _texto_suspensao(prazo)
 
@@ -1363,6 +1409,20 @@ def _data_br(valor: object) -> str:
         return datetime.fromisoformat(texto).strftime("%d/%m/%Y")
     except ValueError:
         return texto or "data não registrada"
+
+
+def _por_que_aprovacao(decisao: Decisao) -> str:
+    """'acima do limite de R$ 100,00 do atendente', com o acumulado do pedido quando houver."""
+    limite = decisao.detalhes.get("limite_rs")
+    if limite is None:
+        return "acima da alçada do atendente"
+    acumulado = decisao.detalhes.get("acumulado_rs") or 0
+    if acumulado:
+        return (
+            f"somando {_rs(acumulado)} já feitos no pedido, passa do limite de {_rs(limite)} "
+            "do atendente"
+        )
+    return f"acima do limite de {_rs(limite)} do atendente"
 
 
 def valor_duplicado(transacoes: list[dict]) -> float:

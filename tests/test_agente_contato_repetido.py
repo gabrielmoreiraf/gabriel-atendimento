@@ -33,7 +33,7 @@ def test_HG_16_nao_abre_segundo_chamado_com_a_transportadora():
     assert "abrir_chamado_transportadora" not in [r.acao for r in caso.acoes]
     assert "CHM-000777" in caso.resposta_ao_cliente
     assert "28/10/2026" in caso.resposta_ao_cliente
-    assert any("HG-16" in m["texto"] for m in agente.canal)
+    assert any((m.get("regra") or "").startswith("HG-16") for m in agente.canal)
 
 
 def test_HG_22_reenvio_quebrou_de_novo_com_reenvio_anterior_de_150_pede_aprovacao():

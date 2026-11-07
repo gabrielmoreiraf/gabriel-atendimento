@@ -10,11 +10,16 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
+from atendimento.agente.rotulos import nome_da_acao
 from atendimento.contratos import AcaoProposta, Papel, Resultado
 from atendimento.politicas import decidir
 
 if TYPE_CHECKING:
     from atendimento.agente.caso import Agente, Caso
+
+
+def _rs(valor: float) -> str:
+    return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
 class AprovacaoRecusada(Exception):
@@ -159,8 +164,8 @@ def aprovar(agente: Agente, aprovacao_id: str, supervisor_id: str, comentario: s
     agente.postar_no_canal(
         "aviso",
         supervisor_id,
-        f"{caso.conversation_id}: {acao.ferramenta} aprovado por {supervisor_id} e executado, "
-        f"ref. {registro.referencia_sistema}.",
+        f"{caso.conversation_id}: {nome_da_acao(acao.ferramenta)} de {_rs(acao.valor_rs)} "
+        f"aprovado por {supervisor_id} e feito pelo FIO (ref. {registro.referencia_sistema}).",
         caso.conversation_id,
         aprovacao_id=aprovacao_id,
     )
@@ -190,7 +195,8 @@ def rejeitar(agente: Agente, aprovacao_id: str, supervisor_id: str, justificativ
     agente.postar_no_canal(
         "aviso",
         supervisor_id,
-        f"{caso.conversation_id}: {aprovacao.acao.ferramenta} rejeitado por {supervisor_id}. "
+        f"{caso.conversation_id}: {nome_da_acao(aprovacao.acao.ferramenta)} rejeitado por "
+        f"{supervisor_id}. "
         f"Justificativa: {justificativa}",
         caso.conversation_id,
         aprovacao_id=aprovacao_id,
