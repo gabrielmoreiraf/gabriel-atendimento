@@ -335,7 +335,8 @@ def test_HG_09_cliente_nao_fecha_nem_abre_o_delimitador_em_variacoes(fecho):
 def test_HG_11_nome_do_cliente_nao_chega_a_api():
     cliente = ClienteFalso()
     LeitorClaude(cliente)(
-        "Oi, aqui é a Jucimara Olinda Peltrovi, cadê meu pedido?", nomes=["Jucimara Olinda Peltrovi"]
+        "Oi, aqui é a Jucimara Olinda Peltrovi, cadê meu pedido?",
+        nomes=["Jucimara Olinda Peltrovi"],
     )
     assert "Olinda Peltrovi" not in _enviado(cliente)
 
