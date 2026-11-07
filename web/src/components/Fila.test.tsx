@@ -48,7 +48,8 @@ describe("Fila", () => {
 
   it("test_HP_09_filtra_por_estado", async () => {
     render(<Fila itens={itens} selecionado={null} onAbrir={vi.fn()} />);
-    await userEvent.selectOptions(screen.getByLabelText("Estado"), "suspeita");
+    await userEvent.click(screen.getByRole("button", { name: /Estado/ }));
+    await userEvent.click(screen.getByRole("button", { name: /^Suspeita/ }));
     const textos = screen.getAllByTestId("fila-item").map((b) => b.textContent ?? "");
     expect(textos).toHaveLength(1);
     expect(textos[0]).toContain("AT1");

@@ -2480,3 +2480,113 @@ html {
   font-size: 14px;
   cursor: pointer;
 }
+
+/* Menu de estado da fila (substitui o select nativo) */
+.estado-filtro {
+  position: relative;
+  grid-column: 1 / -1;
+  margin-top: var(--esp-2);
+}
+.estado-filtro__botao {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  border: 1.5px solid var(--borda);
+  border-radius: var(--raio-campo);
+  background: var(--superficie);
+  color: var(--texto);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.estado-filtro__botao:hover,
+.estado-filtro__botao[aria-expanded="true"] {
+  border-color: var(--primaria);
+}
+.estado-filtro__rotulo {
+  color: var(--texto-2);
+  font-size: 13px;
+  font-weight: 700;
+}
+.estado-filtro__valor {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+.estado-filtro__seta {
+  color: var(--texto-2);
+}
+.estado-filtro__menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-cartao);
+  background: var(--superficie);
+  box-shadow: var(--sombra-2);
+}
+.estado-filtro__menu button {
+  width: 100%;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--raio-campo);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.estado-filtro__menu button .mono {
+  margin-left: auto;
+  color: var(--texto-2);
+  font-size: 13px;
+}
+.estado-filtro__menu button:hover,
+.estado-filtro__menu button:focus-visible {
+  background: var(--superficie-2);
+  outline: none;
+}
+.estado-filtro__menu button[aria-pressed="true"] {
+  background: var(--fio-bg);
+  color: var(--primaria-hover);
+}
+.estado-filtro .ponto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--texto);
+  flex: none;
+}
+.estado-filtro [data-estado="aberta"] .ponto {
+  background: var(--st-aberta-dot);
+}
+.estado-filtro [data-estado="resolvida"] .ponto {
+  background: var(--st-resolvida-dot);
+}
+.estado-filtro [data-estado="aguardando_aprovacao"] .ponto {
+  background: var(--st-aprov-dot);
+}
+.estado-filtro [data-estado="aguardando_cliente"] .ponto {
+  background: var(--st-cliente-dot);
+}
+.estado-filtro [data-estado="suspeita"] .ponto {
+  background: var(--st-suspeita-dot);
+}
+.estado-filtro [data-estado="escalada"] .ponto {
+  background: var(--st-escalada-dot);
+}

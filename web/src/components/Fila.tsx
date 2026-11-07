@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { ItemFila } from "../api/tipos";
 import { formatarDataHora, rotuloEstado } from "../formato";
 import { EstadoSelo } from "./EstadoSelo";
@@ -60,17 +60,14 @@ export function Fila({ itens, selecionado, onAbrir }: Props) {
             </button>
           ))}
         </fieldset>
-        <label className="fila__estado">
-          <span>Estado</span>
-          <select value={filtro} onChange={(e) => setFiltro(e.target.value)}>
-            <option value="todas">Todas ({doCanal.length})</option>
-            {estados.map((e) => (
-              <option key={e} value={e}>
-                {rotuloEstado(e)} ({contagem(e)})
-              </option>
-            ))}
-          </select>
-        </label>
+        <FiltroEstado
+          valor={filtro}
+          onEscolher={setFiltro}
+          opcoes={[
+            { valor: "todas", rotulo: "Todas", total: doCanal.length },
+            ...estados.map((e) => ({ valor: e, rotulo: rotuloEstado(e), total: contagem(e) })),
+          ]}
+        />
       </header>
       {visiveis.length === 0 ? (
         <p className="vazio">
@@ -111,5 +108,84 @@ export function Fila({ itens, selecionado, onAbrir }: Props) {
         </ul>
       )}
     </section>
+  );
+}
+
+interface OpcaoEstado {
+  valor: string;
+  rotulo: string;
+  total: number;
+}
+
+/** Menu de estado com a cor de cada estado; fecha com Esc ou clique fora. */
+function FiltroEstado({
+  valor,
+  opcoes,
+  onEscolher,
+}: {
+  valor: string;
+  opcoes: OpcaoEstado[];
+  onEscolher: (valor: string) => void;
+}) {
+  const [aberto, setAberto] = useState(false);
+  const raiz = useRef<HTMLDivElement>(null);
+  const id = useId();
+  const atual = opcoes.find((o) => o.valor === valor) ?? opcoes[0];
+
+  useEffect(() => {
+    if (!aberto) return;
+    const fora = (e: MouseEvent) => {
+      if (!raiz.current?.contains(e.target as Node)) setAberto(false);
+    };
+    const tecla = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setAberto(false);
+    };
+    document.addEventListener("mousedown", fora);
+    document.addEventListener("keydown", tecla);
+    return () => {
+      document.removeEventListener("mousedown", fora);
+      document.removeEventListener("keydown", tecla);
+    };
+  }, [aberto]);
+
+  return (
+    <div className="estado-filtro" ref={raiz}>
+      <button
+        type="button"
+        className="estado-filtro__botao"
+        aria-expanded={aberto}
+        aria-controls={id}
+        onClick={() => setAberto((a) => !a)}
+      >
+        <span className="estado-filtro__rotulo">Estado</span>
+        <span className="estado-filtro__valor" data-estado={atual?.valor}>
+          <span className="ponto" aria-hidden="true" />
+          {atual?.rotulo} <span className="mono">{atual?.total}</span>
+        </span>
+        <span className="estado-filtro__seta" aria-hidden="true">
+          ▾
+        </span>
+      </button>
+      {aberto ? (
+        <ul className="estado-filtro__menu" id={id}>
+          {opcoes.map((o) => (
+            <li key={o.valor} data-estado={o.valor}>
+              <button
+                type="button"
+                aria-pressed={o.valor === valor}
+                onClick={() => {
+                  onEscolher(o.valor);
+                  setAberto(false);
+                }}
+              >
+                <span className="ponto" aria-hidden="true" />
+                {o.rotulo}
+                <span className="mono">{o.total}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
   );
 }
