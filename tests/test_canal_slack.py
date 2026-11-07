@@ -46,15 +46,15 @@ class ClienteFalso:
         return {"ok": True}
 
 
-def _agente_com_aprovacao():
+def _agente_com_aprovacao(**kw_pedido):
     base = BaseFalsa()
     base.conversa("AT1", ["O pote chegou amassado e vazou tudo."], order_id="GBH000002")
-    base.com_pedido(pedido("GBH000002", valor=260.0))
+    base.com_pedido(pedido("GBH000002", valor=260.0, **kw_pedido))
     base.com_anexo(anexo("AT1", "GBH000002", captura=captura(31)))
     agente = Agente(base, FerramentasFalsas(base))
     agente.processar("AT1")
-    aprovacao_id = next(m for m in agente.canal if m["tipo"] == "aprovacao")["aprovacao_id"]
-    return agente, aprovacao_id
+    aprovacao = next((m for m in agente.canal if m["tipo"] == "aprovacao"), {})
+    return agente, aprovacao.get("aprovacao_id")
 
 
 def _canal(agente, cliente=None):
@@ -352,8 +352,15 @@ def _registros(agente):
     return [r.acao for r in agente.base.registros]
 
 
+def _agente_categoria(categoria: str, **kw_pedido):
+    """Atendimento AT1 do pedido GBH000002 classificado em `categoria` (como o leitor faria)."""
+    agente, _ = _agente_com_aprovacao(**kw_pedido)
+    agente.casos["AT1"].categoria = categoria
+    return agente
+
+
 def test_HG_10_colaborador_pede_reembolso_de_300_abre_aprovacao_e_nao_reembolsa():
-    agente, _ = _agente_com_aprovacao()
+    agente = _agente_categoria("cobranca_duplicada")
     cliente = ClienteFalso()
     canal = _canal(agente, cliente)
     resposta = canal.responder_mencao(
@@ -380,14 +387,14 @@ def test_HG_10_colaborador_pede_reembolso_de_300_abre_aprovacao_e_nao_reembolsa(
     ],
 )
 def test_HG_10_variacoes_de_pedido_de_reembolso(texto):
-    agente, _ = _agente_com_aprovacao()
+    agente = _agente_categoria("cobranca_duplicada")
     _canal(agente).responder_mencao(texto, "U0ATD")
     assert any(a.acao.ferramenta == "reembolsar" for a in agente.aprovacoes.values())
     assert "reembolsar" not in _registros(agente)
 
 
 def test_HG_10_dentro_da_alcada_tambem_nao_executa_e_escala():
-    agente, _ = _agente_com_aprovacao()
+    agente = _agente_categoria("cobranca_duplicada")
     antes = len(agente.aprovacoes)
     resposta = _canal(agente).responder_mencao(
         "<@U0FIO> reembolsa R$ 50 no pedido GBH000002", "U0ATD"
@@ -408,7 +415,7 @@ def test_HG_10_pedido_sem_atendimento_aberto_escala_sem_abrir_aprovacao():
 
 
 def test_HG_03_supervisor_que_pediu_pelo_slack_nao_aprova_o_proprio_pedido():
-    agente, _ = _agente_com_aprovacao()
+    agente = _agente_categoria("cobranca_duplicada")
     cliente = ClienteFalso()
     canal = _canal(agente, cliente)
     canal.responder_mencao("<@U0FIO> reembolsa R$ 300 no pedido GBH000002", "U0SUP1")
@@ -516,3 +523,53 @@ def test_P5_rate_limit_nao_conta_como_tentativa_perdida():
     for _ in range(6):
         canal.sincronizar()
     assert len(cliente.postadas) == 1
+
+
+# ---------- HG-10 (revisão 2): a categoria do caso vale para o pedido do colaborador ----------
+
+
+def _sem_aprovacao_de_reembolso(agente):
+    return not any(a.acao.ferramenta == "reembolsar" for a in agente.aprovacoes.values())
+
+
+def test_HG_10_reembolso_pedido_pelo_slack_em_caso_de_avaria_nao_vira_aprovacao():
+    agente = _agente_categoria("avaria_vazamento")  # avaria: só solicitar_foto e reenvio
+    resposta = _canal(agente).responder_mencao("<@U0FIO> reembolsa R$ 300 no GBH000002", "U0ATD")
+    assert _sem_aprovacao_de_reembolso(agente)
+    assert "reembolsar" not in _registros(agente)
+    assert "categorias.avaria_vazamento.acoes_permitidas" in resposta
+    assert agente.canal[-1]["tipo"] == "escalacao"
+
+
+def test_HG_10_reembolso_pedido_pelo_slack_em_reacao_adversa_escala():
+    agente = _agente_categoria("reacao_adversa")
+    resposta = _canal(agente).responder_mencao("<@U0FIO> reembolsa R$ 300 no GBH000002", "U0ATD")
+    assert _sem_aprovacao_de_reembolso(agente)
+    assert "categorias.reacao_adversa" in resposta
+    assert agente.canal[-1]["tipo"] == "escalacao"
+
+
+def test_HG_10_reembolso_pedido_pelo_slack_fora_do_prazo_e_negado():
+    from datetime import date
+
+    agente = _agente_categoria("arrependimento", entrega=date(2026, 10, 20))  # 13 dias
+    resposta = _canal(agente).responder_mencao("<@U0FIO> reembolsa R$ 300 no GBH000002", "U0ATD")
+    assert _sem_aprovacao_de_reembolso(agente)
+    assert "categorias.arrependimento_cancelamento.prazo_dias_corridos_do_recebimento" in resposta
+    assert "negado" in resposta  # o texto do CDC art. 49 vem da política (teste do motor EC-03)
+
+
+def test_HG_10_arrependimento_dentro_do_prazo_abre_aprovacao():
+    agente = _agente_categoria("arrependimento")  # entrega há 3 dias: reembolso permitido
+    _canal(agente).responder_mencao("<@U0FIO> reembolsa R$ 300 no GBH000002", "U0ATD")
+    assert not _sem_aprovacao_de_reembolso(agente)
+    assert "reembolsar" not in _registros(agente)
+
+
+@pytest.mark.parametrize("categoria", [None, "outros", "duvida_produto"])
+def test_HG_10_caso_sem_categoria_da_politica_escala_sem_aprovacao(categoria):
+    agente = _agente_categoria(categoria)
+    resposta = _canal(agente).responder_mencao("<@U0FIO> reembolsa R$ 300 no GBH000002", "U0ATD")
+    assert _sem_aprovacao_de_reembolso(agente)
+    assert "categoria" in resposta
+    assert agente.canal[-1]["tipo"] == "escalacao"

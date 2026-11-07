@@ -43,6 +43,15 @@ _ACOES_COM_DINHEIRO = (
 _VALOR = re.compile(r"r\$\s*(\d[\d.]*(?:,\d{1,2})?)|(\d[\d.]*(?:,\d{1,2})?)\s*reais")
 
 
+# Categoria do leitor -> categoria de politicas.csv (as demais têm o mesmo nome).
+_CATEGORIA_DA_POLITICA = {
+    "rastreio": "onde_esta_pedido",
+    "atraso": "atraso_entrega",
+    "arrependimento": "arrependimento_cancelamento",
+    "avaria": "avaria_vazamento",
+}
+
+
 def _sem_acento(texto: str) -> str:
     return "".join(
         c for c in unicodedata.normalize("NFKD", texto.lower()) if not unicodedata.combining(c)
@@ -293,8 +302,19 @@ class CanalSlack:
                 "Nada foi executado; escalei para o supervisor seguir pelo fluxo do cliente."
             )
         cid = caso.conversation_id
-        # categoria=None: o pedido do colaborador não é a reclamação classificada do cliente;
-        # vale a alçada da política, e nada executa sem uma pessoa.
+        # A categoria do caso vale para o pedido do colaborador: acoes_permitidas, caso
+        # sensível e prazo (EC-03) continuam valendo. Sem categoria da política, escala.
+        categoria = _CATEGORIA_DA_POLITICA.get(caso.categoria or "", caso.categoria)
+        if not categoria or f"categorias.{categoria}.acoes_permitidas" not in self.agente.politicas:
+            self._escalar(
+                f"{cid}: {origem}: {o_que}. O atendimento não tem categoria da política "
+                f"({caso.categoria or 'sem categoria'}) para conferir a ação: decisão de uma pessoa.",
+                cid,
+            )
+            return (
+                f"{o_que}: o atendimento {cid} não tem categoria da política que permita "
+                "conferir essa ação. Nada foi executado; escalei para o supervisor."
+            )
         acao = AcaoProposta(
             ferramenta=ferramenta,
             papel=Papel.ATENDENTE,
@@ -303,6 +323,7 @@ class CanalSlack:
             order_id=order_id,
             valor_rs=valor,
             motivo=origem,
+            categoria=categoria,
         )
         with getattr(self.agente, "_trava", None) or nullcontext():
             anteriores = (
@@ -368,9 +389,10 @@ class CanalSlack:
                 cid,
                 decisao.aprovador_sugerido,
             )
+            efeito = "negado" if decisao.resultado is Resultado.NEGAR else "não executado"
             return (
-                f"Pela política ({decisao.regra}): {decisao.motivo} Não executei {o_que}; "
-                "escalei para o supervisor."
+                f"{o_que}: {efeito} pela política ({decisao.regra}). {decisao.motivo} "
+                "Pedido de colaborador não muda a política; escalei para o supervisor."
             )
 
     def _registrar_resposta(self, resposta: str, order_id: str | None) -> None:
