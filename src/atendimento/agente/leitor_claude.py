@@ -41,6 +41,20 @@ _ORDER_ID = re.compile(r"\bG[BC]H\d{6}\b")
 _DELIM = "mensagem_do_cliente"
 
 _DELIMITADOR = re.compile(rf"<\s*/?\s*{_DELIM}\s*>", re.IGNORECASE)
+_MAX_PASSADAS = 50
+
+
+def sem_delimitador(texto: str) -> str:
+    """Remove o delimitador do texto do cliente (HG-09) até o texto parar de mudar: uma tag
+    aninhada ('<mensagem_do_<mensagem_do_cliente>cliente>') se remontaria com uma passada só.
+    Se ainda sobrar delimitador depois do limite de passadas, tira os '<' e '>' que restarem."""
+    for _ in range(_MAX_PASSADAS):
+        novo = _DELIMITADOR.sub("", texto)
+        if novo == texto:
+            return texto
+        texto = novo
+    return texto.replace("<", "").replace(">", "") if _DELIMITADOR.search(texto) else texto
+
 
 log = logging.getLogger(__name__)
 
@@ -233,7 +247,7 @@ class LeitorClaude:
         return regras
 
     def _perguntar(self, mascarado: str) -> object:
-        seguro = _DELIMITADOR.sub("", mascarado)  # o cliente não abre nem fecha o delimitador
+        seguro = sem_delimitador(mascarado)  # o cliente não abre nem fecha o delimitador
         resposta = self.cliente.beta.messages.create(
             model=self.modelo,
             max_tokens=2048,
