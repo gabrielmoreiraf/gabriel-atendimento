@@ -79,8 +79,8 @@ def _proximo_id(base) -> str:
 def receber_mensagem(
     agente, customer_id: str, texto: str, order_id: str | None = None, anterior: str | None = None
 ) -> dict:
-    """Grava a conversa nova na fila, com as mensagens da conversa anterior (se houver), e
-    processa com o agente. KeyError se o cliente ou o pedido não forem dele."""
+    """Grava a mensagem como uma conversa nova na fila e processa com o agente.
+    KeyError se o cliente ou o pedido não forem dele."""
     base = agente.base
     texto = (texto or "").strip()
     if not texto:
@@ -99,12 +99,11 @@ def receber_mensagem(
     if order_id and pedido is None:
         raise KeyError(order_id)
 
+    # Cada mensagem do WhatsApp é um atendimento novo, decidido pelo que o cliente disse
+    # agora: juntar o histórico fazia o leitor responder de novo a pergunta antiga. O chat
+    # da tela guarda a conversa inteira; `anterior` fica só como referência da sequência.
+    del anterior
     historico: list[tuple[str, str]] = []
-    if anterior:
-        historico = [(m["autor"], m["texto"]) for m in base.mensagens(anterior) if m.get("texto")]
-        caso_anterior = agente.casos.get(anterior)
-        if caso_anterior is not None and caso_anterior.resposta_ao_cliente:
-            historico.append(("agente", caso_anterior.resposta_ao_cliente))
     historico.append(("cliente", texto))
 
     cid = _proximo_id(base)
@@ -146,5 +145,6 @@ def receber_mensagem(
         "conversation_id": cid,
         "resposta": caso.resposta_ao_cliente,
         "estado": caso.estado,
+        "categoria": caso.categoria,
         "mensagens": [{"autor": m["autor"], "texto": m["texto"]} for m in base.mensagens(cid)],
     }

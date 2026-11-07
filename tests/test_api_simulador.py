@@ -60,11 +60,11 @@ def test_HP_mensagem_do_cliente_entra_na_fila_e_o_gabriel_responde(tmp_path, mon
     assert caso["pedido"]["order_id"] == PEDIDO  # conhece o cliente pelo cadastro
 
 
-def test_HP_segunda_mensagem_leva_a_conversa_anterior(tmp_path, monkeypatch):
+def test_HP_segunda_mensagem_e_decidida_pelo_que_o_cliente_disse_agora(tmp_path, monkeypatch):
     cliente = _cliente(tmp_path, monkeypatch)
     primeira = cliente.post(
         "/api/simulador/mensagem",
-        json={"customer_id": CLIENTE, "order_id": PEDIDO, "texto": "Oi, tudo bem?"},
+        json={"customer_id": CLIENTE, "order_id": PEDIDO, "texto": "Cadê o meu pedido?"},
     ).json()
 
     segunda = cliente.post(
@@ -72,15 +72,18 @@ def test_HP_segunda_mensagem_leva_a_conversa_anterior(tmp_path, monkeypatch):
         json={
             "customer_id": CLIENTE,
             "order_id": PEDIDO,
-            "texto": "Quero saber do rastreio do meu pedido.",
+            "texto": "Quero cancelar a compra.",
             "anterior": primeira["conversation_id"],
         },
     ).json()
 
     assert segunda["conversation_id"] != primeira["conversation_id"]
-    textos = [m["texto"] for m in segunda["mensagens"]]
-    assert "Oi, tudo bem?" in textos
-    assert "Quero saber do rastreio do meu pedido." in textos
+    # o leitor lê só o pedido novo: a pergunta antiga não decide de novo
+    assert [m["texto"] for m in segunda["mensagens"] if m["autor"] == "cliente"] == [
+        "Quero cancelar a compra."
+    ]
+    assert primeira["categoria"] == "rastreio"
+    assert segunda["categoria"] != "rastreio"
 
 
 def test_HG_simulador_cliente_desconhecido_da_404(tmp_path, monkeypatch):
