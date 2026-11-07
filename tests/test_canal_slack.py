@@ -103,17 +103,21 @@ def test_P5_config_mapeia_supervisores_e_nao_expoe_tokens():
 # ---------- espelho ----------
 
 
-def test_HG_20_espelha_cada_mensagem_do_canal_uma_vez():
+def _acionaveis(agente):
+    return [m for m in agente.canal if m["tipo"] in ("aprovacao", "suspeita", "escalacao")]
+
+
+def test_HG_20_espelha_cada_mensagem_acionavel_uma_vez():
     agente, _ = _agente_com_aprovacao()
     cliente = ClienteFalso()
     canal = _canal(agente, cliente)
     canal.sincronizar()
     canal.sincronizar()
-    assert len(cliente.postadas) == len(agente.canal)
+    assert len(cliente.postadas) == len(_acionaveis(agente)) >= 1
     assert {p["channel"] for p in cliente.postadas} == {"C0TIME"}
-    agente.postar_no_canal("aviso", None, "novo aviso", "AT1")
+    agente.postar_no_canal("escalacao", None, "nova escalação", "AT1")
     canal.sincronizar()
-    assert len(cliente.postadas) == len(agente.canal)
+    assert len(cliente.postadas) == len(_acionaveis(agente))
 
 
 def test_HG_11_espelho_mascara_de_novo_por_garantia():
@@ -121,7 +125,7 @@ def test_HG_11_espelho_mascara_de_novo_por_garantia():
     agente.canal.append(
         {
             "id": "CANAL-9999",
-            "tipo": "aviso",
+            "tipo": "escalacao",
             "para": None,
             "conversation_id": "AT1",
             "texto": "Cliente CPF 123.456.789-01, tel (11) 91234-5678, ana@exemplo.com",
@@ -573,3 +577,163 @@ def test_HG_10_caso_sem_categoria_da_politica_escala_sem_aprovacao(categoria):
     assert _sem_aprovacao_de_reembolso(agente)
     assert "categoria" in resposta
     assert agente.canal[-1]["tipo"] == "escalacao"
+
+
+# ---------- só o que pede alguém vai ao Slack; resumo por rodada ----------
+
+from atendimento.canal_slack.canal import deve_ir_ao_slack  # noqa: E402
+
+
+@pytest.mark.parametrize(
+    ("mensagem", "vai"),
+    [
+        ({"tipo": "aprovacao", "texto": "AT1: reembolso", "aprovacao_id": "APR-1"}, True),
+        ({"tipo": "suspeita", "texto": "AT1: suspensa", "suspeita_id": "SUS-1"}, True),
+        ({"tipo": "escalacao", "texto": "AT1: reação adversa"}, True),
+        ({"tipo": "aprovacao", "texto": "lembrete", "chave": "aprovacao:APR-1:1"}, True),
+        ({"tipo": "aviso", "texto": "AT1 vence às 08:30", "chave": "sla:AT1:vai_estourar"}, True),
+        ({"tipo": "aviso", "texto": "abriu INC-000001", "incidente_id": "INC-000001"}, True),
+        ({"tipo": "aviso", "texto": "AT1: informar_status executado, ref. MSG-000001."}, False),
+        (
+            {"tipo": "aviso", "texto": "AT1: reenviar_produto não repetido (HG-16): já executado"},
+            False,
+        ),
+        (
+            {
+                "tipo": "aviso",
+                "texto": "AT1: reembolsar aprovado por supervisor_01",
+                "aprovacao_id": "APR-1",
+            },
+            False,
+        ),
+        (
+            {
+                "tipo": "aviso",
+                "texto": "AT1: Chamei o agente analista (contato_repetido): sem padrão",
+            },
+            False,
+        ),
+    ],
+)
+def test_HG_20_so_mensagens_que_pedem_alguem_vao_ao_slack(mensagem, vai):
+    assert deve_ir_ao_slack(mensagem, set()) is vai
+
+
+def test_HG_17_incidente_vai_uma_vez_mesmo_citado_por_varios_casos():
+    vistos: set[str] = set()
+    primeira = {"tipo": "aviso", "texto": "AT1: Chamei o agente analista: incidente INC-000001"}
+    segunda = {"tipo": "aviso", "texto": "AT2: Chamei o agente analista: incidente INC-000001"}
+    rota = {"tipo": "aviso", "texto": "abriu INC-000001", "incidente_id": "INC-000001"}
+    assert deve_ir_ao_slack(primeira, vistos) is True
+    assert deve_ir_ao_slack(segunda, vistos) is False
+    assert deve_ir_ao_slack(rota, vistos) is False
+
+
+class AgenteRodada:
+    """Agente mínimo com o barramento (eventos), a trava da rodada e o placar."""
+
+    def __init__(self):
+        import threading
+
+        from atendimento.contratos import AGORA
+
+        self.canal: list[dict] = []
+        self.eventos: list[dict] = []
+        self.agora = AGORA
+        self._rodada = threading.Lock()
+        self.placar_atual = {
+            "resolvidas_sozinho": 34,
+            "aguardando_cliente": 18,
+            "aguardando_aprovacao": 2,
+            "suspeitas": 0,
+            "escaladas": 11,
+            "valor_executado_rs": 0,
+            "custo_evitado_rs": 636.0,
+        }
+
+    def placar(self):
+        return dict(self.placar_atual)
+
+    def processar_fila(self):
+        self.eventos.append({"tipo": "leitura", "payload": {"lidas": 1, "total": 1}})
+        return self.placar()
+
+    def rodada(self):
+        return self.processar_fila()
+
+
+def _resumos(cliente):
+    return [p for p in cliente.postadas if p["text"].startswith("Rodada das")]
+
+
+def test_HP_09_fim_da_rodada_posta_um_resumo_com_placar_e_link():
+    agente = AgenteRodada()
+    cliente = ClienteFalso()
+    canal = _canal(agente, cliente)
+    agente.rodada()
+    canal.sincronizar()
+    (resumo,) = _resumos(cliente)
+    assert resumo["text"].startswith(
+        "Rodada das 08:00: 34 resolvidas sozinho · 18 aguardando cliente · "
+        "2 aguardando aprovação · 11 escaladas · R$ 636,00 de custo evitado"
+    )
+    assert "http://localhost:5173" in str(resumo)
+
+
+def test_HP_09_conversa_processada_sozinha_nao_gera_resumo():
+    agente, _ = _agente_com_aprovacao()  # processar("AT1"), não processar_fila
+    cliente = ClienteFalso()
+    _canal(agente, cliente).sincronizar()
+    assert _resumos(cliente) == []
+
+
+def test_HP_09_rodada_sem_novidade_nao_repete_o_resumo():
+    agente = AgenteRodada()
+    cliente = ClienteFalso()
+    canal = _canal(agente, cliente)
+    agente.rodada()
+    canal.sincronizar()
+    canal.sincronizar()
+    agente.rodada()  # rodou de novo, placar igual
+    canal.sincronizar()
+    assert len(_resumos(cliente)) == 1
+    agente.placar_atual["resolvidas_sozinho"] = 35
+    agente.rodada()
+    canal.sincronizar()
+    assert len(_resumos(cliente)) == 2
+
+
+def test_HP_09_sem_rodada_nao_ha_resumo():
+    agente = AgenteRodada()
+    cliente = ClienteFalso()
+    _canal(agente, cliente).sincronizar()
+    assert _resumos(cliente) == []
+
+
+@pytest.mark.integracao
+def test_HP_09_rodada_da_fila_real_posta_so_acionaveis_e_um_resumo(tmp_path):
+    from pathlib import Path
+
+    from atendimento.dados.carga import carregar
+    from atendimento.dados.repositorio import Base
+    from atendimento.ferramentas import Ferramentas
+
+    raiz = Path(__file__).resolve().parents[1]
+    carregar(raiz / "docs", tmp_path / "base.db")
+    base = Base(tmp_path / "base.db")
+    agente = Agente(base, Ferramentas(base))
+    cliente = ClienteFalso()
+    canal = _canal(agente, cliente)
+    agente.processar_fila()
+    canal.sincronizar()
+    canal.sincronizar()
+    vistos: set[str] = set()
+    esperadas = [m for m in agente.canal if deve_ir_ao_slack(m, vistos)]
+    assert len(_resumos(cliente)) == 1
+    assert len(cliente.postadas) == len(esperadas) + 1
+    assert len(cliente.postadas) < len(agente.canal)
+    textos = " ".join(p["text"] for p in cliente.postadas)
+    assert "não repetido (HG-16)" not in textos
+    print(
+        f"canal do time: {len(agente.canal)} mensagens; Slack: {len(esperadas)} acionáveis + 1 resumo"
+    )

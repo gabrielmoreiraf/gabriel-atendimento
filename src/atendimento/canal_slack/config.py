@@ -17,6 +17,7 @@ class ConfigSlack:
     app_token: str = field(repr=False)
     canal_id: str
     supervisores: dict[str, str]  # member ID do Slack -> colaborador_id
+    painel_url: str = "http://localhost:5173"  # link do resumo da rodada para o detalhe
 
 
 def _supervisores(valor: str) -> dict[str, str]:
@@ -42,4 +43,5 @@ def config_do_ambiente(ambiente: Mapping[str, str] | None = None) -> ConfigSlack
         app_token=app,
         canal_id=canal,
         supervisores=_supervisores(ambiente.get("SLACK_SUPERVISORES", "")),
+        painel_url=ambiente.get("ATENDIMENTO_PAINEL_URL", "").strip() or "http://localhost:5173",
     )

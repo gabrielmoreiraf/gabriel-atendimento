@@ -52,6 +52,30 @@ _CATEGORIA_DA_POLITICA = {
 }
 
 
+# Só vai ao Slack o que pede alguém: aprovação (inclui o lembrete do vigia), suspeita,
+# escalação (inclui reação adversa), incidente novo do analista e alerta de SLA. Execuções de
+# rotina, "não repetido (HG-16)", resultados de decisão e "chamei o analista" sem incidente
+# novo ficam só no canal do time do app.
+_TIPOS_ACIONAVEIS = {"aprovacao", "suspeita", "escalacao"}
+_INCIDENTE = re.compile(r"\bINC-\d{6}\b")
+
+
+def deve_ir_ao_slack(mensagem: dict, incidentes_vistos: set[str]) -> bool:
+    if mensagem.get("tipo") in _TIPOS_ACIONAVEIS:
+        return True
+    if str(mensagem.get("chave", "")).startswith("sla:"):
+        return True
+    incidente = mensagem.get("incidente_id") or next(
+        iter(_INCIDENTE.findall(str(mensagem.get("texto", "")))), None
+    )
+    if incidente and not mensagem.get("aprovacao_id") and not mensagem.get("suspeita_id"):
+        if incidente in incidentes_vistos:
+            return False
+        incidentes_vistos.add(incidente)
+        return True
+    return False
+
+
 def _sem_acento(texto: str) -> str:
     return "".join(
         c for c in unicodedata.normalize("NFKD", texto.lower()) if not unicodedata.combining(c)
@@ -100,7 +124,12 @@ class CanalSlack:
         self.falhas: list[str] = []
         self._postadas: dict[str, dict] = {}  # id da mensagem do canal -> {ts, estado}
         self._tentativas: dict[str, int] = {}
+        self._ignoradas: set[str] = set()  # mensagens que ficam só no app
+        self._incidentes: set[str] = set()
+        self._rodada_terminando = False
+        self._ultimo_placar: dict | None = None
         self._trava = threading.RLock()
+        self._observar_rodadas()
 
     # ---------- espelho ----------
 
@@ -123,10 +152,14 @@ class CanalSlack:
         with self._trava:
             for mensagem in list(getattr(self.agente, "canal", [])):
                 mid = mensagem.get("id")
-                if not mid:
+                if not mid or mid in self._ignoradas:
                     continue
-                estado = self._estado(mensagem)
                 postada = self._postadas.get(mid)
+                if postada is None and mid not in self._tentativas:
+                    if not deve_ir_ao_slack(mensagem, self._incidentes):
+                        self._ignoradas.add(mid)
+                        continue
+                estado = self._estado(mensagem)
                 try:
                     if postada is None:
                         if self._tentativas.get(mid, 0) >= MAX_TENTATIVAS:
@@ -152,6 +185,70 @@ class CanalSlack:
                     if _limitado(erro):  # respeita o limite: devolve a vez e para esta rodada
                         self._tentativas[mid] = max(0, self._tentativas.get(mid, 1) - 1)
                         break
+            self._resumir_rodada()
+
+    # ---------- resumo por rodada (HP-09) ----------
+
+    def _observar_rodadas(self) -> None:
+        """Marca o fim de cada rodada pelo retorno de `processar_fila` (o evento `leitura` do
+        barramento também sai quando uma conversa é processada sozinha, então não serve)."""
+        original = getattr(self.agente, "processar_fila", None)
+        if original is None:
+            return
+
+        def processar_fila(*args, **kwargs):
+            placar = original(*args, **kwargs)
+            self._rodada_terminando = True
+            return placar
+
+        self.agente.processar_fila = processar_fila
+
+    def _resumir_rodada(self) -> None:
+        """Uma mensagem por rodada da fila, depois das acionáveis da rodada. Rodada sem
+        novidade (placar igual ao último resumo) não repete a mensagem."""
+        if not self._rodada_terminando:
+            return
+        self._rodada_terminando = False
+        placar = {k: v for k, v in self.agente.placar().items() if k != "replay"}
+        if placar == self._ultimo_placar:
+            return
+        texto = self._texto_resumo(placar)
+        try:
+            self.cliente.chat_postMessage(
+                channel=self.config.canal_id,
+                text=texto,
+                blocks=[
+                    {"type": "section", "text": {"type": "mrkdwn", "text": texto}},
+                    {
+                        "type": "context",
+                        "elements": [
+                            {
+                                "type": "mrkdwn",
+                                "text": f"Detalhe no painel: {self.config.painel_url}",
+                            }
+                        ],
+                    },
+                ],
+            )
+            self._ultimo_placar = placar
+        except Exception as erro:
+            self._rodada_terminando = True  # tenta de novo na próxima volta
+            self._falhou("resumo", erro)
+
+    def _texto_resumo(self, placar: dict) -> str:
+        hora = self.agente.agora.strftime("%H:%M")
+        partes = [
+            f"{placar.get('resolvidas_sozinho', 0)} resolvidas sozinho",
+            f"{placar.get('aguardando_cliente', 0)} aguardando cliente",
+            f"{placar.get('aguardando_aprovacao', 0)} aguardando aprovação",
+        ]
+        if placar.get("suspeitas"):
+            partes.append(f"{placar['suspeitas']} suspeitas")
+        partes += [
+            f"{placar.get('escaladas', 0)} escaladas",
+            f"{_rs(float(placar.get('custo_evitado_rs', 0)))} de custo evitado",
+        ]
+        return f"Rodada das {hora}: " + " · ".join(partes)
 
     def _mensagem_por_ts(self, ts: str) -> dict | None:
         for mid, postada in self._postadas.items():
