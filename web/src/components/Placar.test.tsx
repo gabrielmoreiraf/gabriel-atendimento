@@ -45,4 +45,40 @@ describe("Placar", () => {
     expect(screen.getByTestId("placar")).toHaveTextContent("Aguardando cliente");
     expect(screen.getByTestId("placar")).toHaveTextContent("5");
   });
+
+  it("test_HP_09_botao_mostra_progresso_da_leitura", () => {
+    render(
+      <Placar
+        placar={placar}
+        processando
+        progresso={{ lidas: 23, total: 65 }}
+        onProcessar={() => {}}
+      />,
+    );
+    expect(screen.getByTestId("btn-processar")).toHaveTextContent("Lendo 23/65…");
+  });
+
+  it("test_HP_09_leitura_completa_vira_decidindo", () => {
+    render(
+      <Placar
+        placar={placar}
+        processando
+        progresso={{ lidas: 65, total: 65 }}
+        onProcessar={() => {}}
+      />,
+    );
+    expect(screen.getByTestId("btn-processar")).toHaveTextContent("Decidindo…");
+  });
+
+  it("test_HG_12_aviso_de_rodada_em_andamento_aparece", () => {
+    render(
+      <Placar
+        placar={placar}
+        processando={false}
+        aviso="já há uma rodada da fila em andamento"
+        onProcessar={() => {}}
+      />,
+    );
+    expect(screen.getByTestId("aviso-processar")).toHaveTextContent("já há uma rodada");
+  });
 });

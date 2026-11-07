@@ -1043,3 +1043,13 @@ code {
   font-size: 0.6875rem;
   letter-spacing: 0.02em;
 }
+
+.placar__aviso {
+  flex-basis: 100%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-aprovacao-bg);
+  color: var(--color-aprovacao);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}

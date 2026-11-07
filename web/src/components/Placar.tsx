@@ -1,13 +1,25 @@
-import type { Placar as TPlacar } from "../api/tipos";
+import type { ProgressoLeitura, Placar as TPlacar } from "../api/tipos";
 import { formatarRs } from "../formato";
 
 interface Props {
   placar: TPlacar | null;
   processando: boolean;
+  /** Progresso do leitor (SSE `leitura`) durante a rodada. */
+  progresso?: ProgressoLeitura | null;
+  /** Mensagem da API quando a rodada não começa (ex.: 409, rodada já em andamento). */
+  aviso?: string | null;
   onProcessar: () => void;
 }
 
-export function Placar({ placar, processando, onProcessar }: Props) {
+function rotuloBotao(processando: boolean, progresso?: ProgressoLeitura | null): string {
+  if (!processando) return "Processar fila";
+  if (!progresso) return "Processando…";
+  return progresso.lidas < progresso.total
+    ? `Lendo ${progresso.lidas}/${progresso.total}…`
+    : "Decidindo…";
+}
+
+export function Placar({ placar, processando, progresso, aviso, onProcessar }: Props) {
   const itens: { rotulo: string; valor: string; tom?: string }[] = [
     {
       rotulo: "Resolvidas sozinho",
@@ -44,8 +56,13 @@ export function Placar({ placar, processando, onProcessar }: Props) {
         disabled={processando}
         onClick={onProcessar}
       >
-        {processando ? "Processando…" : "Processar fila"}
+        {rotuloBotao(processando, progresso)}
       </button>
+      {aviso ? (
+        <output className="placar__aviso" data-testid="aviso-processar">
+          {aviso}
+        </output>
+      ) : null}
     </div>
   );
 }
