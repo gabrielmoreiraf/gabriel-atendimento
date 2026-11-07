@@ -17,10 +17,13 @@ import { CanalTime } from "./components/CanalTime";
 import { CasoPainel } from "./components/CasoPainel";
 import { ConsoleSistemas } from "./components/ConsoleSistemas";
 import { Fila } from "./components/Fila";
+import { Mapa360 } from "./components/Mapa360";
 import { Placar } from "./components/Placar";
 import { VerificacaoEvidencia } from "./components/VerificacaoEvidencia";
 import { AGORA_ISO, formatarDataHora } from "./formato";
 import { alertasComoMensagens, juntarCanal } from "./vigia";
+
+type Tela = "operacao" | "evidencia" | "analista" | "mapa";
 
 interface Props {
   api: Api;
@@ -32,6 +35,12 @@ interface Props {
 const mensagemDe = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 export default function App({ api, assinar, modo = "api" }: Props) {
+  const [tela, setTela] = useState<Tela>("operacao");
+  const [foco, setFoco] = useState<"fila" | "canal">("fila");
+  const irPara = (t: Tela) => {
+    setTela(t);
+    window.scrollTo?.(0, 0);
+  };
   const [fila, setFila] = useState<ItemFila[]>([]);
   const [acoes, setAcoes] = useState<RegistroAcao[]>([]);
   const [canal, setCanal] = useState<MensagemCanal[]>([]);
@@ -206,34 +215,59 @@ export default function App({ api, assinar, modo = "api" }: Props) {
     await recarregar();
   }
 
+  const telas: { id: Tela; rotulo: string }[] = [
+    { id: "operacao", rotulo: "Operação" },
+    { id: "evidencia", rotulo: "Evidência" },
+    { id: "analista", rotulo: "Analista" },
+    { id: "mapa", rotulo: "Mapa 360°" },
+  ];
+
   return (
-    <div className="app">
-      <div className="primeira-tela">
-        <header className="topo">
-          <div className="topo__marca">
-            <h1>FIO</h1>
-            <p>
-              o colega de atendimento (Gocase / GoBeauté) · agora:{" "}
-              <span className="mono">{formatarDataHora(relogio)}</span>
-              {modo === "mock" ? (
-                <span className="topo__mock">dados de exemplo · API offline</span>
-              ) : null}
-            </p>
-          </div>
-          <div className="topo__acoes">
-            <a className="topo__link" href="#verificacao">
-              Verificação de evidência
-            </a>
+    <div className="app" data-tela={tela} data-foco={foco}>
+      <header className="barra">
+        <div className="barra__marca">
+          <span className="logo" aria-label="FIO">
+            FIO
+            <span className="logo__traco" aria-hidden="true" />
+          </span>
+          <span className="barra__empresa">Gocase / GoBeauté</span>
+        </div>
+        <nav className="barra__nav" aria-label="Telas">
+          {telas.map((t) => (
             <button
+              key={t.id}
               type="button"
-              className="botao"
-              data-testid="btn-reiniciar"
-              disabled={reiniciando || processando}
-              onClick={reiniciarDemo}
+              className="aba"
+              aria-current={tela === t.id ? "page" : undefined}
+              onClick={() => irPara(t.id)}
             >
-              {reiniciando ? "Reiniciando…" : "Reiniciar demo"}
+              {t.rotulo}
             </button>
-          </div>
+          ))}
+        </nav>
+        <div className="barra__agora">
+          <span>Agora</span>
+          <span className="mono">{formatarDataHora(relogio)}</span>
+          {modo === "mock" ? (
+            <span className="topo__mock">dados de exemplo · API offline</span>
+          ) : null}
+        </div>
+        <button
+          type="button"
+          className="botao botao--suave"
+          data-testid="btn-reiniciar"
+          disabled={reiniciando || processando}
+          onClick={reiniciarDemo}
+        >
+          {reiniciando ? "Reiniciando…" : "Reiniciar"}
+        </button>
+      </header>
+      {erroGeral ? (
+        <output className="erro erro--faixa">Falha ao falar com a API: {erroGeral}</output>
+      ) : null}
+
+      {tela === "operacao" ? (
+        <div className="operacao">
           <Placar
             placar={placar}
             processando={processando}
@@ -241,34 +275,67 @@ export default function App({ api, assinar, modo = "api" }: Props) {
             aviso={avisoProcessar}
             onProcessar={processar}
           />
-        </header>
-        {erroGeral ? (
-          <output className="erro erro--faixa">Falha ao falar com a API: {erroGeral}</output>
-        ) : null}
-        <main className="grade">
-          <Fila itens={fila} selecionado={selecionado} onAbrir={abrir} />
-          <div className="centro">
-            <CasoPainel caso={caso} carregando={carregandoCaso} erro={erroCaso} />
-            <ConsoleSistemas acoes={acoes} />
-          </div>
-          <CanalTime
-            mensagens={juntarCanal(canal, avisosVigia)}
-            onAprovar={aprovar}
-            onRejeitar={rejeitar}
-            relogio={relogio}
-            onRodarVigia={rodarVigia}
-            onDecidirSuspeita={decidirSuspeita}
-          />
-        </main>
-      </div>
-      <VerificacaoEvidencia
-        key={`verificacao-${rodadaDemo}`}
-        casos={replay}
-        onProcessar={processarReplay}
-        suspeitas={suspeitas}
-        onDecidirSuspeita={decidirSuspeita}
-      />
-      <AgenteAnalista key={`analista-${rodadaDemo}`} padroes={padroes} onTratar={tratarPadrao} />
+          <main className="grade">
+            <Fila itens={fila} selecionado={selecionado} onAbrir={abrir} />
+            <div className="centro">
+              <CasoPainel caso={caso} carregando={carregandoCaso} erro={erroCaso} />
+              <ConsoleSistemas acoes={acoes} />
+            </div>
+            <CanalTime
+              mensagens={juntarCanal(canal, avisosVigia)}
+              onAprovar={aprovar}
+              onRejeitar={rejeitar}
+              relogio={relogio}
+              onRodarVigia={rodarVigia}
+              onDecidirSuspeita={decidirSuspeita}
+            />
+          </main>
+        </div>
+      ) : null}
+      {tela === "evidencia" ? (
+        <VerificacaoEvidencia
+          key={`verificacao-${rodadaDemo}`}
+          casos={replay}
+          onProcessar={processarReplay}
+          suspeitas={suspeitas}
+          onDecidirSuspeita={decidirSuspeita}
+        />
+      ) : null}
+      {tela === "analista" ? (
+        <AgenteAnalista key={`analista-${rodadaDemo}`} padroes={padroes} onTratar={tratarPadrao} />
+      ) : null}
+      {tela === "mapa" ? <Mapa360 /> : null}
+
+      <nav className="barra-inferior" aria-label="Telas no celular">
+        {(
+          [
+            ["fila", "Fila"],
+            ["canal", "Canal"],
+            ["evidencia", "Evidência"],
+            ["analista", "Analista"],
+          ] as const
+        ).map(([id, rotulo]) => {
+          const atual =
+            id === "fila" || id === "canal" ? tela === "operacao" && foco === id : tela === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              aria-current={atual ? "page" : undefined}
+              onClick={() => {
+                if (id === "fila" || id === "canal") {
+                  irPara("operacao");
+                  setFoco(id);
+                } else {
+                  irPara(id);
+                }
+              }}
+            >
+              {rotulo}
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 }

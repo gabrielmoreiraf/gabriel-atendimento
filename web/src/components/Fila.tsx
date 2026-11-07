@@ -1,5 +1,6 @@
+import { useState } from "react";
 import type { ItemFila } from "../api/tipos";
-import { formatarDataHora } from "../formato";
+import { formatarDataHora, rotuloEstado } from "../formato";
 import { EstadoSelo } from "./EstadoSelo";
 
 interface Props {
@@ -8,38 +9,97 @@ interface Props {
   onAbrir: (conversationId: string) => void;
 }
 
+const ORDEM_ESTADOS = [
+  "aberta",
+  "resolvida",
+  "aguardando_aprovacao",
+  "aguardando_cliente",
+  "suspeita",
+  "escalada",
+];
+
+const CANAL = {
+  whatsapp: { sigla: "W", nome: "WhatsApp" },
+  email: { sigla: "@", nome: "E-mail" },
+  reclame_aqui: { sigla: "RA", nome: "Reclame Aqui" },
+} as const;
+
 export function Fila({ itens, selecionado, onAbrir }: Props) {
+  const [filtro, setFiltro] = useState<string>("todas");
+  const contagem = (estado: string) => itens.filter((c) => c.estado === estado).length;
+  const porCanal = (canal: string) => itens.filter((c) => c.canal === canal).length;
+  const visiveis = filtro === "todas" ? itens : itens.filter((c) => c.estado === filtro);
+  const estados = ORDEM_ESTADOS.filter((e) => e === "aberta" || contagem(e) > 0);
+
   return (
     <section className="painel fila" aria-labelledby="fila-titulo">
-      <header className="painel__cabeca">
+      <header className="painel__cabeca fila__cabeca">
         <h2 id="fila-titulo">Fila</h2>
-        <span className="painel__meta">{itens.length} conversas</span>
+        <span className="painel__meta mono">{itens.length} conversas</span>
+        <p className="fila__canais">
+          WhatsApp {porCanal("whatsapp")} · E-mail {porCanal("email")} · Reclame Aqui{" "}
+          {porCanal("reclame_aqui")}
+        </p>
+        <fieldset className="chips" aria-label="Filtrar por estado">
+          <button
+            type="button"
+            className="chip"
+            aria-pressed={filtro === "todas"}
+            onClick={() => setFiltro("todas")}
+          >
+            Todas <span className="mono">{itens.length}</span>
+          </button>
+          {estados.map((e) => (
+            <button
+              key={e}
+              type="button"
+              className="chip"
+              data-estado={e}
+              aria-pressed={filtro === e}
+              onClick={() => setFiltro(e)}
+            >
+              <span className="ponto" aria-hidden="true" />
+              {rotuloEstado(e)} <span className="mono">{contagem(e)}</span>
+            </button>
+          ))}
+        </fieldset>
       </header>
-      {itens.length === 0 ? (
-        <p className="vazio">Fila vazia.</p>
+      {visiveis.length === 0 ? (
+        <p className="vazio">
+          {itens.length === 0 ? "Fila vazia." : "Nenhuma conversa neste filtro."}
+        </p>
       ) : (
         <ul className="fila__lista">
-          {itens.map((c) => (
-            <li key={c.conversation_id}>
-              <button
-                type="button"
-                className="fila__item"
-                data-testid="fila-item"
-                data-estado={c.estado}
-                aria-current={c.conversation_id === selecionado ? "true" : undefined}
-                onClick={() => onAbrir(c.conversation_id)}
-              >
-                <span className="fila__linha">
-                  <span className="mono">{c.conversation_id}</span>
-                  <EstadoSelo estado={c.estado} />
-                </span>
-                <span className="fila__assunto">{c.assunto || "(sem assunto)"}</span>
-                <span className="fila__meta">
-                  {c.marca} · {c.canal.replace("_", " ")} · {formatarDataHora(c.data_abertura)}
-                </span>
-              </button>
-            </li>
-          ))}
+          {visiveis.map((c) => {
+            const canal = CANAL[c.canal as keyof typeof CANAL];
+            return (
+              <li key={c.conversation_id}>
+                <button
+                  type="button"
+                  className="fila__item"
+                  data-testid="fila-item"
+                  data-estado={c.estado}
+                  aria-current={c.conversation_id === selecionado ? "true" : undefined}
+                  onClick={() => onAbrir(c.conversation_id)}
+                >
+                  <span className="fila__linha">
+                    <span className="mono fila__id">{c.conversation_id}</span>
+                    <span className="mono fila__hora">{formatarDataHora(c.data_abertura)}</span>
+                  </span>
+                  <span className="fila__assunto">{c.assunto || "(sem assunto)"}</span>
+                  <span className="fila__rodape">
+                    <span className="fila__meta">
+                      <span className="canal-sigla mono" aria-hidden="true">
+                        {canal?.sigla ?? "?"}
+                      </span>
+                      {canal?.nome ?? c.canal} · {c.marca}
+                    </span>
+                    <EstadoSelo estado={c.estado} />
+                  </span>
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </section>

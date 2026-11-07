@@ -18,6 +18,11 @@ describe("App (com API mock)", () => {
 
   it("test_EC_16_verificacao_de_evidencia_processa_caso_do_historico", async () => {
     render(<App api={criarApiMock()} assinar={() => () => {}} />);
+    await userEvent.click(
+      within(screen.getByRole("navigation", { name: "Telas" })).getByRole("button", {
+        name: "Evidência",
+      }),
+    );
     await waitFor(() => expect(screen.getAllByTestId("replay-item").length).toBeGreaterThan(0));
     await userEvent.click(screen.getAllByTestId("btn-replay")[0]);
     await waitFor(() => expect(screen.getAllByTestId("sinal-evidencia").length).toBeGreaterThan(0));
@@ -32,6 +37,11 @@ describe("App (com API mock)", () => {
 
   it("test_HG_19_painel_do_analista_trata_padrao_no_mock", async () => {
     render(<App api={criarApiMock()} assinar={() => () => {}} />);
+    await userEvent.click(
+      within(screen.getByRole("navigation", { name: "Telas" })).getByRole("button", {
+        name: "Analista",
+      }),
+    );
     await waitFor(() =>
       expect(screen.getAllByTestId("btn-tratar-padrao").length).toBeGreaterThan(0),
     );
@@ -50,6 +60,11 @@ describe("App (com API mock)", () => {
 
   it("test_HG_04_replay_gera_suspeita_que_o_supervisor_decide", async () => {
     render(<App api={criarApiMock()} assinar={() => () => {}} />);
+    await userEvent.click(
+      within(screen.getByRole("navigation", { name: "Telas" })).getByRole("button", {
+        name: "Evidência",
+      }),
+    );
     await waitFor(() => expect(screen.getAllByTestId("btn-replay").length).toBeGreaterThan(0));
     await userEvent.click(screen.getAllByTestId("btn-replay")[0]);
     await waitFor(() =>

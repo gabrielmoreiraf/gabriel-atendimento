@@ -1,131 +1,185 @@
 /*
- * Tokens da demo do agente de atendimento (Gocase / GoBeauté).
- * Uso em projetor: contraste alto, corpo de 18px, estados por cor + texto.
- * Tema claro por padrão; escuro por prefers-color-scheme ou [data-theme="dark"].
+ * Design system do FIO (Gocase / GoBeauté), "FIO design system completo".
+ * Paleta de tom jovem ajustada para projetor: texto e bordas escuros, fundo quente.
+ * Fontes: Figtree (texto) e IBM Plex Mono (dado de sistema).
+ * Tema claro por padrão; escuro só com [data-tema="escuro"].
+ * Os nomes --color-* / --space-* / --text-* da primeira versão são apelidos dos novos.
  */
 :root {
-  /* Tipografia */
-  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
-  --text-xs: 0.8125rem; /* 13px: só metadados */
-  --text-sm: 0.9375rem; /* 15px */
-  --text-md: 1.125rem; /* 18px: corpo */
-  --text-lg: 1.375rem; /* 22px: títulos de painel */
-  --text-xl: 2rem; /* 32px: números do placar */
+  /* fontes */
+  --fonte: "Figtree", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --tam-placar: 40px;
+  --tam-tela: 28px;
+  --tam-painel: 22px;
+  --tam-corpo: 18px;
+  --tam-corpo-mobile: 17px;
+  --tam-rotulo: 15px;
+  --tam-min: 13px;
+
+  /* superfícies e texto (claro) */
+  --fundo: #f5f3f1;
+  --superficie: #ffffff;
+  --superficie-2: #ece8e5;
+  --borda: #cfc8c2;
+  --borda-forte: #6b6560;
+  --texto: #1b1820;
+  --texto-2: #4a4550;
+  --primaria: #b0145f;
+  --primaria-hover: #8c0f4b;
+  --primaria-tx: #ffffff;
+  --foco: #1f55d6;
+  --realce: #ffeaa0;
+  --fio-bg: #fae3ee;
+  --sel-bg: #fbeef4;
+
+  /* canal do time */
+  --canal-fundo: #1c1922;
+  --canal-sup: #2a2631;
+  --canal-borda: #433d4d;
+  --canal-tx: #f3f0f6;
+  --canal-tx2: #c9c2d1;
+  --canal-erro-bg: #4a1219;
+  --canal-erro-tx: #ffc2c8;
+  --canal-ok-bg: #103522;
+  --canal-ok-tx: #a8f0c2;
+
+  /* estados: texto / fundo / ponto */
+  --st-aberta-tx: #38353d;
+  --st-aberta-bg: #e6e3e8;
+  --st-aberta-dot: #6d6873;
+  --st-resolvida-tx: #11502a;
+  --st-resolvida-bg: #d8efdf;
+  --st-resolvida-dot: #1f8a4c;
+  --st-aprov-tx: #623600;
+  --st-aprov-bg: #fbe9c2;
+  --st-aprov-dot: #c98a0c;
+  --st-cliente-tx: #084a50;
+  --st-cliente-bg: #d3edef;
+  --st-cliente-dot: #138891;
+  --st-suspeita-tx: #8e111c;
+  --st-suspeita-bg: #f9dade;
+  --st-suspeita-dot: #d0293a;
+  --st-escalada-tx: #46207f;
+  --st-escalada-bg: #e9e0f7;
+  --st-escalada-dot: #7a4bd0;
+
+  /* raios, espaços, sombras */
+  --raio-campo: 8px;
+  --raio-cartao: 12px;
+  --raio-painel: 16px;
+  --raio-pilula: 999px;
+  --esp-1: 4px;
+  --esp-2: 8px;
+  --esp-3: 12px;
+  --esp-4: 16px;
+  --esp-5: 20px;
+  --esp-6: 24px;
+  --esp-8: 32px;
+  --sombra-1: 0 1px 2px rgba(27, 24, 32, 0.08);
+  --sombra-2: 0 8px 24px rgba(27, 24, 32, 0.14);
+  --alvo-desktop: 40px;
+  --alvo-mobile: 44px;
+
+  /* apelidos da primeira versão (os componentes ainda usam estes nomes) */
+  --font-sans: var(--fonte);
+  --font-mono: var(--mono);
+  --text-xs: var(--tam-min);
+  --text-sm: var(--tam-rotulo);
+  --text-md: var(--tam-corpo);
+  --text-lg: var(--tam-painel);
+  --text-xl: var(--tam-placar);
   --leading-tight: 1.2;
   --leading-body: 1.5;
   --weight-regular: 400;
-  --weight-medium: 500;
-  --weight-bold: 600;
-
-  /* Espaçamento (base 4px) */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-7: 3rem;
-
-  /* Forma e profundidade */
-  --radius-sm: 4px;
-  --radius-md: 8px;
+  --weight-medium: 600;
+  --weight-bold: 800;
+  --space-1: var(--esp-1);
+  --space-2: var(--esp-2);
+  --space-3: var(--esp-3);
+  --space-4: var(--esp-4);
+  --space-5: var(--esp-6);
+  --space-6: var(--esp-8);
+  --space-7: 48px;
+  --radius-sm: var(--raio-campo);
+  --radius-md: var(--raio-cartao);
   --border-width: 1px;
-  --shadow-1: 0 1px 2px oklch(0.2 0.02 260 / 0.08), 0 2px 8px oklch(0.2 0.02 260 / 0.06);
+  --shadow-1: var(--sombra-1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --dur-fast: 140ms;
-  --dur-med: 320ms;
-
-  /* Cores: tema claro */
-  --color-bg: oklch(0.975 0.004 85);
-  --color-surface: oklch(1 0 0);
-  --color-surface-sunken: oklch(0.955 0.006 85);
-  --color-border: oklch(0.86 0.008 85);
-  --color-border-strong: oklch(0.7 0.01 85);
-  --color-text: oklch(0.2 0.015 260);
-  --color-text-muted: oklch(0.42 0.015 260);
-  --color-accent: oklch(0.45 0.13 250); /* marca da demo: azul-tinta */
-  --color-accent-strong: oklch(0.38 0.14 250);
-  --color-on-accent: oklch(0.99 0 0);
-  --color-focus: oklch(0.6 0.17 250);
-
-  /* Estados da conversa (sempre com rótulo de texto ao lado) */
-  --color-aberta: oklch(0.45 0.01 260);
-  --color-aberta-bg: oklch(0.93 0.005 260);
-  --color-resolvida: oklch(0.42 0.12 150);
-  --color-resolvida-bg: oklch(0.94 0.05 150);
-  --color-aprovacao: oklch(0.45 0.11 70);
-  --color-aprovacao-bg: oklch(0.95 0.06 85);
-  --color-suspeita: oklch(0.47 0.17 25);
-  --color-suspeita-bg: oklch(0.94 0.04 25);
-  --color-escalada: oklch(0.44 0.14 300);
-  --color-escalada-bg: oklch(0.94 0.035 300);
-  --color-cliente: oklch(0.43 0.09 210); /* aguardando_cliente: pedimos foto, nada resolvido */
-  --color-cliente-bg: oklch(0.94 0.035 210);
-
-  /* Canal do time */
-  --color-canal-bg: oklch(0.23 0.03 265);
-  --color-canal-surface: oklch(0.28 0.035 265);
-  --color-canal-text: oklch(0.95 0.01 265);
-  --color-canal-muted: oklch(0.78 0.02 265);
+  --dur-med: 300ms;
+  --color-bg: var(--fundo);
+  --color-surface: var(--superficie);
+  --color-surface-sunken: var(--superficie-2);
+  --color-border: var(--borda);
+  --color-border-strong: var(--borda-forte);
+  --color-text: var(--texto);
+  --color-text-muted: var(--texto-2);
+  --color-accent: var(--primaria);
+  --color-accent-strong: var(--primaria-hover);
+  --color-on-accent: var(--primaria-tx);
+  --color-focus: var(--foco);
+  --color-aberta: var(--st-aberta-tx);
+  --color-aberta-bg: var(--st-aberta-bg);
+  --color-resolvida: var(--st-resolvida-tx);
+  --color-resolvida-bg: var(--st-resolvida-bg);
+  --color-aprovacao: var(--st-aprov-tx);
+  --color-aprovacao-bg: var(--st-aprov-bg);
+  --color-suspeita: var(--st-suspeita-tx);
+  --color-suspeita-bg: var(--st-suspeita-bg);
+  --color-escalada: var(--st-escalada-tx);
+  --color-escalada-bg: var(--st-escalada-bg);
+  --color-cliente: var(--st-cliente-tx);
+  --color-cliente-bg: var(--st-cliente-bg);
+  --color-canal-bg: var(--canal-fundo);
+  --color-canal-surface: var(--canal-sup);
+  --color-canal-text: var(--canal-tx);
+  --color-canal-muted: var(--canal-tx2);
 
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --color-bg: oklch(0.18 0.012 260);
-    --color-surface: oklch(0.22 0.014 260);
-    --color-surface-sunken: oklch(0.16 0.012 260);
-    --color-border: oklch(0.32 0.015 260);
-    --color-border-strong: oklch(0.45 0.015 260);
-    --color-text: oklch(0.95 0.005 260);
-    --color-text-muted: oklch(0.76 0.012 260);
-    --color-accent: oklch(0.72 0.12 250);
-    --color-accent-strong: oklch(0.8 0.1 250);
-    --color-on-accent: oklch(0.16 0.02 260);
-    --color-aberta: oklch(0.82 0.01 260);
-    --color-aberta-bg: oklch(0.3 0.01 260);
-    --color-resolvida: oklch(0.8 0.13 150);
-    --color-resolvida-bg: oklch(0.3 0.05 150);
-    --color-aprovacao: oklch(0.84 0.12 80);
-    --color-aprovacao-bg: oklch(0.32 0.05 80);
-    --color-suspeita: oklch(0.8 0.12 25);
-    --color-suspeita-bg: oklch(0.32 0.07 25);
-    --color-escalada: oklch(0.82 0.1 300);
-    --color-escalada-bg: oklch(0.31 0.06 300);
-    --color-cliente: oklch(0.82 0.09 210);
-    --color-cliente-bg: oklch(0.3 0.05 210);
-    --color-canal-bg: oklch(0.14 0.02 265);
-    --color-canal-surface: oklch(0.2 0.025 265);
-    color-scheme: dark;
-  }
+[data-tema="escuro"] {
+  --fundo: #121116;
+  --superficie: #1b1a20;
+  --superficie-2: #26242c;
+  --borda: #3a3741;
+  --borda-forte: #8a8494;
+  --texto: #f4f2f6;
+  --texto-2: #c6c0cd;
+  --primaria: #f472b0;
+  --primaria-hover: #f99ac6;
+  --primaria-tx: #1d0712;
+  --foco: #7aa5ff;
+  --realce: #4a3d0c;
+  --fio-bg: #3a1528;
+  --sel-bg: #2c1a24;
+  --canal-fundo: #0b0a0e;
+  --canal-sup: #18161d;
+  --canal-borda: #34303c;
+  --st-aberta-tx: #e4e1e8;
+  --st-aberta-bg: #2e2c33;
+  --st-aberta-dot: #a19ca8;
+  --st-resolvida-tx: #9ae6b4;
+  --st-resolvida-bg: #11301d;
+  --st-resolvida-dot: #43c477;
+  --st-aprov-tx: #f8d488;
+  --st-aprov-bg: #3b2b09;
+  --st-aprov-dot: #e3a82b;
+  --st-cliente-tx: #8adde3;
+  --st-cliente-bg: #0c2f33;
+  --st-cliente-dot: #31b6c0;
+  --st-suspeita-tx: #ffa3ab;
+  --st-suspeita-bg: #3f1218;
+  --st-suspeita-dot: #f04f5e;
+  --st-escalada-tx: #cfb5fb;
+  --st-escalada-bg: #2b1a47;
+  --st-escalada-dot: #9d76ee;
+  color-scheme: dark;
 }
 
-:root[data-theme="dark"] {
-  --color-bg: oklch(0.18 0.012 260);
-  --color-surface: oklch(0.22 0.014 260);
-  --color-surface-sunken: oklch(0.16 0.012 260);
-  --color-border: oklch(0.32 0.015 260);
-  --color-border-strong: oklch(0.45 0.015 260);
-  --color-text: oklch(0.95 0.005 260);
-  --color-text-muted: oklch(0.76 0.012 260);
-  --color-accent: oklch(0.72 0.12 250);
-  --color-accent-strong: oklch(0.8 0.1 250);
-  --color-on-accent: oklch(0.16 0.02 260);
-  --color-aberta: oklch(0.82 0.01 260);
-  --color-aberta-bg: oklch(0.3 0.01 260);
-  --color-resolvida: oklch(0.8 0.13 150);
-  --color-resolvida-bg: oklch(0.3 0.05 150);
-  --color-aprovacao: oklch(0.84 0.12 80);
-  --color-aprovacao-bg: oklch(0.32 0.05 80);
-  --color-suspeita: oklch(0.8 0.12 25);
-  --color-suspeita-bg: oklch(0.32 0.07 25);
-  --color-escalada: oklch(0.82 0.1 300);
-  --color-escalada-bg: oklch(0.31 0.06 300);
-  --color-cliente: oklch(0.82 0.09 210);
-  --color-cliente-bg: oklch(0.3 0.05 210);
-  --color-canal-bg: oklch(0.14 0.02 265);
-  --color-canal-surface: oklch(0.2 0.025 265);
-  color-scheme: dark;
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
 }

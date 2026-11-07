@@ -12,6 +12,7 @@
     "format": "biome format --write ."
   },
   "dependencies": {
+    "@fontsource/figtree": "^5.3.0",
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/ibm-plex-sans": "^5.3.0",
     "react": "^19.1.0",
