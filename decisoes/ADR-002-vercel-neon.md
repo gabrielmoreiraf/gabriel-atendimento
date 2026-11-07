@@ -1,4 +1,4 @@
-# ADR-002: FIO 100% funcional no Vercel com Neon Postgres
+# ADR-002: Gabriel 100% funcional no Vercel com Neon Postgres
 
 ## Status
 
@@ -6,7 +6,7 @@ Aceito (decisão do usuário em 2026-11-07)
 
 ## Contexto
 
-Até aqui o FIO roda na máquina do autor: FastAPI com SQLite em `var/`, estado do agente em memória (casos, canal, aprovações, suspeitas, eventos), stream SSE, Slack em Socket Mode (conexão WebSocket permanente numa thread) e a base de `docs/` lida do disco. O usuário pediu o app **100% funcional no Vercel, com Neon**.
+Até aqui o Gabriel roda na máquina do autor: FastAPI com SQLite em `var/`, estado do agente em memória (casos, canal, aprovações, suspeitas, eventos), stream SSE, Slack em Socket Mode (conexão WebSocket permanente numa thread) e a base de `docs/` lida do disco. O usuário pediu o app **100% funcional no Vercel, com Neon**.
 
 O modelo serverless do Vercel não guarda estado entre requisições (cada uma pode cair numa instância nova), não mantém conexão permanente e não grava em disco fora de `/tmp`. A URL de produção é pública.
 

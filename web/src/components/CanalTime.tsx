@@ -2,6 +2,7 @@ import { useId, useState } from "react";
 import type { MensagemCanal } from "../api/tipos";
 import { SUPERVISORES } from "../equipe";
 import { RELOGIO_0820_ISO } from "../formato";
+import { MascoteMarca } from "../landing/Mascote";
 import { DecisaoSuspeita, type DecisaoTipo } from "./DecisaoSuspeita";
 
 interface Props {
@@ -25,9 +26,9 @@ interface Props {
 
 const ROTULO_TIPO: Record<string, string> = {
   aviso: "Aviso",
-  aprovacao: "FIO pediu aprovação",
-  suspeita: "FIO sinalizou suspeita",
-  escalacao: "FIO escalou para uma pessoa",
+  aprovacao: "Gabriel pediu aprovação",
+  suspeita: "Gabriel sinalizou suspeita",
+  escalacao: "Gabriel escalou para uma pessoa",
 };
 
 export function CanalTime({
@@ -53,10 +54,10 @@ export function CanalTime({
             <li key={m.id} className="canal__msg" data-testid="canal-msg" data-tipo={m.tipo}>
               <div className="canal__autor">
                 <span className="canal__avatar" aria-hidden="true">
-                  FIO
+                  <MascoteMarca tamanho={24} />
                 </span>
                 <span className="canal__quem">
-                  <strong>FIO</strong>
+                  <strong>Gabriel</strong>
                   <span className="canal__tipo">{ROTULO_TIPO[m.tipo] ?? m.tipo}</span>
                 </span>
               </div>

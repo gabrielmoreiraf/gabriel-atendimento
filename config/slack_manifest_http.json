@@ -1,12 +1,12 @@
 {
   "display_information": {
-    "name": "FIO",
+    "name": "Gabriel",
     "description": "O colega de atendimento (Gocase / GoBeauté)",
     "background_color": "#0b3d91"
   },
   "features": {
     "bot_user": {
-      "display_name": "FIO",
+      "display_name": "Gabriel",
       "always_online": true
     }
   },

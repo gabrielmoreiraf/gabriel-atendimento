@@ -9,10 +9,10 @@ from __future__ import annotations
 from atendimento.privacidade import mascarar
 
 TITULOS = {
-    "aprovacao": "FIO pediu aprovação",
-    "suspeita": "FIO sinalizou uma suspeita",
-    "escalacao": "FIO escalou um caso",
-    "aviso": "Aviso do FIO",
+    "aprovacao": "Gabriel pediu aprovação",
+    "suspeita": "Gabriel sinalizou uma suspeita",
+    "escalacao": "Gabriel escalou um caso",
+    "aviso": "Aviso do Gabriel",
 }
 BOTOES = {
     "aprovacao": (("fio_aprovar", "Aprovar", "primary"), ("fio_rejeitar", "Rejeitar", "danger")),
@@ -25,10 +25,10 @@ BOTOES = {
 
 def titulo(mensagem: dict) -> str:
     if mensagem.get("incidente_id"):
-        return "FIO abriu um incidente"
+        return "Gabriel abriu um incidente"
     if mensagem.get("chave", "").startswith("aprovacao:"):
-        return "FIO lembra uma aprovação parada"
-    return TITULOS.get(mensagem.get("tipo", ""), "FIO")
+        return "Gabriel lembra uma aprovação parada"
+    return TITULOS.get(mensagem.get("tipo", ""), "Gabriel")
 
 
 def montar(mensagem: dict, *, pendente: bool, desfecho: str | None = None) -> tuple[str, list]:

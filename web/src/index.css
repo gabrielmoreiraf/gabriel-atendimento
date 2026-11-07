@@ -1062,7 +1062,7 @@ code {
 }
 
 /* ===================================================================
- * Layout do FIO design system (desktop e mobile). Sobrepõe a primeira
+ * Layout do Gabriel design system (desktop e mobile). Sobrepõe a primeira
  * versão: barra com abas, placar em cartões, fila com chips, canal escuro.
  * =================================================================== */
 body {
@@ -2014,7 +2014,7 @@ html {
   }
 }
 
-/* Marca do FIO na barra: o mesmo robô da landing ao lado do nome */
+/* Marca do Gabriel na barra: o mesmo robô da landing ao lado do nome */
 .barra .logo {
   align-items: center;
   gap: var(--esp-2);

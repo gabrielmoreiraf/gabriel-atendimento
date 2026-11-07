@@ -149,7 +149,7 @@ export function criarApiMock(): Api {
             id: `CN-${suspeita_id}`,
             tipo: "suspeita",
             para: "supervisor_01",
-            texto: `${id}: FIO sinalizou evidência incoerente. (exemplo)`,
+            texto: `${id}: Gabriel sinalizou evidência incoerente. (exemplo)`,
             conversation_id: id,
             suspeita_id,
             prazo,

@@ -165,7 +165,7 @@ def aprovar(agente: Agente, aprovacao_id: str, supervisor_id: str, comentario: s
         "aviso",
         supervisor_id,
         f"{caso.conversation_id}: {nome_da_acao(acao.ferramenta)} de {_rs(acao.valor_rs)} "
-        f"aprovado por {supervisor_id} e feito pelo FIO (ref. {registro.referencia_sistema}).",
+        f"aprovado por {supervisor_id} e feito pelo Gabriel (ref. {registro.referencia_sistema}).",
         caso.conversation_id,
         aprovacao_id=aprovacao_id,
     )

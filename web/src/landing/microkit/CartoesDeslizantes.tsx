@@ -1,5 +1,5 @@
 /* Adaptado de MicroKit UI (hover-glide-cards), licença MIT: ver LICENSE-microkit.txt.
- * Mudanças: itens por prop (sem lucide-react), cartões maiores e cores do FIO no CSS. */
+ * Mudanças: itens por prop (sem lucide-react), cartões maiores e cores do Gabriel no CSS. */
 import "./cartoes-deslizantes.css";
 
 import { type ReactNode, useEffect, useRef } from "react";

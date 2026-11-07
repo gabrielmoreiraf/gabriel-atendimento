@@ -111,7 +111,7 @@ def iniciar(agente, ambiente: Mapping[str, str] | None = None) -> ConexaoSlack |
         canal = CanalSlack(agente, app.client, config)
         registrar_handlers(app, canal)
         handler = SocketModeHandler(app, config.app_token)  # conecta na thread de fundo
-    except Exception as erro:  # token inválido, rede fora: o FIO segue sem Slack
+    except Exception as erro:  # token inválido, rede fora: o Gabriel segue sem Slack
         logger.warning("Slack não ligou: %s", type(erro).__name__)
         return None
     logger.info("Canal do time espelhado no Slack (canal %s)", config.canal_id)

@@ -58,7 +58,7 @@ export function VerificacaoEvidencia({
       <header className="verificacao__cabeca">
         <h2 id="verificacao-titulo">Verificação de evidência</h2>
         <p>
-          Reclamações com foto. Antes de reenviar ou estornar, o FIO confere se a foto é nova,
+          Reclamações com foto. Antes de reenviar ou estornar, o Gabriel confere se a foto é nova,
           quando foi tirada, a data de entrega e a personalização do pedido.
         </p>
       </header>

@@ -95,7 +95,7 @@ async function principal() {
     const filaAntes = await page.getByTestId("fila-item").count();
     conferir("fila carregada", filaAntes > 0, `${filaAntes} conversas`);
     const titulo = (await page.locator("h1").first().innerText().catch(() => "")).trim();
-    conferir("nome FIO no cabeçalho", /\bFIO\b/.test(titulo), titulo);
+    conferir("nome Gabriel no cabeçalho", /\bFIO\b/.test(titulo), titulo);
     await foto(page, "inicio");
 
     // 1b. Vigia às 08:20 (HG-20): avisa o canal do SLA sem ser perguntado, sem repetir aviso

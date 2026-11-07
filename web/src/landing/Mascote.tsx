@@ -1,4 +1,4 @@
-/** Mascote do FIO: um balão de conversa com olhos e um fio que sai da cauda (o fio do pedido). */
+/** Mascote do Gabriel: um balão de conversa com olhos e um fio que sai da cauda. */
 export function Mascote({
   tamanho = 320,
   piscando = true,
@@ -10,7 +10,7 @@ export function Mascote({
       height={tamanho}
       viewBox="0 0 320 320"
       role="img"
-      aria-label="Mascote do FIO: um balão de conversa sorridente"
+      aria-label="Mascote do Gabriel: um balão de conversa sorridente"
     >
       <defs>
         <linearGradient id="fio-corpo" x1="0" y1="1" x2="1" y2="0">
@@ -50,10 +50,10 @@ export function Mascote({
   );
 }
 
-/** Marca compacta do FIO (só o rosto do mascote), para ícones pequenos como a bolha da navegação. */
+/** Marca compacta do Gabriel (só o rosto do mascote), para ícones pequenos como a bolha da navegação. */
 export function MascoteMarca({ tamanho = 28 }: { tamanho?: number }) {
   return (
-    <svg width={tamanho} height={tamanho} viewBox="0 0 64 64" role="img" aria-label="FIO">
+    <svg width={tamanho} height={tamanho} viewBox="0 0 64 64" role="img" aria-label="Gabriel">
       <rect x="2" y="6" width="60" height="46" rx="14" fill="#2659a5" />
       <path d="M18 50 12 62l16-10Z" fill="#2659a5" />
       <rect x="9" y="13" width="46" height="32" rx="10" fill="#0b1a33" />

@@ -1,4 +1,4 @@
-/** Visão 360°: as frentes que o FIO assume e onde a pessoa decide (REQUISITOS.md §1.2). */
+/** Visão 360°: as frentes que o Gabriel assume e onde a pessoa decide (REQUISITOS.md §1.2). */
 const FRENTES = [
   {
     id: "F1",
@@ -37,7 +37,7 @@ export function Mapa360() {
     <section className="mapa" aria-labelledby="mapa-titulo">
       <h2 id="mapa-titulo">Mapa 360°</h2>
       <p className="mapa__sub">
-        O que o FIO assume na área de atendimento e onde a pessoa continua no controle.
+        O que o Gabriel assume na área de atendimento e onde a pessoa continua no controle.
       </p>
       <ol className="mapa__frentes">
         {FRENTES.map((f) => (

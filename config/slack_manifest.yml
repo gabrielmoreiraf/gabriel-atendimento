@@ -1,20 +1,20 @@
-# Manifesto do app do Slack do FIO.
+# Manifesto do app do Slack do Gabriel.
 # api.slack.com/apps → Create New App → From a manifest → escolha o workspace → cole este arquivo.
 display_information:
-  name: FIO
+  name: Gabriel
   description: O colega de atendimento (Gocase / GoBeauté)
   background_color: "#0b3d91"
 features:
   bot_user:
-    display_name: FIO
+    display_name: Gabriel
     always_online: true
 oauth_config:
   scopes:
     bot:
       - chat:write          # postar avisos, aprovações, suspeitas e incidentes
       - chat:write.public   # postar em canal público sem precisar de convite
-      - app_mentions:read   # receber pedidos de colaboradores que mencionam @FIO
-      - channels:history    # ler a mensagem em que o FIO foi mencionado
+      - app_mentions:read   # receber pedidos de colaboradores que mencionam @Gabriel
+      - channels:history    # ler a mensagem em que o Gabriel foi mencionado
       - users:read          # mostrar o nome de quem aprovou
 settings:
   event_subscriptions:
@@ -23,5 +23,5 @@ settings:
   interactivity:
     is_enabled: true        # botões Aprovar / Rejeitar / Procedente / Improcedente
   org_deploy_enabled: false
-  socket_mode_enabled: true # sem URL pública: o FIO conecta no Slack por WebSocket
+  socket_mode_enabled: true # sem URL pública: o Gabriel conecta no Slack por WebSocket
   token_rotation_enabled: false

@@ -19,7 +19,7 @@ Métrica de processo: a parte da fila resolvida sem pessoa, hoje 34 de 65 na fil
 ## Outras prováveis
 
 **Quanto custa o Claude?**
-Uma rodada da fila completa custa cerca de US$ 0,50, com cache para não pagar duas vezes pelo mesmo texto. Sem chave, o FIO funciona com o leitor por regras.
+Uma rodada da fila completa custa cerca de US$ 0,50, com cache para não pagar duas vezes pelo mesmo texto. Sem chave, o Gabriel funciona com o leitor por regras.
 
 **E se o modelo errar?**
 O modelo só classifica; o dinheiro passa pela política e pela alçada. Reação adversa e instrução embutida são detectadas também pelas regras, e se a API falhar ele volta para as regras.

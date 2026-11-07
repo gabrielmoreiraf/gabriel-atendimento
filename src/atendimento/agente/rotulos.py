@@ -31,7 +31,7 @@ CATEGORIAS = {
     "outros": "Outros",
 }
 
-# Ferramenta -> (substantivo, o que o FIO fez).
+# Ferramenta -> (substantivo, o que o Gabriel fez).
 ACOES = {
     "informar_status": ("informe de status", "informou o status ao cliente"),
     "abrir_chamado_transportadora": (

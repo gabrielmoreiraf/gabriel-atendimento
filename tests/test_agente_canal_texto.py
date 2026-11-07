@@ -101,7 +101,7 @@ def test_HP_08_nenhuma_mensagem_do_canal_tem_chave_de_politica_nem_ferramenta_cr
 def test_HP_08_aviso_de_execucao_em_linguagem_do_time_com_a_regra_separada():
     agente = _agente_com_tudo()
     aviso = next(m for m in agente.canal if m["conversation_id"] == "AT1" and m["tipo"] == "aviso")
-    assert aviso["texto"].startswith("AT1 · Rastreio: FIO informou o status ao cliente (ref. ")
+    assert aviso["texto"].startswith("AT1 · Rastreio: Gabriel informou o status ao cliente (ref. ")
     assert aviso["regra"] == "categorias.onde_esta_pedido.acoes_permitidas"
 
 
@@ -109,7 +109,7 @@ def test_HP_10_pedido_de_aprovacao_diz_valor_e_limite_e_guarda_a_regra():
     agente = _agente_com_tudo()
     pedido_aprovacao = next(m for m in agente.canal if m["tipo"] == "aprovacao")
     texto = pedido_aprovacao["texto"]
-    assert texto.startswith("AT2 · Avaria: FIO pediu aprovação para reenvio de R$ 260,00")
+    assert texto.startswith("AT2 · Avaria: Gabriel pediu aprovação para reenvio de R$ 260,00")
     assert "acima do limite de R$ 200,00 do atendente" in texto
     assert pedido_aprovacao["regra"] == "limites_por_papel.atendente.reenvio_ou_reimpressao_max_rs"
     assert pedido_aprovacao["aprovacao_id"] and pedido_aprovacao["estado"] == "pendente"

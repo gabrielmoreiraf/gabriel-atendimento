@@ -148,7 +148,7 @@ def test_HP_10_aprovacao_vira_mensagem_com_botoes():
         ("fio_aprovar", aprovacao_id),
         ("fio_rejeitar", aprovacao_id),
     ]
-    assert "FIO pediu aprovação" in msg["text"]
+    assert "Gabriel pediu aprovação" in msg["text"]
 
 
 def test_P5_falha_do_slack_nao_derruba_e_registra_motivo():

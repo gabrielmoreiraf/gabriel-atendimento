@@ -1,13 +1,13 @@
-# Roteiro da demo ao vivo do FIO (3 a 4 minutos)
+# Roteiro da demo ao vivo do Gabriel (3 a 4 minutos)
 
-O FIO é o colega de atendimento da Gocase e da GoBeauté. Ele segue o fio de cada pedido pelos sistemas e acha a causa comum dos contatos repetidos.
+O Gabriel é o colega de atendimento da Gocase e da GoBeauté. Ele segue o fio de cada pedido pelos sistemas e acha a causa comum dos contatos repetidos.
 
 Quatro janelas:
 
 1. **Deck:** `apresentacao/index.html` (setas para navegar; `#9` na URL abre o slide 9; tecla `N` mostra as notas com as fontes).
 2. **Protótipo 360°:** `prototipo/index.html` (estático, abre sem servidor).
 3. **App da PoC:** `http://localhost:5173` (interface React do W5), falando com a API do W4 em `http://localhost:8000`.
-4. **Slack, canal `#atendimento-ops`:** lado a lado com o app, metade da tela para cada um. O FIO posta ali só o que pede ação de uma pessoa, com botões, e um resumo de cada rodada. O resto continua no **Canal do time** do app.
+4. **Slack, canal `#atendimento-ops`:** lado a lado com o app, metade da tela para cada um. O Gabriel posta ali só o que pede ação de uma pessoa, com botões, e um resumo de cada rodada. O resto continua no **Canal do time** do app.
 
 Deixe também um terminal pronto para os passos 7 e 9 e o vídeo `apresentacao/midia/demo.mp4` aberto e pausado no player, para o plano B. O vídeo é a jornada E2E das 10:59, com 20 de 20 verificações aprovadas, e não tem o Slack. O placar dele é de antes do último ajuste do leitor (29 resolvidas e 16 escaladas): não leia esses números em voz alta.
 
@@ -18,7 +18,7 @@ Deixe também um terminal pronto para os passos 7 e 9 e o vídeo `apresentacao/m
   uv run python -c "import os, dotenv; dotenv.load_dotenv(); from slack_sdk import WebClient; r = WebClient(os.environ['SLACK_BOT_TOKEN']).auth_test(); print(r['ok'], r['team'], r['user'])"
   ```
   Deve imprimir `True` com o nome do workspace e do bot. Se der `token_expired` ou `invalid_auth`, gere um token novo na configuração do app no Slack, troque `SLACK_BOT_TOKEN` no `.env` e só então reinicie.
-- [ ] **Reiniciar o backend.** O estado do FIO vive em memória, os avisos do vigia só saem uma vez por execução da API e a conexão com o Slack abre na subida. Reinicie sempre, **sem `--reload`**, para que uma edição em `src/` não reinicie a API no meio da demo:
+- [ ] **Reiniciar o backend.** O estado do Gabriel vive em memória, os avisos do vigia só saem uma vez por execução da API e a conexão com o Slack abre na subida. Reinicie sempre, **sem `--reload`**, para que uma edição em `src/` não reinicie a API no meio da demo:
   ```bash
   uv run uvicorn atendimento.api.app:app --port 8000
   ```
@@ -27,10 +27,10 @@ Deixe também um terminal pronto para os passos 7 e 9 e o vídeo `apresentacao/m
   - numa amostra de 300 conversas, ele acertou a categoria em 62,0% contra 53,7% das regras (`ingestao/avaliacao_leitor_claude.md`);
   - uma rodada da fila custa cerca de US$ 0,50 (65 conversas; a medição de 300 custou US$ 2,37);
   - as respostas ficam em cache em `var/cache_leitor_claude`, por hash do texto mascarado. Rode a fila uma vez no ensaio e reinicie: na demo, a mesma fila sai do cache, sem custo e sem depender da rede;
-  - se a API do Claude falhar, o FIO volta sozinho para as regras;
+  - se a API do Claude falhar, o Gabriel volta sozinho para as regras;
   - o placar pode sair diferente de 34 / 2 / 18 / 0 / 11. Anote no ensaio os números que aparecerem e fale esses.
 - [ ] **A API responde?** `curl -s -m 5 localhost:8000/api/placar` deve trazer tudo zerado. Entre 10:49 e 10:53 ela travou e não respondia a GET.
-- [ ] **Bot no canal.** O FIO precisa ser membro do `#atendimento-ops` para receber o `@FIO`.
+- [ ] **Bot no canal.** O Gabriel precisa ser membro do `#atendimento-ops` para receber o `@Gabriel`.
 - [ ] **Botões da suspeita na tela.** A decisão da suspeita (passo 7) chegou ao app às 11:18 e não estava no vídeo nem no E2E das 10:59. No ensaio, confira se, depois de **Verificar** o `AT104936`, aparecem **Procedente** e **Improcedente**. Se não aparecerem, use o plano B do passo 7.
 - [ ] **Deck no slide 1**, protótipo no mapa, app recarregado com a fila visível e o relógio em 08:00, e o `#atendimento-ops` aberto ao lado, rolado até o fim.
 - [ ] **Zoom do navegador em 125%** no app, para a banca ler de longe.
@@ -48,14 +48,14 @@ Os tempos são acumulados. O que está entre aspas é a frase para dizer.
 
 ### 2. A visão 360° (0:15 a 0:30) · Protótipo, `index.html`
 
-- **Dizer:** "O FIO cobre as cinco frentes do atendimento. Em amarelo está onde uma pessoa decide, e hoje vamos provar ao vivo a verificação da reclamação e a escalação."
+- **Dizer:** "O Gabriel cobre as cinco frentes do atendimento. Em amarelo está onde uma pessoa decide, e hoje vamos provar ao vivo a verificação da reclamação e a escalação."
 - **Mostrar:** o mapa. Passe o cursor pela linha amarela "Pessoa decide" e pare nas colunas F3 e F4, com o selo "Provado na PoC".
 - **Plano B:** slide 4 do deck ("Cinco frentes…").
 
 ### 3. A fila das 08h e o vigia das 08:20 (0:30 a 0:50) · App, fila e "Canal do time"
 
-- **Dizer:** "São 8h de 02/11, com 65 conversas abertas. Sem ninguém perguntar, o FIO olha o relógio e avisa o time do que vai estourar o prazo."
-- **Mostrar:** a fila à esquerda (65 itens) e o placar zerado. No **Canal do time**, clique em **Avançar o relógio para 08:20**. Chegam **19 avisos de SLA**: o e-mail `AT116480`, que já passou do prazo, e as conversas de WhatsApp perto de vencer. Cada aviso diz o impacto e de quem o FIO espera ação.
+- **Dizer:** "São 8h de 02/11, com 65 conversas abertas. Sem ninguém perguntar, o Gabriel olha o relógio e avisa o time do que vai estourar o prazo."
+- **Mostrar:** a fila à esquerda (65 itens) e o placar zerado. No **Canal do time**, clique em **Avançar o relógio para 08:20**. Chegam **19 avisos de SLA**: o e-mail `AT116480`, que já passou do prazo, e as conversas de WhatsApp perto de vencer. Cada aviso diz o impacto e de quem o Gabriel espera ação.
 - **Plano B:** prints `.scratch/e2e/01-inicio.png` e `02-vigia-canal.png`.
 
 ### 4. Processar fila (0:50 a 1:15) · App
@@ -80,7 +80,7 @@ Os tempos são acumulados. O que está entre aspas é a frase para dizer.
 
 ### 6. Verificação de evidência no histórico (1:35 a 2:00) · App, seção "Verificação de evidência"
 
-- **Dizer:** "Agora a frente de fraude, rodando sobre uma reclamação antiga, no dia em que ela chegou. A foto foi tirada antes de o pedido ser entregue e já tinha aparecido em outro pedido. O FIO segura o reenvio, manda para o supervisor, e o cliente recebe só uma resposta neutra."
+- **Dizer:** "Agora a frente de fraude, rodando sobre uma reclamação antiga, no dia em que ela chegou. A foto foi tirada antes de o pedido ser entregue e já tinha aparecido em outro pedido. O Gabriel segura o reenvio, manda para o supervisor, e o cliente recebe só uma resposta neutra."
 - **Mostrar:** link **Verificação de evidência** no topo. Use `Cmd+F` e procure `AT104936` (a lista tem 280 conversas com foto). Clique em **Verificar** e aponte:
   - **Sinais do verificador:** captura anterior à entrega, hash repetido e reenvios anteriores do cliente;
   - **Decisão da política:** sinalizar suspeita, para o supervisor decidir;
@@ -95,7 +95,7 @@ Os tempos são acumulados. O que está entre aspas é a frase para dizer.
   - o campo **Supervisor que decide**, que não oferece quem sinalizou;
   - em **Justificativa da decisão**, um texto curto, por exemplo "Foto repetida em outro pedido e tirada antes da entrega";
   - o clique em **Improcedente**. A resposta ao cliente muda para a negativa educada, que convida a mandar novas fotos e não acusa ninguém.
-  - Se escolher **Procedente**, o FIO segue a política do caso: executa o reenvio ou pede aprovação, somando o que o pedido já recebeu.
+  - Se escolher **Procedente**, o Gabriel segue a política do caso: executa o reenvio ou pede aprovação, somando o que o pedido já recebeu.
   - Os botões só liberam depois de escrita a justificativa.
   - A mesma suspeita chega ao Slack com **Procedente** e **Improcedente**. Decida no app, para a banca ver a justificativa sendo escrita.
 - **Plano B:** sem os botões na tela, mostre a regra pela API. Este comando pega a suspeita pendente e tenta decidi-la como `agente`, quem a sinalizou:
@@ -111,15 +111,15 @@ Os tempos são acumulados. O que está entre aspas é a frase para dizer.
 
 - **Dizer:** "Cobrança em dobro de R$ 118,80. O limite dele para reembolso é R$ 100, então ele pede aprovação no Slack, onde o time já está. Quem aprova é um supervisor, não ele."
 - **Mostrar:**
-  - no Slack, a mensagem "FIO pediu aprovação" de `AT116677` (reembolsar R$ 118,80, pedido `GBH491723`, endereçada à supervisora do turno);
+  - no Slack, a mensagem "Gabriel pediu aprovação" de `AT116677` (reembolsar R$ 118,80, pedido `GBH491723`, endereçada à supervisora do turno);
   - clique em **Aprovar**. Você aprova como `supervisor_02`, um supervisor diferente de quem pediu. A mensagem perde os botões e passa a dizer "Aprovado por supervisor_02 pelo Slack.";
   - no app, ao lado, o **Console dos sistemas** mostra o `reembolsar` executado, com o aprovador;
-  - ainda no canal, escreva `@FIO status do GCH553818`. Ele responde na conversa com o status do pedido (em trânsito, sem entrega registrada) e registra a resposta no log de ações.
-- **Plano B, se o Slack cair:** a tela **Canal do time** do app faz o mesmo. No pedido de aprovação de `AT116677`, escolha **Roberto Mendes** (o `supervisor_02`) no campo **Supervisor**, escreva um comentário curto e clique em **Aprovar**; o **Console dos sistemas** mostra o `reembolsar` do mesmo jeito. Pule o `@FIO`. Sem app também, use os prints `.scratch/e2e/05-canal-pedido-aprovacao.png`, `06-aprovando.png` e `07-acao-aprovada-console.png`. Nos prints, o pedido aprovado é o outro pendente, `AT116520` (reembolso de R$ 155,81, por arrependimento).
+  - ainda no canal, escreva `@Gabriel status do GCH553818`. Ele responde na conversa com o status do pedido (em trânsito, sem entrega registrada) e registra a resposta no log de ações.
+- **Plano B, se o Slack cair:** a tela **Canal do time** do app faz o mesmo. No pedido de aprovação de `AT116677`, escolha **Roberto Mendes** (o `supervisor_02`) no campo **Supervisor**, escreva um comentário curto e clique em **Aprovar**; o **Console dos sistemas** mostra o `reembolsar` do mesmo jeito. Pule o `@Gabriel`. Sem app também, use os prints `.scratch/e2e/05-canal-pedido-aprovacao.png`, `06-aprovando.png` e `07-acao-aprovada-console.png`. Nos prints, o pedido aprovado é o outro pendente, `AT116520` (reembolso de R$ 155,81, por arrependimento).
 
 ### 9. Autoaprovação recusada (2:45 a 2:55) · Terminal
 
-- **Dizer:** "A tela nem oferece quem pediu como aprovador. E se alguém tentar direto na API, o FIO não consegue aprovar o próprio pedido."
+- **Dizer:** "A tela nem oferece quem pediu como aprovador. E se alguém tentar direto na API, o Gabriel não consegue aprovar o próprio pedido."
 - **Mostrar:** rode o comando já colado. Ele pega o pedido de aprovação ainda pendente (o reembolso de `AT116520`) e tenta aprovar como `agente`:
   ```bash
   APR=$(curl -s localhost:8000/api/canal | jq -r '[.[] | select(.tipo=="aprovacao" and .estado=="pendente")][0].aprovacao_id')
@@ -131,7 +131,7 @@ Os tempos são acumulados. O que está entre aspas é a frase para dizer.
 
 ### 10. O agente analista abre o incidente (2:55 a 3:20) · App, painel "Agente analista"
 
-- **Dizer:** "A mesma cobrança em dobro aparece em 12 pedidos sem estorno. Aqui o FIO segue o fio até a causa comum: o agente analista abre um incidente e avisa os clientes que aceitam contato antes de eles reclamarem."
+- **Dizer:** "A mesma cobrança em dobro aparece em 12 pedidos sem estorno. Aqui o Gabriel segue o fio até a causa comum: o agente analista abre um incidente e avisa os clientes que aceitam contato antes de eles reclamarem."
 - **Mostrar:** role até o painel **Agente analista**. No padrão `cobranca_em_dobro` (12 pedidos), clique em **Tratar**. Aparecem o número do incidente (`INC-…`), os avisos enviados e quem ficou sem aviso por falta de consentimento. No E2E das 10:59 foram 11 avisos e 1 cliente sem consentimento. O `INC-…` aparece também no **Console dos sistemas** e no **Canal do time**.
 - **Plano B:** prints `.scratch/e2e/10-analista-resultado.png` e `11-analista-incidente.png`, ou `prototipo/prevencao.html`, em que o mesmo caminho passa por uma pessoa liberando o envio.
 
@@ -161,7 +161,7 @@ Abra o slide 8 do deck, que já tem o vídeo da jornada embutido, ou `apresentac
 - **Slack:** código de `src/atendimento/canal_slack/`:
   - botões **Aprovar**, **Rejeitar**, **Procedente** e **Improcedente** só em mensagem pendente (`blocos.py`);
   - quem clica precisa estar em `SLACK_SUPERVISORES`; o clique chama a mesma aprovação do app, com a mesma regra de quem pode aprovar (`canal.py`, `ao_clicar`);
-  - o `@FIO` responde status de pedido e registra `responder_colaborador`; pedido de colaborador com dinheiro passa pela política (HG-10);
+  - o `@Gabriel` responde status de pedido e registra `responder_colaborador`; pedido de colaborador com dinheiro passa pela política (HG-10);
   - "só o que pede ação, mais um resumo por rodada" é a mudança que o W2 está fazendo agora, informada pelo coordenador. Não vi o Slack rodando: o passo 8 foi conferido pelo código e pelo `.env.example`.
 - **Leitor com Claude:** `ingestao/avaliacao_leitor_claude.md` (amostra de 300; 62,0% contra 53,7%; US$ 2,37 pela amostra) e `src/atendimento/agente/leitor.py` (`ATENDIMENTO_LLM=1`, cache em `var/cache_leitor_claude`). O US$ 0,50 por rodada é a mesma conta aplicada às 65 conversas da fila.
 - **Números:**

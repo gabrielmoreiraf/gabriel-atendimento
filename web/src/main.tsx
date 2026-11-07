@@ -33,7 +33,7 @@ const semEventos = () => () => {};
 
 const raiz = document.getElementById("root");
 
-// "/" é a landing do FIO; "/app" (e qualquer subcaminho) é a ferramenta.
+// "/" é a landing do Gabriel; "/app" (e qualquer subcaminho) é a ferramenta.
 if (raiz && !location.pathname.startsWith("/app")) {
   createRoot(raiz).render(
     <StrictMode>

@@ -22,8 +22,8 @@ export function AgenteAnalista({ padroes, onTratar }: Props) {
       <header className="analista__cabeca">
         <h2 id="analista-titulo">Agente analista</h2>
         <p>
-          Trabalha em equipe com o FIO: acha a causa comum, abre um incidente e avisa os clientes
-          afetados de uma vez.
+          Trabalha em equipe com o Gabriel: acha a causa comum, abre um incidente e avisa os
+          clientes afetados de uma vez.
         </p>
       </header>
       {padroes.length === 0 ? (

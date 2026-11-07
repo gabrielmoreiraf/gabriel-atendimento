@@ -10,7 +10,7 @@ describe("Landing", () => {
     }
   });
 
-  it("apresenta o FIO e o que ele faz", () => {
+  it("apresenta o Gabriel e o que ele faz", () => {
     render(<Landing />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/confere antes de pagar/);
     expect(screen.getAllByRole("listitem").length).toBeGreaterThanOrEqual(5);

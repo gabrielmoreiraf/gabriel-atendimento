@@ -109,7 +109,7 @@ export function Landing() {
         <PillNav
           ariaLabel="Seções"
           logo={<MascoteMarca tamanho={30} />}
-          logoAlt="FIO, início"
+          logoAlt="Gabriel, início"
           logoHref="/"
           items={[
             { label: "Problema", href: "#problema" },
@@ -130,7 +130,7 @@ export function Landing() {
           collapse={barraAberta ? "never" : "always"}
         />
         <a className="pilula pilula--clara" href="/app" data-testid="lp-entrar-topo">
-          Entrar no FIO <Seta />
+          Abrir o Gabriel <Seta />
         </a>
       </header>
 
@@ -140,12 +140,13 @@ export function Landing() {
             O colega de atendimento que <em>confere antes de pagar</em>.
           </h1>
           <p className="lp-hero__sub">
-            O FIO pega a fila, consulta pedido, rastreio e pagamento, confere a foto da reclamação e
-            age dentro da alçada. Quando não pode decidir, chama a pessoa certa no Slack do time.
+            O Gabriel pega a fila, consulta pedido, rastreio e pagamento, confere a foto da
+            reclamação e age dentro da alçada. Quando não pode decidir, chama a pessoa certa no
+            Slack do time.
           </p>
           <div className="lp-hero__acoes">
             <BotaoBrilho href="/app" testId="lp-entrar">
-              Entrar no FIO
+              Abrir o Gabriel
             </BotaoBrilho>
             <a className="lp-link" href="#como">
               Ver como funciona
@@ -158,7 +159,7 @@ export function Landing() {
           <Mascote tamanho={340} />
           <div className="lp-chat lp-chat--1">
             <b>AT116568 · Reação adversa</b>
-            <span>FIO orientou suspender o uso e chamou a qualidade.</span>
+            <span>Gabriel orientou suspender o uso e chamou a qualidade.</span>
           </div>
           <div className="lp-chat lp-chat--2">
             <b>Aprovação · R$ 155,81</b>
@@ -202,7 +203,7 @@ export function Landing() {
 
       <section id="como" className="lp-secao">
         <h2>Cinco passos, com uma pessoa no controle de tudo o que passa da alçada.</h2>
-        <CartoesDeslizantes itens={PASSOS} rotulo="Os cinco passos do FIO" />
+        <CartoesDeslizantes itens={PASSOS} rotulo="Os cinco passos do Gabriel" />
       </section>
 
       <section id="slack" className="lp-escura">
@@ -211,19 +212,21 @@ export function Landing() {
           <ul>
             <li>Só vai ao canal o que pede uma pessoa: aprovação, suspeita, escalação e SLA.</li>
             <li>Quem pediu não aprova a própria ação, e quem sinalizou a suspeita não a decide.</li>
-            <li>Pedido de colaborador por @FIO passa pela mesma política. A alçada não muda.</li>
+            <li>
+              Pedido de colaborador por @Gabriel passa pela mesma política. A alçada não muda.
+            </li>
           </ul>
         </div>
-        <div className="lp-slack" aria-label="Exemplo de mensagem do FIO no Slack">
+        <div className="lp-slack" aria-label="Exemplo de mensagem do Gabriel no Slack">
           <p className="lp-slack__canal"># atendimento-ops</p>
           <div className="lp-slack__msg">
             <Mascote tamanho={40} piscando={false} />
             <div>
               <p>
-                <b>FIO</b> <span className="lp-slack__app">APP</span> <time>08:00</time>
+                <b>Gabriel</b> <span className="lp-slack__app">APP</span> <time>08:00</time>
               </p>
               <p>
-                <b>FIO pediu aprovação</b>: reembolso de R$ 155,81 no pedido GBH469163, acima do
+                <b>Gabriel pediu aprovação</b>: reembolso de R$ 155,81 no pedido GBH469163, acima do
                 limite de R$ 100,00 do atendente.
               </p>
               <p className="lp-slack__botoes">
@@ -259,17 +262,17 @@ export function Landing() {
 
       <section className="lp-final">
         <div>
-          <h2>Pronto para ver o FIO trabalhar?</h2>
+          <h2>Pronto para ver o Gabriel trabalhar?</h2>
           <p>Processe a fila das 8h, abra um caso suspeito e aprove pelo canal do time.</p>
           <BotaoBrilho href="/app" testId="lp-entrar-final">
-            Entrar no FIO
+            Abrir o Gabriel
           </BotaoBrilho>
         </div>
         <Mascote tamanho={220} />
       </section>
 
       <footer className="lp-rodape">
-        <span>FIO · GoHacks Talent 2026 · Desafio Atendimento ao Cliente</span>
+        <span>Gabriel · GoHacks Talent 2026 · Desafio Atendimento ao Cliente</span>
         <a href="https://github.com/gabrielmoreiraf/fio-atendimento">Código no GitHub</a>
       </footer>
     </div>

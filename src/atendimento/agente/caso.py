@@ -392,10 +392,10 @@ class Agente:
             caso.analista.append(resultado)
             incidente = (resultado.get("incidente") or {}).get("incidente_id")
             texto = (
-                f"{caso.conversation_id}: FIO chamou o agente analista: incidente {incidente} "
+                f"{caso.conversation_id}: Gabriel chamou o agente analista: incidente {incidente} "
                 f"({FATOR_ANALISTA.get(fator, fator)})."
                 if incidente
-                else f"{caso.conversation_id}: FIO chamou o agente analista "
+                else f"{caso.conversation_id}: Gabriel chamou o agente analista "
                 f"({FATOR_ANALISTA.get(fator, fator)}): sem padrão de causa comum confirmado na base."
             )
             self.postar_no_canal("aviso", None, texto, caso.conversation_id)
@@ -487,7 +487,7 @@ class Agente:
         self.postar_no_canal(
             "aviso",
             None,
-            f"{caso.conversation_id}: FIO não repetiu o {nome_da_acao(acao.ferramenta)}: já foi "
+            f"{caso.conversation_id}: Gabriel não repetiu o {nome_da_acao(acao.ferramenta)}: já foi "
             f"feito no pedido {acao.order_id} em {quando} (ref. {ref}), na conversa "
             f"{feita.get('conversation_id') or 'anterior'}.",
             caso.conversation_id,
@@ -662,7 +662,7 @@ class Agente:
             self.postar_no_canal(
                 "aviso",
                 None,
-                f"{cid}: a mensagem do cliente traz uma instrução dirigida ao FIO. Ela foi "
+                f"{cid}: a mensagem do cliente traz uma instrução dirigida ao Gabriel. Ela foi "
                 "tratada como dado: nenhuma ação foi tomada por causa dela. Caso registrado para "
                 "revisão.",
                 cid,
@@ -837,7 +837,7 @@ class Agente:
             self._escalar(
                 caso,
                 f"{rotulo_categoria(categoria)} sem pedido identificado: nada com dinheiro foi "
-                "feito e o FIO pediu o número do pedido ao cliente.",
+                "feito e o Gabriel pediu o número do pedido ao cliente.",
                 categoria,
                 regra="Q20 (ação com dinheiro sem pedido identificado)",
             )
@@ -973,7 +973,7 @@ class Agente:
                 return "resolvida", ""  # responder_duvida já enviou a resposta ao cliente
             return self._escalar(
                 caso,
-                f"FIO não achou a resposta na ficha do produto ({resposta.get('motivo')}); uma "
+                f"Gabriel não achou a resposta na ficha do produto ({resposta.get('motivo')}); uma "
                 "pessoa do time responde.",
                 categoria,
             )
@@ -1000,7 +1000,7 @@ class Agente:
 
         return self._escalar(
             caso,
-            f"{rotulo_categoria(categoria)}: o FIO não tem regra automática para esta demanda"
+            f"{rotulo_categoria(categoria)}: o Gabriel não tem regra automática para esta demanda"
             + (
                 ""
                 if pedido or categoria in ("outros", "duvida_produto", "cupom_promocao")
@@ -1026,7 +1026,7 @@ class Agente:
             self.postar_no_canal(
                 "aviso",
                 None,
-                f"{caso.conversation_id}: FIO não fez o {nome_da_acao(acao.ferramenta)} de "
+                f"{caso.conversation_id}: Gabriel não fez o {nome_da_acao(acao.ferramenta)} de "
                 f"{_rs(acao.valor_rs)}: o pedido {acao.order_id} tem a suspeita "
                 f"{pendente.suspeita_id} esperando a decisão do supervisor.",
                 caso.conversation_id,
@@ -1037,8 +1037,8 @@ class Agente:
             # HG-09: texto que tenta mandar no agente tira o caso do automático
             self._escalar(
                 caso,
-                f"FIO não fez o {nome_da_acao(acao.ferramenta)} de {_rs(acao.valor_rs)} sozinho: a "
-                "mensagem traz uma instrução dirigida ao FIO. Conferência humana.",
+                f"Gabriel não fez o {nome_da_acao(acao.ferramenta)} de {_rs(acao.valor_rs)} sozinho: a "
+                "mensagem traz uma instrução dirigida ao Gabriel. Conferência humana.",
                 acao.categoria,
             )
             return "escalada", "Uma pessoa da nossa equipe já está cuidando do seu caso."
@@ -1064,7 +1064,7 @@ class Agente:
             self.postar_no_canal(
                 "aviso",
                 None,
-                f"{cid}: FIO {acao_feita(acao.ferramenta)}"
+                f"{cid}: Gabriel {acao_feita(acao.ferramenta)}"
                 + (f" de {_rs(acao.valor_rs)}" if acao.ferramenta in COM_DINHEIRO else "")
                 + f" (ref. {registro.referencia_sistema}).",
                 cid,
@@ -1113,7 +1113,7 @@ class Agente:
             self.postar_no_canal(
                 "aprovacao",
                 decisao.aprovador_sugerido,
-                f"{cid}: FIO pediu aprovação para {nome_da_acao(acao.ferramenta)} de "
+                f"{cid}: Gabriel pediu aprovação para {nome_da_acao(acao.ferramenta)} de "
                 f"{_rs(acao.valor_rs)} no pedido {acao.order_id} ({_por_que_aprovacao(decisao)})."
                 + (f" Evidências: {evidencias}" if veredicto else ""),
                 cid,
@@ -1159,7 +1159,7 @@ class Agente:
             self.postar_no_canal(
                 "suspeita",
                 decisao.aprovador_sugerido,
-                f"{cid}: FIO segurou o {nome_da_acao(acao.ferramenta)} de {_rs(acao.valor_rs)} no "
+                f"{cid}: Gabriel segurou o {nome_da_acao(acao.ferramenta)} de {_rs(acao.valor_rs)} no "
                 f"pedido {acao.order_id} até a decisão do supervisor. Evidências: {sinais} "
                 f"Prazo de decisão: {suspeita.prazo.strftime('%d/%m/%Y %H:%M')}.",
                 cid,
@@ -1196,7 +1196,7 @@ class Agente:
             self.postar_no_canal(
                 "aviso",
                 None,
-                f"{cid}: FIO não fez o {nome_da_acao(acao.ferramenta)}, pela política. "
+                f"{cid}: Gabriel não fez o {nome_da_acao(acao.ferramenta)}, pela política. "
                 f"{decisao.motivo}",
                 cid,
                 regra=decisao.regra,
@@ -1206,7 +1206,7 @@ class Agente:
         # BLOQUEAR
         self._escalar(
             caso,
-            f"FIO não fez o {nome_da_acao(acao.ferramenta)}: bloqueado pela política. "
+            f"Gabriel não fez o {nome_da_acao(acao.ferramenta)}: bloqueado pela política. "
             f"{decisao.motivo}",
             acao.categoria,
             regra=decisao.regra,
@@ -1270,7 +1270,7 @@ class Agente:
         self.postar_no_canal(
             "escalacao",
             decisao.aprovador_sugerido,
-            f"{caso.conversation_id}: {contexto} FIO já orientou o cliente a suspender o uso. "
+            f"{caso.conversation_id}: {contexto} Gabriel já orientou o cliente a suspender o uso. "
             f"Pendente para o supervisor do turno: registro de cosmetovigilância em até {prazo} h.",
             caso.conversation_id,
             regra=decisao.regra,

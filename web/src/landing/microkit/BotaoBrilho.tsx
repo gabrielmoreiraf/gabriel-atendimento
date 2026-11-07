@@ -1,5 +1,5 @@
 /* Adaptado de MicroKit UI (cursor-edge-glow-button), licença MIT: ver LICENSE-microkit.txt.
- * Mudanças: vira link (href), texto por prop, cores do FIO no CSS. */
+ * Mudanças: vira link (href), texto por prop, cores do Gabriel no CSS. */
 import "./botao-brilho.css";
 
 import { useEffect, useRef } from "react";

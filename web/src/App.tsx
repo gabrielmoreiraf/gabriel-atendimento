@@ -228,9 +228,9 @@ export default function App({ api, assinar, modo = "api" }: Props) {
     <div className="app" data-tela={tela} data-foco={foco}>
       <header className="barra">
         <div className="barra__marca">
-          <a className="logo" href="/" aria-label="FIO, voltar ao início">
+          <a className="logo" href="/" aria-label="Gabriel, voltar ao início">
             <MascoteMarca tamanho={36} />
-            <span>FIO</span>
+            <span>Gabriel</span>
           </a>
         </div>
         <div className="barra__nav">

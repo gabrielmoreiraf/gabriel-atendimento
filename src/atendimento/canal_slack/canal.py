@@ -330,7 +330,7 @@ class CanalSlack:
             else:
                 return
         except KeyError:
-            self._efemera(cliente, body, f"{valor} não existe mais no FIO.")
+            self._efemera(cliente, body, f"{valor} não existe mais no Gabriel.")
             return
         except (
             AprovacaoRecusada,
@@ -427,11 +427,11 @@ class CanalSlack:
         if pedido is None or caso is None:
             self._escalar(
                 f"Colaborador pediu {o_que} pelo Slack, mas não há atendimento aberto para esse "
-                "pedido no FIO. Nada foi executado: conferir pelo fluxo normal do cliente.",
+                "pedido no Gabriel. Nada foi executado: conferir pelo fluxo normal do cliente.",
                 None,
             )
             return (
-                f"Pedido {order_id}: não encontrei atendimento aberto no FIO para {o_que}. "
+                f"Pedido {order_id}: não encontrei atendimento aberto no Gabriel para {o_que}. "
                 "Nada foi executado; escalei para o supervisor seguir pelo fluxo do cliente."
             )
         cid = caso.conversation_id
