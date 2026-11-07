@@ -40,6 +40,8 @@ PRECO_SAIDA_POR_MTOK_USD = 20.0
 _ORDER_ID = re.compile(r"\bG[BC]H\d{6}\b")
 _DELIM = "mensagem_do_cliente"
 
+_DELIMITADOR = re.compile(rf"<\s*/?\s*{_DELIM}\s*>", re.IGNORECASE)
+
 log = logging.getLogger(__name__)
 
 SISTEMA = f"""Você classifica mensagens de clientes do atendimento de um e-commerce brasileiro \
@@ -112,6 +114,11 @@ def _validar(dados: object) -> dict:
         raise RespostaInvalida("order_ids")
     for campo in ("sensivel", "instrucao_embutida"):
         if not isinstance(dados[campo], bool):
+            raise RespostaInvalida(campo)
+    if not isinstance(dados["categoria"], str):
+        raise RespostaInvalida("categoria")
+    for campo in ("categoria_secundaria", "codigo_cupom"):  # vale também para o cache
+        if dados[campo] is not None and not isinstance(dados[campo], str):
             raise RespostaInvalida(campo)
     return dados
 
@@ -202,12 +209,18 @@ class LeitorClaude:
             return self._falhou("rate_limit", regras)
         except anthropic.APIStatusError as erro:
             return self._falhou(f"api_{erro.status_code}", regras)
+        except anthropic.APIResponseValidationError:
+            return self._falhou("api_resposta", regras)
+        except anthropic.APIError:
+            return self._falhou("api_erro", regras)
         except _Recusa:
             return self._falhou("recusa", regras)
         except _Cortada:
             return self._falhou("resposta_cortada", regras)
-        except (RespostaInvalida, json.JSONDecodeError, KeyError, TypeError):
+        except (RespostaInvalida, json.JSONDecodeError, KeyError, TypeError, StopIteration):
             return self._falhou("resposta_invalida", regras)
+        except Exception:  # noqa: BLE001 - qualquer falha volta às regras (HG-13), sem o texto
+            return self._falhou("erro_inesperado", regras)
 
     def _falhou(self, motivo: str, regras: Leitura) -> Leitura:
         with self._trava:
@@ -216,7 +229,7 @@ class LeitorClaude:
         return regras
 
     def _perguntar(self, mascarado: str) -> object:
-        seguro = mascarado.replace(f"<{_DELIM}>", "").replace(f"</{_DELIM}>", "")
+        seguro = _DELIMITADOR.sub("", mascarado)  # o cliente não abre nem fecha o delimitador
         resposta = self.cliente.beta.messages.create(
             model=self.modelo,
             max_tokens=2048,
