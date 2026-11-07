@@ -1,0 +1,810 @@
+{
+  "projeto": "atendimento_ao_cliente",
+  "fonte": "REQUISITOS.md",
+  "regra": "Só o subagente revisor (.claude/agents/revisor.md) muda passes para true.",
+  "total": 61,
+  "features": [
+    {
+      "id": "HP-01",
+      "titulo": "Priorizar a fila pelo risco de SLA e pelo custo do canal",
+      "categoria": "fluxo_principal_e2e",
+      "tags": [
+        "e2e"
+      ],
+      "requisito": "REQUISITOS.md#2.1",
+      "teste": "test_HP_01",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "tests/test_agente_priorizacao.py test_HP_01_* (7) + test_api_app.py::test_HP_01_fila_com_prioridade_e_estado; TestClient sobre cópia de docs/: AT116480 (e-mail vencido) no topo, 18 WhatsApp sem resposta nas posições 2-19 com vencimento <= 08:30, RA sem resposta por data_abertura + 48 h; uv run pytest -q -> 335 passed; ruff check -> All checks passed; ruff format --check -> 87 files already formatted"
+    },
+    {
+      "id": "HP-02",
+      "titulo": "Pedido em trânsito dentro do prazo (Rastreio)",
+      "categoria": "fluxo_principal_e2e",
+      "tags": [
+        "e2e"
+      ],
+      "requisito": "REQUISITOS.md#2.1",
+      "teste": "test_HP_02",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "HP-03",
+      "titulo": "Rastreio parado há 3 dias úteis ou mais",
+      "categoria": "fluxo_principal_e2e",
+      "tags": [
+        "e2e"
+      ],
+      "requisito": "REQUISITOS.md#2.1",
+      "teste": "test_HP_03",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "HP-04",
+      "titulo": "Avaria comprovada dentro da alçada resolvida sem humano",
+      "categoria": "fluxo_principal_e2e",
+      "tags": [
+        "e2e"
+      ],
+      "requisito": "REQUISITOS.md#2.1",
+      "teste": "test_HP_04",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -n auto -> 429 passed; -m integracao -> 9 passed; ruff check -> All checks passed; test_agente_prazo.py test_HP_04_* (4) + test_agente_caso/test_agente_leitor: reenviar_produto sem aprovação, previsão 05/11/2026 por politicas.csv prazos_entrega.*, encerrar_conversa com tag Avaria"
+    },
+    {
+      "id": "HP-05",
+      "titulo": "Cobrança em dobro com estorno dentro da alçada",
+      "categoria": "fluxo_principal_e2e",
+      "tags": [
+        "e2e"
+      ],
+      "requisito": "REQUISITOS.md#2.1",
+      "teste": "test_HP_05",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "HP-06",
+      "titulo": "Cancelamento antes da separação",
+      "categoria": "fluxo_principal_e2e",
+      "tags": [
+        "e2e"
+      ],
+      "requisito": "REQUISITOS.md#2.1",
+      "teste": "test_HP_06",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "HP-07",
+      "titulo": "Conversa em que só o bot falou",
+      "categoria": "fluxo_principal_e2e",
+      "tags": [
+        "e2e"
+      ],
+      "requisito": "REQUISITOS.md#2.1",
+      "teste": "test_HP_07",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "HP-08",
+      "titulo": "Ciclo completo é auditável",
+      "categoria": "fluxo_principal_e2e",
+      "tags": [
+        "e2e"
+      ],
+      "requisito": "REQUISITOS.md#2.1",
+      "teste": "test_HP_08",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "test_agente_caso.py::test_HP_08_cada_conversa_tem_exatamente_uma_classificacao + test_HP_08_*; fila real (cópia da base): 65 conversas abertas, 65 com exatamente 1 classificar_conversa (memória e acoes_agente), AT116664/667/675/681/711 = sem_interacao -> classificar_conversa + encerrar_conversa; uv run pytest -> 437 passed; -m integracao -> 9 passed; ruff check e format --check limpos"
+    },
+    {
+      "id": "HP-09",
+      "titulo": "O agente executa, não sugere",
+      "categoria": "fluxo_principal_e2e",
+      "tags": [
+        "e2e",
+        "colega"
+      ],
+      "requisito": "REQUISITOS.md#2.1",
+      "teste": "test_HP_09",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -n auto -> 429 passed; -m integracao -> 9 passed; ruff check -> All checks passed; tests/test_agente_revisor2.py test_HP_09_rastreio_* (2) + test_agente_caso/test_ferramentas_executar; TestClient sobre cópia de docs/: AT116480 consulta portal TransNorte, status chegada_unidade_destino 01/11/2026, previsão 03/11/2026; todas as ações com referencia_sistema"
+    },
+    {
+      "id": "HP-10",
+      "titulo": "Aprovação pedida e recebida no canal do time",
+      "categoria": "fluxo_principal_e2e",
+      "tags": [
+        "e2e",
+        "canal"
+      ],
+      "requisito": "REQUISITOS.md#2.1",
+      "teste": "test_HP_10",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "test_agente_caso.py::test_HP_10_* e test_api_app.py::test_HP_10_aprovar_pelo_canal_executa_a_acao; TestClient: APR-000001 (AT116677) recusada para 'agente' (403), aprovada por supervisor_01 -> aprovar_acao + reembolsar com aprovado_por, aviso no canal e resposta ao cliente; 2ª aprovação -> 403; uv run pytest -q -> 335 passed; ruff check -> All checks passed; ruff format --check -> 87 files already formatted"
+    },
+    {
+      "id": "HP-11",
+      "titulo": "Um contato que atravessa vários sistemas",
+      "categoria": "fluxo_principal_e2e",
+      "tags": [
+        "e2e",
+        "multissistema"
+      ],
+      "requisito": "REQUISITOS.md#2.1",
+      "teste": "test_HP_11",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "HP-12",
+      "titulo": "Resposta pública no Reclame Aqui",
+      "categoria": "fluxo_principal_e2e",
+      "tags": [
+        "e2e",
+        "reclame_aqui"
+      ],
+      "requisito": "REQUISITOS.md#2.1",
+      "teste": "test_HP_12",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "HP-13",
+      "titulo": "Categorias simples resolvidas sem humano",
+      "categoria": "fluxo_principal_e2e",
+      "tags": [
+        "e2e"
+      ],
+      "requisito": "REQUISITOS.md#2.1",
+      "teste": "test_HP_13",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "EC-01",
+      "titulo": "Limite de reembolso do atendente",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "alcada"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_01",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -q tests/test_politicas_motor.py tests/test_verificacao_evidencia.py -> 67 passed (test_EC_01_*: R$ 100,00 executa; R$ 100,01 pedir_aprovacao com aprovador); ruff check -> All checks passed"
+    },
+    {
+      "id": "EC-02",
+      "titulo": "Limite de reenvio, reimpressão e troca do atendente",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "alcada"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_02",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -q tests/test_politicas_motor.py tests/test_verificacao_evidencia.py -> 67 passed (test_EC_02_limite_de_200 x3: R$ 200,00 executa; R$ 200,01 pedir_aprovacao); ruff check -> All checks passed"
+    },
+    {
+      "id": "EC-03",
+      "titulo": "Janela de 7 dias corridos após o recebimento (avaria, item faltante, personalização, arrependimento)",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "prazo"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_03",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -n auto -> 429 passed; -m integracao -> 9 passed; ruff check -> All checks passed; test_agente_revisor2.py test_EC_03_* (2) + test_politicas_motor.py -k EC_03 (4); coleta reversa via acionar_pessoa area=logistica na execução e após aprovação; dia 8 nega citando prazo (AT116705 cita CDC art. 49)"
+    },
+    {
+      "id": "EC-04",
+      "titulo": "Atraso medido em dias úteis, descontando feriados",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "prazo"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_04",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "EC-05",
+      "titulo": "Hoje é feriado e não conta como dia útil",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "prazo"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_05",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "EC-06",
+      "titulo": "Prazo do SLA de WhatsApp conta só o horário comercial",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "prazo"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_06",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "EC-07",
+      "titulo": "Troca de fragrância",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "politica"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_07",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "EC-08",
+      "titulo": "Alteração de endereço depois da separação",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "pedido"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_08",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "EC-09",
+      "titulo": "Conversa sem pedido associado",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "pedido"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_09",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "EC-10",
+      "titulo": "Pedido identificado só por texto livre",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "pedido"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_10",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "EC-11",
+      "titulo": "Pedido criado depois de agora",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "dados"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_11",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "EC-12",
+      "titulo": "Brinde da campanha Mimo de Outubro",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "campanha"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_12",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "EC-13",
+      "titulo": "Duas transações, mas uma já estornada",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "pagamento"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_13",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "EC-14",
+      "titulo": "Pagamento pendente",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "pagamento"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_14",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "EC-15",
+      "titulo": "Foto sem EXIF não é suspeita por si só",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "evidencia"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_15",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -q tests/test_politicas_motor.py tests/test_verificacao_evidencia.py -> 67 passed (test_EC_15_*); base inteira: 212 de 382 anexos sem EXIF, nenhum vira suspeita sozinho (= M6); ruff check -> All checks passed"
+    },
+    {
+      "id": "EC-16",
+      "titulo": "Mesma imagem usada em pedidos diferentes",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "evidencia"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_16",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -q tests/test_politicas_motor.py tests/test_verificacao_evidencia.py -> 67 passed (test_EC_16_*: sinal cita GCH525527, GCH533082 e hash 5e1440cfcdbcaf3f; motor -> sinalizar_suspeita); base inteira: 17 anexos com hash repetido (= M6); ruff check -> All checks passed"
+    },
+    {
+      "id": "EC-17",
+      "titulo": "Foto tirada antes da entrega",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "evidencia"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_17",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -q tests/test_politicas_motor.py tests/test_verificacao_evidencia.py -> 67 passed (test_EC_17_*: cita 25/07/2026 e 17/08/2026); base inteira: 11 anexos com captura antes da entrega e 10 com exif_software (= M6); ruff check -> All checks passed"
+    },
+    {
+      "id": "EC-18",
+      "titulo": "Personalização divergente",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "evidencia"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_18",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "test_verificacao_evidencia.py::test_EC_18_* ('Ana' borrado sem sinal; texto fora do pedido gera PERSONALIZACAO_DIVERGENTE) e test_agente_caso.py::test_EC_18_* (avaria com divergência pede nova foto; erro_personalizacao reimprime, conforme SPEC Q15); uv run pytest -q -> 335 passed; ruff check -> All checks passed; ruff format --check -> 87 files already formatted"
+    },
+    {
+      "id": "EC-19",
+      "titulo": "Cliente com reenvios anteriores",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "evidencia"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_19",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "test_dados_reenvios.py::test_EC_19_*, test_dados_repositorio.py::test_EC_19_*, test_avaliacao_offline.py::test_EC_19_*, test_verificacao_evidencia.py::test_EC_19_* (só tipo == reenvio; sinal de contexto, nunca suspeita sozinho); uv run pytest -q -> 335 passed; ruff check -> All checks passed; ruff format --check -> 87 files already formatted"
+    },
+    {
+      "id": "EC-20",
+      "titulo": "Mais de um pedido na mesma mensagem",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "texto"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_20",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -n auto -> 429 passed; -m integracao -> 9 passed; ruff check -> All checks passed; test_agente_leitor.py, test_agente_duvida_cupom.py, test_ferramentas_executar.py (sku na chave) -k EC_20 (34); TestClient sobre cópia de docs/: AT116597 cupom_promocao+duvida_produto com 2 acionar_pessoa; AT116697 rastreio+duvida_produto responde ficha do produto e status do portal"
+    },
+    {
+      "id": "EC-21",
+      "titulo": "Leitura robusta dos CSVs",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "dados"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_21",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -k EC_21 tests/test_dados_carga.py tests/test_dados_repositorio.py -> 16 passed (separador pelo cabeçalho, vírgula e quebra de linha entre aspas, contagem igual por CSV); uv run pytest -m integracao -> 3 passed (24 CSVs reais, sha256 de docs/ igual antes e depois); ruff check src/atendimento/dados -> All checks passed"
+    },
+    {
+      "id": "EC-22",
+      "titulo": "Roteamento da aprovação pelo turno do supervisor",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "alcada",
+        "turno"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_22",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -n auto -> 429 passed; -m integracao -> 9 passed; ruff check -> All checks passed; test_agente_revisor2.py test_EC_22_* (2) + test_politicas_motor.py -k EC_22 (5): supervisor_02 do atendente_01 às 10h; 21h -> fila e cliente recebe 08:00"
+    },
+    {
+      "id": "EC-23",
+      "titulo": "Arrependimento depois do recebimento com valor acima de R$ 100",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "alcada"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_23",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "EC-24",
+      "titulo": "Cobrança em dobro acima de R$ 100",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "alcada",
+        "pagamento"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_24",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "EC-25",
+      "titulo": "Arrependimento com pedido separado e ainda não entregue",
+      "categoria": "dados_de_borda",
+      "tags": [
+        "politica"
+      ],
+      "requisito": "REQUISITOS.md#2.2",
+      "teste": "test_EC_25",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "HG-01",
+      "titulo": "Política decide, o modelo propõe",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "gating"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_01",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "test_agente_caso.py::test_HG_01_politica_decide_mesmo_quando_o_leitor_propoe_dinheiro; toda ação com dinheiro em caso.py e aprovacoes.py passa por politicas.decidir (código puro, 43+ testes no motor); uv run pytest -q -> 335 passed; ruff check -> All checks passed; ruff format --check -> 87 files already formatted"
+    },
+    {
+      "id": "HG-02",
+      "titulo": "Ferramenta fora do papel",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "gating"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_02",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "test_ferramentas_executar.py::test_HG_02_* (aprovar_acao, rejeitar_acao, registrar_cosmetovigilancia, decidir_suspeita bloqueados para atendente, gravados em tentativas_bloqueadas) e test_ferramentas_revisor.py::test_HG_02_papel_checado_antes_de_executavel; uv run pytest -q -> 335 passed; ruff check -> All checks passed; ruff format --check -> 87 files already formatted"
+    },
+    {
+      "id": "HG-03",
+      "titulo": "Supervisor não aprova a própria ação",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "gating"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_03",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -k HG_03 tests/test_politicas_motor.py tests/test_agente_caso.py tests/test_api_app.py -> 6 passed (motor BLOQUEAR com aprovador_sugerido diferente do executor; agente recusa a autoaprovação e não executa; API 403 para quem não é supervisor); ruff check src/atendimento/politicas -> All checks passed"
+    },
+    {
+      "id": "HG-04",
+      "titulo": "Quem sinaliza não decide",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "gating"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_04",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "test_ferramentas_revisor.py::test_HG_04_* (supervisor decide; quem sinalizou é bloqueado pelo ID e a tentativa é gravada; decisão inválida recusada) + test_HG_02 para decidir_suspeita com papel atendente; uv run pytest -q -> 335 passed; ruff check -> All checks passed; ruff format --check -> 87 files already formatted"
+    },
+    {
+      "id": "HG-05",
+      "titulo": "Ação acima do limite sem aprovação",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "gating"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_05",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "test_politicas_motor.py::test_HG_05_* (R$ 150 sem aprovacao_id -> PEDIR_APROVACAO com justificativa) e test_agente_caso.py::test_HG_05_* (aprovação inexistente, pendente, de outro valor/pedido/ação ou do próprio solicitante não executa); uv run pytest -q -> 335 passed; ruff check -> All checks passed; ruff format --check -> 87 files already formatted"
+    },
+    {
+      "id": "HG-06",
+      "titulo": "Reação adversa a cosmético ou suplemento",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "sensivel"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_06",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "test_agente_caso.py::test_HG_06_* ; TestClient: AT116568 -> orientar_suspensao_uso antes de responder_cliente, acionar_pessoa [qualidade] com produto, lote LT2609-D, descrição mascarada e fotos, escalação ao supervisor com registrar_cosmetovigilancia em 24 h (politicas.reacao_adversa.prazo_registro_horas); uv run pytest -q -> 335 passed; ruff check -> All checks passed; ruff format --check -> 87 files already formatted"
+    },
+    {
+      "id": "HG-07",
+      "titulo": "Reclamação suspeita nunca vira acusação",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "sensivel"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_07",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -n auto -> 429 passed; -m integracao -> 9 passed; ruff check -> All checks passed; test_agente_suspeitas.py (HG_07 x2 + rotas /api/suspeitas) + test_agente_caso + test_verificacao_evidencia: suspeita pendente bloqueia reembolso em outra conversa do mesmo pedido; improcedente encerra sem termos acusatórios; prazo de politicas.csv"
+    },
+    {
+      "id": "HG-08",
+      "titulo": "Atendente não nega por suspeita",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "sensivel"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_08",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -q tests/test_politicas_motor.py tests/test_verificacao_evidencia.py -> 67 passed (test_HG_08_*: suspeita vira sinalizar_suspeita, nunca negar; sem suspeita segue a politica); ruff check -> All checks passed"
+    },
+    {
+      "id": "HG-09",
+      "titulo": "Instrução embutida no texto do cliente é dado",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "seguranca"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_09",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "test_agente_caso.py::test_HG_09_*, test_agente_review.py::test_HG_09_*, test_agente_leitor.py::test_HG_09_*; replay via TestClient de AT105778, AT108856, AT116445: instrução sinalizada no canal, nenhuma ferramenta pedida pela instrução foi chamada, categoria real mantida; uv run pytest -q -> 335 passed; ruff check -> All checks passed; ruff format --check -> 87 files already formatted"
+    },
+    {
+      "id": "HG-10",
+      "titulo": "Pedido de colaborador não muda a política",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "seguranca"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_10",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "HG-11",
+      "titulo": "CPF, cartão e telefone não saem do sistema",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "pii"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_11",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "test_privacidade.py (máscara única), test_agente_caso.py::test_HG_11_*, test_api_app.py::test_HG_11_*; TestClient: AT116507/AT116560/AT116669/AT116705 exibem só (**) *****-NNNN / ***.***.***-NN; varredura de detalhes, canal, ações e mensagens_enviadas sem CPF, e-mail, telefone ou cartão; uv run pytest -q -> 335 passed; ruff check -> All checks passed; ruff format --check -> 87 files already formatted"
+    },
+    {
+      "id": "HG-12",
+      "titulo": "Ação com dinheiro é idempotente",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "resiliencia"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_12",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "test_ferramentas_executar.py::test_HG_12_* (chave conversation_id + order_id + ação, sem valor), test_ferramentas_trava.py::test_HG_12_*, test_api_app.py::test_HG_12_*; estresse do revisor: 40 chamadas iguais em 8 threads -> 1 acao_id, 1 estorno; uv run pytest -q -> 335 passed; ruff check -> All checks passed; ruff format --check -> 87 files already formatted"
+    },
+    {
+      "id": "HG-13",
+      "titulo": "Ferramenta indisponível",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "resiliencia"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_13",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "HG-14",
+      "titulo": "Baixa confiança na classificação",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "resiliencia"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_14",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "HG-15",
+      "titulo": "Dados incoerentes entre sistemas",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "resiliencia"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_15",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "HG-16",
+      "titulo": "Contato repetido sobre o mesmo pedido",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "prevencao"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_16",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -n auto -> 429 passed; -m integracao -> 9 passed; ruff check -> All checks passed; tests/test_agente_contato_repetido.py test_HG_16_* (3) + test_agente_analista.py; 2º chamado não aberto, resposta cita ref e data anteriores; ação com dinheiro não é barrada (Q23)"
+    },
+    {
+      "id": "HG-17",
+      "titulo": "Causa comum vira incidente, não contato a contato",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "prevencao"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_17",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -n auto -> 429 passed; -m integracao -> 9 passed; ruff check -> All checks passed; test_api_analista.py, test_api_analista_unico.py, test_analista_padroes.py, test_ferramentas_incidentes.py (19); TestClient sobre cópia de docs/: caso AT116677 abre INC-000001 (12 pedidos, 11 avisos, 1 sem consentimento), POST /api/analista/padroes/cobranca_em_dobro/tratar 2x reaproveita INC-000001 com 0 avisos novos; texto do aviso sem promessa de estorno (Q22)"
+    },
+    {
+      "id": "HG-18",
+      "titulo": "Avaliação offline contra o histórico",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "harness"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_18",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "test_avaliacao_offline.py::test_HG_18_* (piores_categorias, escalacoes_corretas, sem texto fixo); python -m atendimento.avaliacao --saida <scratch> idêntico a ingestao/avaliacao_offline.md; seção 3: piores = Outros 13,5%, Dúvida 19,3%, Reclamação produto 20,2% geradas dos números; escalações corretas 27/27 com critério explícito (cosmetovigilância 27 no CSV); uv run pytest -> 437 passed; ruff limpo"
+    },
+    {
+      "id": "HG-19",
+      "titulo": "O agente de atendimento chama o agente analista",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "multiagente"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_19",
+      "passes": false,
+      "revisado_em": null,
+      "evidencia": null
+    },
+    {
+      "id": "HG-20",
+      "titulo": "O agente avisa o time sem ser perguntado",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "canal",
+        "colega"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_20",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -n auto -> 429 passed; -m integracao -> 9 passed; ruff check -> All checks passed; test_vigia_avisos.py + test_api_vigia.py -k HG_20 (11); SPEC Q9 (10 min SLA, 2 h aprovação); fila real bate com M5; avisos sem CPF/e-mail/telefone (varredura no canal da cópia: 0 ocorrências)"
+    },
+    {
+      "id": "HG-21",
+      "titulo": "Aprovação parada não fica esquecida",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "escalacao"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_21",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -n auto -> 429 passed; -m integracao -> 9 passed; ruff check -> All checks passed; test_vigia_avisos.py test_HG_21_* (6) + test_api_vigia.py (2); TestClient sobre cópia de docs/: POST /api/vigia/rodar?agora=10:30 lembra supervisor_01 de APR-000001/APR-000002 e envia 'segue em análise' via responder_cliente, sem repetir na mesma chave"
+    },
+    {
+      "id": "HG-22",
+      "titulo": "Segunda ação com dinheiro no mesmo pedido",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "gating",
+        "prevencao"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_22",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "uv run pytest -n auto -> 429 passed; -m integracao -> 9 passed; ruff check -> All checks passed; tests/test_agente_contato_repetido.py::test_HG_22_reenvio_quebrou_de_novo_com_reenvio_anterior_de_150_pede_aprovacao + test_politicas_motor.py -k HG_22 (5); Q23: NAO_REPETIR só abrir_chamado_transportadora (caso.py), dinheiro vai a decidir com acumulado_rs=150 -> solicitar_aprovacao"
+    },
+    {
+      "id": "HG-23",
+      "titulo": "Aviso proativo respeita o consentimento",
+      "categoria": "harness_e_gating",
+      "tags": [
+        "pii",
+        "prevencao"
+      ],
+      "requisito": "REQUISITOS.md#2.3",
+      "teste": "test_HG_23",
+      "passes": true,
+      "revisado_em": "2026-11-07",
+      "evidencia": "test_analista_padroes.py::test_HG_23_canal_so_com_consentimento e test_HG_17_HG_23_tratar_abre_incidente_e_notifica_so_quem_consentiu; TestClient: GCH560684 (cliente com whatsapp=não e email=não) não recebe aviso; canal escolhido só entre aceita_comunicacao_* = sim (Q13); uv run pytest -q -> 335 passed; ruff check -> All checks passed; ruff format --check -> 87 files already formatted"
+    }
+  ]
+}
