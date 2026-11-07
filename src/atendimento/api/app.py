@@ -210,6 +210,24 @@ def criar_app(agente: Agente | None = None) -> FastAPI:
         except KeyError as erro:
             raise HTTPException(404, f"conversa {cid} não está na fila") from erro
 
+    @app.get("/api/saude")
+    def saude() -> dict:
+        """O que está ligado no deploy, sem expor segredos (no Vercel os valores são sensíveis)."""
+        agente = ag()
+        leitor = agente.leitor
+        g = gancho()
+        canal = getattr(g, "canal", None)
+        config = getattr(canal, "config", None)
+        return {
+            "leitor": "claude" if leitor is not None and hasattr(leitor, "modelo") else "regras",
+            "leitor_modelo": getattr(leitor, "modelo", None),
+            "leitor_falhas": len(getattr(leitor, "falhas", []) or []),
+            "base": "pronta" if os.environ.get("ATENDIMENTO_BASE_PRONTA") else "docs",
+            "slack": None
+            if g is None
+            else {"modo": getattr(config, "modo", None), "falhas": len(canal.falhas)},
+        }
+
     @app.get("/api/fila")
     def fila() -> list[dict]:
         return jsonable_encoder([{k: c.get(k) for k in CAMPOS_FILA} for c in ag().fila()])
