@@ -1,0 +1,6 @@
+transacao_id,order_id,customer_id,metodo,bandeira,cartao_final,parcelas,valor,status,motivo_recusa,data_hora_criacao,data_hora_confirmacao,data_vencimento,nsu,codigo_autorizacao,end_to_end_pix,adquirente,valor_estornado
+TRX00001516,GCH525121,CH502758,cartao_credito,Mastercard,****,1,72.32,capturada,,2026-07-22 23:44:48,2026-07-22 23:45:06,,096163663,J66H1E,,CardNorte,0.00
+TRX00001624,GBH366247,CH660017,pix,,,1,162.72,paga,,2026-07-26 21:30:32,2026-07-26 21:48:58,,,,E6340295825477110564326658778956,PagNet Pix,0.00
+TRX00005360,GBH473217,CH761018,cartao_credito,Visa,****,2,102.80,capturada,,2026-10-22 11:17:13,2026-10-22 11:17:20,,231358020,GBFFME,,Rede Sol,0.00
+TRX00005474,GBH476745,CH620178,cartao_credito,Visa,****,1,58.81,capturada,,2026-10-24 06:04:40,2026-10-24 06:04:44,,343196447,7E1XYA,,CardNorte,0.00
+TRX00005614,GBH481046,CH927088,boleto,,,1,72.17,paga,,2026-10-26 04:57:53,2026-10-27 05:16:52,2026-10-29,,,,Banco Meridiano,0.00

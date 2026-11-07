@@ -1,0 +1,4 @@
+conversation_id,customer_id,order_id,marca,canal,data_abertura,status,n_interacoes,atendente_id,data_primeira_resposta,assunto
+AT116160,CH761018,GBH473217,Kokeshi,reclame_aqui,2026-10-29 13:53:49,pendente,2,atendente_02,2026-11-01 13:33:40,Pedido sem atualização
+AT116171,CH927088,GBH481046,Kokeshi,reclame_aqui,2026-10-29 15:02:16,pendente,2,atendente_09,2026-10-31 08:32:45,Pedido sem atualização
+AT116473,CH620178,GBH476745,Auá,reclame_aqui,2026-10-31 15:11:54,pendente,2,atendente_06,2026-11-01 08:11:32,Pedido atrasado e sem resposta

@@ -1,0 +1,18 @@
+{
+  "_origem": "Recortes de docs/pedidos.csv, docs/itens_pedido.csv e docs/anexos_conversas.csv (colunas do contrato Anexo/Pedido/Item). Sem dado pessoal: só IDs, datas, valores e descrição visual.",
+  "pedidos": {
+    "GCH525527": {"order_id": "GCH525527", "customer_id": "CH511505", "marca": "Gocase", "valor": 92.80, "status_entrega": "entregue", "data_separacao": "2026-07-29", "data_entrega": "2026-08-04", "lote_produto": null,
+      "itens": [{"item_id": "GCH525527-1", "sku": "GOC-5059", "descricao": "Connect Card Magsafe Personalizado Iniciais", "tipo_item": "venda", "valor_total": 79.90, "texto_personalizacao": "B.M."}]},
+    "GCH529021": {"order_id": "GCH529021", "customer_id": "CH810798", "marca": "Gocase", "valor": 101.31, "status_entrega": "entregue", "data_separacao": "2026-08-07", "data_entrega": "2026-08-17", "lote_produto": null,
+      "itens": [{"item_id": "GCH529021-1", "sku": "GOC-5037", "descricao": "Copo Vibe 470ml Personalizado Nome", "tipo_item": "venda", "valor_total": 85.41, "texto_personalizacao": "Marcos"}]},
+    "GCH528786": {"order_id": "GCH528786", "customer_id": "CH636983", "marca": "Gocase", "valor": 132.80, "status_entrega": "entregue", "data_separacao": "2026-08-06", "data_entrega": "2026-08-11", "lote_produto": null,
+      "itens": [{"item_id": "GCH528786-1", "sku": "GOC-5043", "descricao": "Copo Daily 600ml Personalizado Nome", "tipo_item": "venda", "valor_total": 109.90, "texto_personalizacao": "Paulo"}]}
+  },
+  "anexos": {
+    "IMG000010": {"anexo_id": "IMG000010", "conversation_id": "AT104936", "order_id": "GCH525527", "hash_perceptual": "5e1440cfcdbcaf3f", "exif_data_captura": "2026-07-01T17:29:00", "exif_software": null, "descricao_visual": "Necessaire estampada rasgado na costura."},
+    "IMG000098": {"anexo_id": "IMG000098", "conversation_id": "AT108179", "order_id": "GCH533082", "hash_perceptual": "5e1440cfcdbcaf3f", "exif_data_captura": null, "exif_software": null, "descricao_visual": "Necessaire estampada rasgado na costura."},
+    "IMG000071": {"anexo_id": "IMG000071", "conversation_id": "AT106985", "order_id": "GCH529021", "hash_perceptual": "60ef65e7f3444474", "exif_data_captura": "2026-07-25T17:12:00", "exif_software": null, "descricao_visual": "Copo térmico de inox com a tampa quebrada."},
+    "IMG000196": {"anexo_id": "IMG000196", "conversation_id": "AT111900", "order_id": "GCH545147", "hash_perceptual": "60ef65e7f3444474", "exif_data_captura": "2026-08-26T11:46:00", "exif_software": null, "descricao_visual": "Copo térmico de inox com a tampa quebrada."},
+    "IMG000059": {"anexo_id": "IMG000059", "conversation_id": "AT106480", "order_id": "GCH528786", "hash_perceptual": "d8db6bd54ecd2f06", "exif_data_captura": null, "exif_software": null, "descricao_visual": "Copo Daily 600ml Personalizado Nome com a pintura descascada e um amassado lateral."}
+  }
+}

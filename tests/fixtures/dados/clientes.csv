@@ -1,0 +1,6 @@
+customer_id,n_pedidos,receita_acumulada,n_trocas_12m,n_contatos_12m,nome,email,telefone,cpf,data_nascimento,data_cadastro,cidade,uf,cep,segmento,canal_preferido,aceita_comunicacao_whatsapp,aceita_comunicacao_email,ultimo_pedido_em
+CH502758,2,241.13,1,2,Cliente Teste,c***@exemplo.com,(**) *****-2490,***.***.***-70,1969-12-03,2026-06-30 10:18:23,Feira de Santana,BA,44037-157,recorrente,email,sim,sim,2026-07-22
+CH620178,3,194.41,0,2,Cliente Teste,c***@exemplo.com,(**) *****-4114,***.***.***-67,1995-05-01,2026-07-03 10:20:05,Parnamirim,RN,59119-736,recorrente,email,sim,sim,2026-10-24
+CH660017,2,240.81,1,1,Cliente Teste,c***@exemplo.com,(**) *****-2807,***.***.***-57,1999-04-06,2023-07-17 09:53:48,Vitória,ES,29070-011,recorrente,whatsapp,sim,sim,2026-07-26
+CH761018,2,336.71,0,3,Cliente Teste,c***@exemplo.com,(**) *****-7415,***.***.***-52,1967-02-24,2026-09-02 04:27:24,Vitória da Conquista,BA,45082-593,recorrente,whatsapp,sim,sim,2026-10-22
+CH927088,2,245.00,0,1,Cliente Teste,c***@exemplo.com,(**) *****-8043,***.***.***-09,1971-09-22,2024-09-17 03:10:47,Campinas,SP,13012-540,recorrente,whatsapp,sim,sim,2026-10-26

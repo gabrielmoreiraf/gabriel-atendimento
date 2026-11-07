@@ -1,0 +1,5 @@
+uso_id,codigo,order_id,customer_id,data_hora,status,motivo_recusa,valor_produtos,valor_desconto
+USO900001,INFLU10,GBH366247,CH660017,2026-07-26 10:00:00,aplicado,,159.80,15.98
+USO900002,KOKESHI15,GBH481046,CH927088,2026-10-26 09:00:00,recusado,nao_acumula_com_outra_promocao,84.90,0.00
+USO900003,INFLU10,GBH100001,CH620178,2026-06-01 09:00:00,aplicado,,50.00,5.00
+USO900004,INFLU10,GBH100002,CH620178,2026-07-01 09:00:00,aplicado,,50.00,5.00

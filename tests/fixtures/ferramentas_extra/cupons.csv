@@ -1,0 +1,6 @@
+codigo,descricao,tipo_desconto,percentual_desconto,marcas_validas,valor_minimo_pedido,primeira_compra,inicio_vigencia,fim_vigencia,limite_uso_total,limite_uso_por_cliente,origem,criado_por,status
+BEMVINDA10,10% na primeira compra,percentual,10,todas,0.00,sim,2026-01-01,2026-12-31,,1,marketing,marketing_crm,ativo
+INFLU10,10% campanha de influenciadoras,percentual,10,todas,0.00,nao,2026-04-01,2026-12-31,20000,2,influenciador,marketing_crm,ativo
+OUTUBRO10,"10% em outubro, compras acima de R$ 150",percentual,10,todas,150.00,nao,2026-10-01,2026-10-31,8000,1,marketing,marketing_crm,expirado
+GOCASE20,20% Gocase (Dia das Mães),percentual,20,Gocase,0.00,nao,2026-04-20,2026-04-30,5000,1,marca,marketing_crm,expirado
+KOKESHI15,15% Kokeshi,percentual,15,Kokeshi,0.00,nao,2026-01-01,2026-12-31,,2,marca,marketing_crm,ativo

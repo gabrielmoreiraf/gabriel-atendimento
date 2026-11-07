@@ -1,0 +1,11 @@
+acao_id,conversation_id,order_id,data_hora,sistema,acao,valor_rs,executado_por,aprovado_por,referencia_sistema
+AC000029,AT104667,GBH366247,2026-08-04 17:14:00,ERP de pedidos,consultar_pedido,,atendente_04,,
+AC000030,AT104667,GBH366247,2026-08-04 17:25:29,OMS de trocas e reenvios,reenviar_produto,162.72,atendente_04,,OMS000002
+AC000052,AT104728,GCH525121,2026-08-06 11:32:29,ERP de pedidos,consultar_pedido,,atendente_20,,
+AC000053,AT104728,GCH525121,2026-08-06 12:09:53,Sistema de produção Gocase,reimprimir_personalizacao,72.32,atendente_20,,OMS000016
+AC004601,AT115917,GBH473217,2026-10-28 08:20:06,ERP de pedidos,consultar_pedido,,atendente_15,,
+AC004602,AT115917,GBH473217,2026-10-28 08:20:06,Portal Expressa Já,consultar_rastreio,,atendente_15,,
+AC004603,AT115917,GBH473217,2026-10-28 08:20:06,Portal Expressa Já,abrir_chamado_transportadora,,atendente_15,,EXJ-202600353
+AC004690,AT116137,GBH476745,2026-10-29 15:25:20,ERP de pedidos,consultar_pedido,,atendente_05,,
+AC004691,AT116137,GBH476745,2026-10-29 15:30:00,Portal Expressa Já,consultar_rastreio,,atendente_05,,
+AC004692,AT116137,GBH476745,2026-10-29 15:30:00,Portal Expressa Já,abrir_chamado_transportadora,,atendente_05,,EXJ-202600362

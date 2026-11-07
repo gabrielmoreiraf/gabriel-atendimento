@@ -1,0 +1,20 @@
+portal,pedido_ref,data_hora_evento,status,local,previsao_entrega,codigo_rastreio
+Expressa Já,GBH473217,2026-10-24 16:29,coletado,CD2,2026-10-29,EJ148178761BR
+Expressa Já,GBH473217,2026-10-25 11:24,em_transferencia,centro de distribuição da transportadora,2026-10-29,EJ148178761BR
+Expressa Já,GBH476745,2026-10-27 00:43,coletado,CD1,2026-10-30,EJ318571539BR
+Expressa Já,GBH476745,2026-10-28 06:35,em_transferencia,centro de distribuição da transportadora,2026-10-30,EJ318571539BR
+TransNorte,GCH525121,2026-07-28 08:09,coletado,CD1,2026-08-03,TN9885038001
+TransNorte,GCH525121,2026-07-29 07:41,em_transferencia,centro de distribuição da transportadora,2026-08-03,TN9885038001
+TransNorte,GCH525121,2026-08-02 01:00,chegada_unidade_destino,unidade BA,2026-08-03,TN9885038001
+TransNorte,GCH525121,2026-08-03 08:36,saiu_para_entrega,unidade BA,2026-08-03,TN9885038001
+TransNorte,GCH525121,2026-08-03 14:35,entregue,destino BA,2026-08-03,TN9885038001
+ViaLog,GBH366247,2026-07-28 15:29,coletado,CD2,2026-07-29,VL69958794969
+ViaLog,GBH366247,2026-07-29 02:17,em_transferencia,centro de distribuição da transportadora,2026-07-29,VL69958794969
+ViaLog,GBH366247,2026-07-29 08:19,chegada_unidade_destino,unidade ES,2026-07-29,VL69958794969
+ViaLog,GBH366247,2026-07-29 08:19,saiu_para_entrega,unidade ES,2026-07-29,VL69958794969
+ViaLog,GBH366247,2026-07-29 11:14,entregue,destino ES,2026-07-29,VL69958794969
+ViaLog,GBH481046,2026-10-28 14:38,coletado,CD2,2026-10-29,VL06286219612
+ViaLog,GBH481046,2026-10-29 15:00,em_transferencia,centro de distribuição da transportadora,2026-10-29,VL06286219612
+ViaLog,GBH481046,2026-10-29 22:51,chegada_unidade_destino,unidade SP,2026-10-29,VL06286219612
+ViaLog,GBH481046,2026-10-30 06:55,saiu_para_entrega,unidade SP,2026-10-29,VL06286219612
+ViaLog,GBH481046,2026-10-30 10:33,entregue,destino SP,2026-10-29,VL06286219612

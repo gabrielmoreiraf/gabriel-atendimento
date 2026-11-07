@@ -1,0 +1,1 @@
+estorno_id,transacao_id,order_id,conversation_id,acao_id,tipo,valor,motivo,solicitado_por,aprovado_por,data_hora_solicitacao,data_hora_processamento,status,observacao

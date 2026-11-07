@@ -1,0 +1,6 @@
+item_id,order_id,linha,sku,descricao,tipo_item,quantidade,preco_unitario,desconto_rateado,valor_total,personalizacao,texto_personalizacao,lote
+GBH366247-1,GBH366247,1,YNZ-5001,Creme de Pentear Cachos Definidos 1kg,venda,2,79.90,15.98,143.82,,,LT2606-C
+GBH473217-1,GBH473217,1,KSH-5006,Protetor Solar Facial FPS 50 Toque Seco 50g,venda,1,89.90,0.00,89.90,,,LT2608-E
+GBH476745-1,GBH476745,1,AUA-5002,Sabonete Vegetal Andiroba (3 un),venda,1,39.90,3.99,35.91,,,LT2609-H
+GBH481046-1,GBH481046,1,KSH-5009,Creme Área dos Olhos 15g,venda,1,84.90,12.73,72.17,,,LT2609-E
+GCH525121-1,GCH525121,1,GOC-5029,Case Anti Impacto Slim Air / Samsung Galaxy S24 FE Personalizada Nome,venda,1,69.90,10.48,59.42,nome,Priscila,
