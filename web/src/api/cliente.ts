@@ -1,0 +1,110 @@
+// Cliente HTTP da API do agente. Sem regra de negócio: só busca e dispara.
+import { agrupar } from "./agrupar";
+import type {
+  Caso,
+  ItemFila,
+  ItemReplay,
+  MensagemCanal,
+  PadraoAnalista,
+  Placar,
+  RegistroAcao,
+  RespostaVigia,
+  ResultadoTratamento,
+  SuspeitaPendente,
+} from "./tipos";
+
+export class ErroApi extends Error {
+  readonly status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+    this.name = "ErroApi";
+  }
+}
+
+async function pedir<T>(caminho: string, init?: RequestInit): Promise<T> {
+  const resp = await fetch(`/api${caminho}`, {
+    ...init,
+    headers: { "Content-Type": "application/json", ...init?.headers },
+  });
+  if (!resp.ok) {
+    let detalhe = `${resp.status} ${resp.statusText}`;
+    try {
+      const corpo = await resp.json();
+      if (typeof corpo?.detail === "string") detalhe = corpo.detail;
+      else if (corpo?.detail) detalhe = JSON.stringify(corpo.detail);
+    } catch {
+      // corpo sem JSON: fica o status
+    }
+    throw new ErroApi(resp.status, detalhe);
+  }
+  return (await resp.json()) as T;
+}
+
+const post = <T>(caminho: string, corpo?: unknown) =>
+  pedir<T>(caminho, {
+    method: "POST",
+    body: corpo === undefined ? undefined : JSON.stringify(corpo),
+  });
+
+export interface Api {
+  fila(): Promise<ItemFila[]>;
+  processarFila(): Promise<Placar>;
+  processarConversa(id: string): Promise<Caso>;
+  caso(id: string): Promise<Caso>;
+  acoes(): Promise<RegistroAcao[]>;
+  canal(): Promise<MensagemCanal[]>;
+  placar(): Promise<Placar>;
+  aprovar(aprovacaoId: string, supervisorId: string, comentario?: string): Promise<unknown>;
+  rejeitar(aprovacaoId: string, supervisorId: string, justificativa: string): Promise<unknown>;
+  casosReplay(): Promise<ItemReplay[]>;
+  processarReplay(id: string): Promise<Caso>;
+  padroes(): Promise<PadraoAnalista[]>;
+  tratarPadrao(tipo: string): Promise<ResultadoTratamento>;
+  alertasVigia(agoraIso: string): Promise<RespostaVigia>;
+  rodarVigia(agoraIso: string): Promise<unknown>;
+  suspeitas(): Promise<SuspeitaPendente[]>;
+  decidirSuspeita(
+    suspeitaId: string,
+    supervisorId: string,
+    decisao: "procedente" | "improcedente",
+    justificativa: string,
+  ): Promise<Caso>;
+}
+
+export const apiHttp: Api = {
+  fila: () => pedir("/fila"),
+  processarFila: () => post("/fila/processar"),
+  processarConversa: (id) => post(`/conversas/${encodeURIComponent(id)}/processar`),
+  caso: (id) => pedir(`/conversas/${encodeURIComponent(id)}`),
+  acoes: () => pedir("/acoes"),
+  canal: () => pedir("/canal"),
+  placar: () => pedir("/placar"),
+  aprovar: (id, supervisor_id, comentario) =>
+    post(`/aprovacoes/${encodeURIComponent(id)}/aprovar`, { supervisor_id, comentario }),
+  rejeitar: (id, supervisor_id, justificativa) =>
+    post(`/aprovacoes/${encodeURIComponent(id)}/rejeitar`, { supervisor_id, justificativa }),
+  casosReplay: () => pedir("/replay/casos"),
+  processarReplay: (id) => post(`/replay/${encodeURIComponent(id)}/processar`),
+  padroes: () => pedir("/analista/padroes"),
+  tratarPadrao: (tipo) => post(`/analista/padroes/${encodeURIComponent(tipo)}/tratar`),
+  alertasVigia: (agoraIso) => pedir(`/vigia/alertas?agora=${encodeURIComponent(agoraIso)}`),
+  suspeitas: () => pedir("/suspeitas"),
+  decidirSuspeita: (id, supervisor_id, decisao, justificativa) =>
+    post(`/suspeitas/${encodeURIComponent(id)}/decidir`, { supervisor_id, decisao, justificativa }),
+  rodarVigia: (agoraIso) => post(`/vigia/rodar?agora=${encodeURIComponent(agoraIso)}`),
+};
+
+/** Assina o SSE `/api/eventos`. Devolve a função que fecha a conexão. */
+export function assinarEventos(aoEvento: () => void): () => void {
+  if (typeof EventSource === "undefined") return () => {};
+  // ao conectar, o backend reenvia o histórico: agrupa a rajada numa recarga só
+  const recarregar = agrupar(aoEvento, 250);
+  const fonte = new EventSource("/api/eventos");
+  fonte.onmessage = () => recarregar();
+  // eventos nomeados (event: acao / aprovacao / canal) também disparam recarga
+  for (const nome of ["acao", "aprovacao", "canal", "placar", "conversa", "incidente", "vigia"]) {
+    fonte.addEventListener(nome, () => recarregar());
+  }
+  return () => fonte.close();
+}
