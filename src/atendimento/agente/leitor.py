@@ -13,7 +13,7 @@ from dataclasses import dataclass
 
 from atendimento.privacidade import mascarar
 
-__all__ = ["CATEGORIAS", "Leitura", "ler", "mascarar"]
+__all__ = ["CATEGORIAS", "Leitura", "escolher_leitor", "ler", "mascarar"]
 
 CATEGORIAS = (
     "avaria_vazamento",
@@ -220,3 +220,23 @@ def ler(texto: str, *, cupons=None) -> Leitura:
         texto_mascarado=mascarar(texto),
         codigo_cupom=_codigo_cupom(texto, normal, cupons),
     )
+
+
+def escolher_leitor(*, carregar_env: bool = True):
+    """Ponto de escolha do leitor: `ATENDIMENTO_LLM=1` liga o leitor com Claude
+    (`leitor_claude.LeitorClaude`); ausente ou `0`, o leitor por regras (`ler`, o padrão).
+    Carrega `.env` com python-dotenv; o valor da chave nunca é lido aqui."""
+    import os
+
+    if carregar_env:
+        from dotenv import load_dotenv
+
+        load_dotenv()
+    if os.environ.get("ATENDIMENTO_LLM", "0").strip() != "1":
+        return ler
+    from pathlib import Path
+
+    from atendimento.agente.leitor_claude import LeitorClaude
+
+    raiz = Path(__file__).resolve().parents[3]
+    return LeitorClaude(cache=raiz / "var" / "cache_leitor_claude")

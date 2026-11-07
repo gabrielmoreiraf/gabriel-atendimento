@@ -144,7 +144,16 @@ def _rs(valor: float) -> str:
 
 
 class Agente:
-    def __init__(self, base, ferramentas, *, agora: datetime = AGORA, replay=None, analista=None):
+    def __init__(
+        self,
+        base,
+        ferramentas,
+        *,
+        agora: datetime = AGORA,
+        replay=None,
+        analista=None,
+        leitor=None,
+    ):
         self.base = base
         self.ferramentas = ferramentas
         self.agora = agora
@@ -163,6 +172,8 @@ class Agente:
         self.aprovacoes: dict[str, Aprovacao] = {}
         self.suspeitas: dict[str, Suspeita] = {}
         self._cupons: list[str] | None = None
+        # leitor da mensagem: por regras (padrão) ou com Claude (leitor.escolher_leitor)
+        self.leitor = leitor
         self.eventos: list[dict] = []
         self._ids_canal = itertools.count(1)
         # mesma trava da base (W1): serializa todo acesso à conexão SQLite compartilhada
@@ -533,7 +544,7 @@ class Agente:
             self.emitir("caso", self.resumo(caso))
             return caso
 
-        leitura = ler("\n".join(textos), cupons=self._codigos_cupom())
+        leitura = (self.leitor or ler)("\n".join(textos), cupons=self._codigos_cupom())
         caso.categoria = leitura.categoria
         caso.categoria_secundaria = leitura.categoria_secundaria
         caso.instrucao_embutida = leitura.instrucao_embutida

@@ -23,6 +23,7 @@ from pydantic import BaseModel
 
 from atendimento.agente.aprovacoes import AprovacaoInvalida, AprovacaoRecusada
 from atendimento.agente.caso import Agente
+from atendimento.agente.leitor import escolher_leitor, ler
 from atendimento.api.analista import criar_router as criar_router_analista
 from atendimento.api.vigia import criar_router as criar_router_vigia
 
@@ -105,7 +106,9 @@ def agente_real() -> Agente:
     # um --reload não deixe ações antigas no log e faça a fila ser tratada duas vezes.
     carregar(Path(os.environ.get("ATENDIMENTO_DOCS", RAIZ / "docs")), db)
     base = Base(db)
-    return Agente(base, Ferramentas(base))
+    # ATENDIMENTO_LLM=1 liga o leitor com Claude; sem ela, o leitor por regras (padrão)
+    leitor = escolher_leitor()
+    return Agente(base, Ferramentas(base), leitor=None if leitor is ler else leitor)
 
 
 CAMPOS_FILA = (
