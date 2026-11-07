@@ -23,7 +23,9 @@ export function CasoPainel({ caso, carregando, erro, acoes = [], filaProcessada 
     return (
       <section className="painel caso" aria-label="Caso">
         <p className="erro" role="alert">
-          Não consegui abrir o caso: {erro}
+          {/não está na fila/.test(erro)
+            ? "Esse atendimento não existe mais: o servidor reiniciou e a fila voltou ao começo do dia. Mande a mensagem de novo no WhatsApp."
+            : `Não consegui abrir o caso: ${erro}`}
         </p>
       </section>
     );
