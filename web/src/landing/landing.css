@@ -1,0 +1,512 @@
+/* Landing do FIO: hero escuro com gradiente roxo → rosa → pêssego, ondas e balões de chat. */
+.landing {
+  --lp-escuro: #120b1d;
+  --lp-escuro-2: #1d1230;
+  --lp-claro: #f7f3fb;
+  --lp-roxo: #6d3be0;
+  --lp-rosa: #c44ad8;
+  --lp-pessego: #f7a98a;
+  --lp-gradiente: linear-gradient(120deg, var(--lp-roxo), var(--lp-rosa) 55%, var(--lp-pessego));
+  min-height: 100vh;
+  background: var(--lp-claro);
+  color: var(--texto);
+  font-family: var(--fonte);
+  overflow-x: clip;
+}
+.landing h1,
+.landing h2 {
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+}
+.landing a {
+  color: inherit;
+}
+
+/* Navegação */
+.lp-nav {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 22px 24px;
+  color: #fff;
+}
+.lp-marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+  font-weight: 900;
+  text-decoration: none;
+}
+.lp-nav nav {
+  display: flex;
+  gap: 24px;
+  margin-left: auto;
+  font-size: 15px;
+  font-weight: 600;
+}
+.lp-nav nav a {
+  text-decoration: none;
+  opacity: 0.85;
+}
+.lp-nav nav a:hover {
+  opacity: 1;
+}
+
+/* Pílula com seta num círculo */
+.pilula {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 46px;
+  padding: 0 6px 0 20px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 15px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.pilula--clara {
+  background: #fff;
+  color: var(--lp-escuro) !important;
+}
+.pilula__seta {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--lp-gradiente);
+  color: #fff;
+}
+
+/* Hero */
+.lp-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  align-items: center;
+  gap: 24px;
+  padding: 130px max(24px, calc((100vw - 1200px) / 2 + 24px)) 150px;
+  background: radial-gradient(60% 70% at 85% 30%, rgba(196, 74, 216, 0.45), transparent 70%),
+    radial-gradient(50% 60% at 10% 90%, rgba(109, 59, 224, 0.5), transparent 70%), var(--lp-escuro);
+  color: #fff;
+}
+.lp-etiqueta {
+  display: inline-block;
+  margin-bottom: 18px;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #f3d6ff;
+}
+.lp-etiqueta--escura {
+  border-color: var(--borda);
+  color: var(--lp-rosa);
+  background: #fff;
+}
+.lp-hero h1 {
+  font-size: clamp(42px, 5.6vw, 78px);
+}
+.lp-hero h1 em {
+  font-style: normal;
+  background: var(--lp-gradiente);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.lp-hero__sub {
+  max-width: 560px;
+  margin-top: 22px;
+  font-size: 19px;
+  line-height: 1.55;
+  color: #ddd2ec;
+}
+.lp-hero__acoes {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-top: 36px;
+  flex-wrap: wrap;
+}
+.lp-link {
+  font-weight: 700;
+  text-underline-offset: 6px;
+}
+.lp-hero__arte {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 440px;
+}
+.lp-bolha {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--lp-gradiente);
+}
+.lp-bolha--a {
+  width: 120px;
+  height: 120px;
+  top: 0;
+  right: 4%;
+  opacity: 0.9;
+}
+.lp-bolha--b {
+  width: 46px;
+  height: 46px;
+  bottom: 40px;
+  left: 6%;
+}
+.mascote {
+  filter: drop-shadow(0 30px 40px rgba(109, 59, 224, 0.45));
+}
+.lp-hero .mascote {
+  animation: lp-flutua 6s ease-in-out infinite;
+}
+.mascote__olhos {
+  transform-origin: center 138px;
+  animation: lp-pisca 5s infinite;
+}
+.lp-chat {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 230px;
+  padding: 12px 14px;
+  border-radius: 16px 16px 16px 4px;
+  background: #fff;
+  color: var(--lp-escuro);
+  font-size: 13px;
+  line-height: 1.35;
+  box-shadow: 0 18px 40px rgba(18, 11, 29, 0.35);
+  animation: lp-flutua 7s ease-in-out infinite;
+}
+.lp-chat b {
+  font-size: 13px;
+}
+.lp-chat--1 {
+  top: 6%;
+  left: -2%;
+}
+.lp-chat--2 {
+  top: 42%;
+  right: -4%;
+  animation-delay: -2s;
+}
+.lp-chat--3 {
+  bottom: 2%;
+  left: 4%;
+  animation-delay: -4s;
+}
+.lp-chat__botoes {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+.lp-chat__botoes i {
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1.5px solid var(--lp-escuro);
+  font-style: normal;
+  font-weight: 700;
+}
+.lp-chat__botoes i:first-child {
+  border-color: var(--primaria);
+  background: var(--primaria);
+  color: #fff;
+}
+.lp-onda {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 90px;
+}
+
+/* Faixa de canais */
+.lp-canais {
+  display: flex;
+  justify-content: center;
+  gap: clamp(20px, 5vw, 64px);
+  flex-wrap: wrap;
+  padding: 26px 24px 8px;
+  color: #8a8197;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* Seções claras */
+.lp-secao {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 72px 24px;
+}
+.lp-secao h2 {
+  max-width: 820px;
+  margin-bottom: 36px;
+  font-size: clamp(32px, 3.8vw, 52px);
+}
+.lp-numeros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+.lp-numero {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px;
+  border-radius: 24px;
+  background: #fff;
+  border: 1px solid #e7dff0;
+}
+.lp-numero strong {
+  font-family: var(--mono);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.lp-numero span {
+  color: var(--texto-2);
+  font-size: 16px;
+  line-height: 1.45;
+}
+.lp-numeros--resultado .lp-numero {
+  background: var(--lp-gradiente);
+  border: 0;
+  color: #fff;
+}
+.lp-numeros--resultado .lp-numero span {
+  color: #fff4fb;
+}
+.lp-destaque {
+  max-width: 820px;
+  margin-top: 28px;
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+/* Seção escura do Slack */
+.lp-escura {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  padding: 90px max(24px, calc((100vw - 1200px) / 2 + 24px));
+  background: radial-gradient(50% 70% at 100% 0%, rgba(196, 74, 216, 0.35), transparent 70%),
+    var(--lp-escuro-2);
+  color: #fff;
+  border-radius: 48px 48px 0 0;
+}
+.lp-escura h2 {
+  font-size: clamp(32px, 3.6vw, 50px);
+  margin-bottom: 24px;
+}
+.lp-escura ul {
+  display: grid;
+  gap: 14px;
+  padding: 0;
+  list-style: none;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #e3d8f1;
+}
+.lp-escura li::before {
+  content: "●";
+  margin-right: 10px;
+  color: var(--lp-pessego);
+}
+.lp-slack {
+  padding: 22px;
+  border-radius: 24px;
+  background: #fff;
+  color: #1d1c1d;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+}
+.lp-slack__canal {
+  margin-bottom: 14px;
+  font-weight: 800;
+}
+.lp-slack__msg {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 12px;
+  font-size: 16px;
+  line-height: 1.45;
+}
+.lp-slack__msg > div {
+  display: grid;
+  gap: 8px;
+}
+.lp-slack__app {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: #e8e8e8;
+  font-size: 11px;
+  font-weight: 700;
+}
+.lp-slack__msg time {
+  color: #616061;
+  font-size: 13px;
+}
+.lp-slack__botoes {
+  display: flex;
+  gap: 8px;
+}
+.lp-slack__botoes span {
+  padding: 6px 16px;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  font-weight: 700;
+}
+.lp-slack__botoes .lp-slack__aprovar {
+  border-color: #007a5a;
+  background: #007a5a;
+  color: #fff;
+}
+.lp-slack__depois {
+  color: #616061;
+  font-size: 14px;
+}
+
+/* Frentes */
+.lp-frentes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.lp-frentes li {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-radius: 999px;
+  border: 1.5px solid #d9cfe6;
+  background: #fff;
+  font-size: 18px;
+  font-weight: 700;
+}
+.lp-frentes li[data-provado="sim"] {
+  border-color: transparent;
+  background: var(--lp-gradiente);
+  color: #fff;
+}
+.lp-frentes em {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  font-style: normal;
+  font-size: 13px;
+}
+
+/* Chamada final */
+.lp-final {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 1152px;
+  margin: 24px auto 40px;
+  padding: 48px 56px;
+  border-radius: 48px;
+  background: radial-gradient(60% 90% at 90% 50%, rgba(196, 74, 216, 0.55), transparent 70%),
+    var(--lp-escuro);
+  color: #fff;
+}
+.lp-final h2 {
+  font-size: clamp(30px, 3.4vw, 46px);
+}
+.lp-final p {
+  margin: 14px 0 28px;
+  font-size: 18px;
+  color: #ddd2ec;
+}
+.lp-rodape {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 24px 40px;
+  color: var(--texto-2);
+  font-size: 14px;
+}
+
+@keyframes lp-flutua {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+@keyframes lp-pisca {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+
+@media (max-width: 860px) {
+  .lp-nav nav {
+    display: none;
+  }
+  .lp-nav {
+    justify-content: space-between;
+  }
+  .lp-hero,
+  .lp-escura {
+    grid-template-columns: 1fr;
+  }
+  .lp-hero {
+    padding-top: 110px;
+  }
+  .lp-hero__arte {
+    min-height: 360px;
+  }
+  .lp-hero .mascote {
+    width: 240px;
+    height: 240px;
+  }
+  .lp-chat--2 {
+    right: 0;
+  }
+  .lp-final {
+    flex-direction: column;
+    margin: 24px 16px 40px;
+    padding: 36px 28px;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-hero .mascote,
+  .lp-chat,
+  .mascote__olhos {
+    animation: none;
+  }
+}
+
+.landing .edge-light-button__control {
+  color: #1b1029;
+  text-decoration: none;
+}

@@ -2,6 +2,7 @@ import "@fontsource/figtree/400.css";
 import "@fontsource/figtree/600.css";
 import "@fontsource/figtree/700.css";
 import "@fontsource/figtree/800.css";
+import "@fontsource/figtree/900.css";
 import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";
 import "@fontsource/ibm-plex-mono/600.css";
@@ -10,6 +11,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import { type Api, apiHttp, assinarEventos } from "./api/cliente";
 import "./index.css";
+import { Landing } from "./landing/Landing";
 import { criarApiMock } from "./mocks/apiMock";
 import { comRotasDeReserva } from "./mocks/replayReserva";
 
@@ -29,12 +31,24 @@ async function escolherApi(): Promise<{ api: Api; modo: "api" | "mock" }> {
 
 const semEventos = () => () => {};
 
-escolherApi().then(({ api, modo }) => {
-  const raiz = document.getElementById("root");
+const raiz = document.getElementById("root");
+
+// "/" é a landing do FIO; "/app" (e qualquer subcaminho) é a ferramenta.
+if (raiz && !location.pathname.startsWith("/app")) {
+  createRoot(raiz).render(
+    <StrictMode>
+      <Landing />
+    </StrictMode>,
+  );
+} else {
+  escolherApi().then(({ api, modo }) => montarApp(api, modo));
+}
+
+function montarApp(api: Api, modo: "api" | "mock") {
   if (!raiz) return;
   createRoot(raiz).render(
     <StrictMode>
       <App api={api} modo={modo} assinar={modo === "api" ? assinarEventos : semEventos} />
     </StrictMode>,
   );
-});
+}

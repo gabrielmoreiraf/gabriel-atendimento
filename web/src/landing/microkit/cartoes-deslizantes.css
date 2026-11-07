@@ -1,0 +1,116 @@
+/* Adaptado de MicroKit UI (hover-glide-cards), licença MIT: ver LICENSE-microkit.txt. */
+.hover-glide-cards {
+  position: relative;
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  container-type: inline-size;
+}
+
+.hover-glide-cards,
+.hover-glide-cards * {
+  box-sizing: border-box;
+}
+
+.hover-glide-cards__layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: block;
+  pointer-events: none;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.hover-glide-cards__glide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 0;
+  height: 0;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(123, 63, 228, 0.14), rgba(244, 114, 176, 0.14));
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .3s cubic-bezier(0.32, 0.72, 0, 1), width .3s cubic-bezier(0.32, 0.72, 0, 1),
+    height .3s cubic-bezier(0.32, 0.72, 0, 1), opacity .18s ease;
+}
+
+.hover-glide-cards__glide[data-visible] {
+  opacity: 1;
+}
+
+.hover-glide-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 0;
+  border: 1px solid light-dark(#e3e6eb, #24272d);
+  border-radius: 20px;
+  background: light-dark(#ffffff, #121418);
+  padding: 22px;
+  color: light-dark(#14181e, #f2f4f6);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.hover-glide-card:focus-visible {
+  outline: 2px solid #86b6ff;
+  outline-offset: 2px;
+}
+
+.hover-glide-card__mark {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  margin-bottom: 14px;
+  border-radius: 14px;
+  background: light-dark(#f0f2f5, #1b1e23);
+  color: light-dark(#69727f, #868d97);
+}
+
+.hover-glide-card__name,
+.hover-glide-card__detail {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+
+.hover-glide-card__name {
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.hover-glide-card__detail {
+  margin-top: 1px;
+  color: light-dark(#69727f, #868d97);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+/* Any narrower and the details start cutting off mid-word, so the cards keep only their names. */
+
+@media (hover: none) {
+  .hover-glide-cards__glide {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hover-glide-cards__glide {
+    transition: opacity .01ms;
+  }
+}
+.hover-glide-cards {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

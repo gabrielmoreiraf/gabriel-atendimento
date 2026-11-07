@@ -1700,3 +1700,7 @@ body {
     padding: 0 12px;
   }
 }
+.logo {
+  color: var(--texto);
+  text-decoration: none;
+}

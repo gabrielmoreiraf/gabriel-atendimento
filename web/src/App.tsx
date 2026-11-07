@@ -226,10 +226,10 @@ export default function App({ api, assinar, modo = "api" }: Props) {
     <div className="app" data-tela={tela} data-foco={foco}>
       <header className="barra">
         <div className="barra__marca">
-          <span className="logo" aria-label="FIO">
+          <a className="logo" href="/" aria-label="FIO, voltar ao início">
             FIO
             <span className="logo__traco" aria-hidden="true" />
-          </span>
+          </a>
           <span className="barra__empresa">Gocase / GoBeauté</span>
         </div>
         <nav className="barra__nav" aria-label="Telas">
