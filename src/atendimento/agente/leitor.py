@@ -238,5 +238,11 @@ def escolher_leitor(*, carregar_env: bool = True):
 
     from atendimento.agente.leitor_claude import LeitorClaude
 
-    raiz = Path(__file__).resolve().parents[3]
-    return LeitorClaude(cache=raiz / "var" / "cache_leitor_claude")
+    # ATENDIMENTO_LLM_CACHE escolhe a pasta; no Vercel só /tmp aceita escrita.
+    if pasta := os.environ.get("ATENDIMENTO_LLM_CACHE", "").strip():
+        cache = Path(pasta)
+    elif os.environ.get("VERCEL"):
+        cache = Path("/tmp/cache_leitor_claude")  # noqa: S108 - única pasta gravável na função
+    else:
+        cache = Path(__file__).resolve().parents[3] / "var" / "cache_leitor_claude"
+    return LeitorClaude(cache=cache)

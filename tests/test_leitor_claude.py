@@ -206,6 +206,34 @@ def test_cache_pelo_texto_mascarado_nao_paga_duas_vezes(tmp_path):
     assert "123.456.789" not in gravado
 
 
+def test_HG_13_cache_sem_escrita_nao_descarta_a_leitura_do_claude(tmp_path):
+    # No Vercel a pasta do projeto é só leitura: falhar ao gravar o cache não pode jogar fora
+    # uma resposta boa do Claude e cair nas regras.
+    bloqueado = tmp_path / "arquivo"
+    bloqueado.write_text("não é pasta", encoding="utf-8")
+    leitor = LeitorClaude(
+        ClienteFalso(_resposta(_leitura(categoria="rastreio"))), cache=bloqueado / "cache"
+    )
+    leitura = leitor("Cadê o meu pedido?")
+    assert leitura.categoria == "rastreio"
+    assert leitor.falhas == []
+
+
+def test_pasta_do_cache_vem_de_ATENDIMENTO_LLM_CACHE(monkeypatch, tmp_path):
+    monkeypatch.setenv("ATENDIMENTO_LLM", "1")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "chave-de-teste")  # nunca a chave real
+    monkeypatch.setenv("ATENDIMENTO_LLM_CACHE", str(tmp_path / "cache"))
+    assert escolher_leitor(carregar_env=False).cache == tmp_path / "cache"
+
+
+def test_no_vercel_o_cache_vai_para_tmp(monkeypatch):
+    monkeypatch.setenv("ATENDIMENTO_LLM", "1")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "chave-de-teste")  # nunca a chave real
+    monkeypatch.delenv("ATENDIMENTO_LLM_CACHE", raising=False)
+    monkeypatch.setenv("VERCEL", "1")
+    assert str(escolher_leitor(carregar_env=False).cache).startswith("/tmp")
+
+
 def test_custo_acumulado_pelos_tokens_de_uso():
     leitor = LeitorClaude(ClienteFalso())
     leitor("Cadê o meu pedido?")

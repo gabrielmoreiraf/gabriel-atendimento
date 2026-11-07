@@ -217,7 +217,12 @@ class LeitorClaude:
             dados = self._ler_do_cache(mascarado)
             if dados is None:
                 dados = self._perguntar(mascarado)
-                self._gravar_no_cache(mascarado, dados)
+                try:
+                    self._gravar_no_cache(mascarado, dados)
+                except (
+                    OSError
+                ):  # pasta só de leitura (Vercel): a leitura vale, só não fica guardada
+                    log.info("cache do leitor Claude sem escrita; seguindo sem guardar")
             return combinar(regras, _validar(dados), texto, cupons)
         except anthropic.APITimeoutError:
             return self._falhou("timeout", regras)
