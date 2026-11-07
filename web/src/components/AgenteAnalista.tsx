@@ -13,6 +13,9 @@ const ROTULO_PADRAO: Record<string, string> = {
 
 const MAX_PEDIDOS_VISIVEIS = 6;
 
+/** Campos de rastreio técnico (consulta e métrica de origem) ficam no backend, não na tela. */
+const OCULTAS = new Set(["consulta", "contagem"]);
+
 export function AgenteAnalista({ padroes, onTratar }: Props) {
   return (
     <section className="analista" aria-labelledby="analista-titulo">
@@ -68,12 +71,14 @@ function Padrao({ padrao, onTratar }: { padrao: PadraoAnalista } & Pick<Props, "
         {resto > 0 ? ` · +${resto}` : ""}
       </p>
       <dl className="analista__evidencia">
-        {Object.entries(padrao.evidencia).map(([k, v]) => (
-          <div key={k}>
-            <dt>{k.replaceAll("_", " ")}</dt>
-            <dd className="mono">{typeof v === "object" ? JSON.stringify(v) : String(v)}</dd>
-          </div>
-        ))}
+        {Object.entries(padrao.evidencia)
+          .filter(([k]) => !OCULTAS.has(k))
+          .map(([k, v]) => (
+            <div key={k}>
+              <dt>{k.replaceAll("_", " ")}</dt>
+              <dd className="mono">{typeof v === "object" ? JSON.stringify(v) : String(v)}</dd>
+            </div>
+          ))}
       </dl>
       {resultado ? (
         <div className="analista__resultado" data-testid="resultado-padrao">

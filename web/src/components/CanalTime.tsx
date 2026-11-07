@@ -204,9 +204,6 @@ function Vigia({
 
   return (
     <div className="canal__vigia">
-      <span className="canal__relogio">
-        Relógio da demo: <span className="mono">{formatarDataHora(relogio)}</span>
-      </span>
       <div className="canal__botoes">
         <button
           type="button"

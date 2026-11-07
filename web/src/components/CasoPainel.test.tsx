@@ -43,7 +43,9 @@ describe("CasoPainel", () => {
     expect(screen.getByText("Meu CPF é ***.***.***-12")).toBeInTheDocument();
     expect(screen.getByText(/Foto da caixa aberta/)).toBeInTheDocument();
     expect(screen.getByText(/Imagem repetida de outro pedido/)).toBeInTheDocument();
-    expect(screen.getByText("suspeita.supervisor_decide")).toBeInTheDocument();
+    expect(screen.getByText("Evidência incoerente")).toBeInTheDocument();
+    // O código interno da regra fica no log, não na tela do atendente.
+    expect(screen.queryByText("suspeita.supervisor_decide")).not.toBeInTheDocument();
     expect(screen.getByText("Recebemos sua foto e estamos conferindo.")).toBeInTheDocument();
   });
 

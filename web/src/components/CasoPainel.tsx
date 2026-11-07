@@ -1,6 +1,7 @@
 import type { Caso } from "../api/tipos";
 import { formatarDataHora, formatarRs } from "../formato";
 import { EstadoSelo } from "./EstadoSelo";
+import { rotuloSinal } from "./VerificacaoEvidencia";
 
 interface Props {
   caso: Caso | null;
@@ -87,7 +88,7 @@ export function CasoPainel({ caso, carregando, erro }: Props) {
               <ul className="sinais">
                 {veredicto.sinais.map((s, i) => (
                   <li key={`${s.tipo}-${i}`}>
-                    <strong>{s.tipo.replaceAll("_", " ")}</strong>: {s.descricao}
+                    <strong>{rotuloSinal(s.tipo)}</strong>: {s.descricao}
                   </li>
                 ))}
               </ul>
@@ -101,9 +102,6 @@ export function CasoPainel({ caso, carregando, erro }: Props) {
               <>
                 <p className="decisao__resultado">{decisao.resultado.replaceAll("_", " ")}</p>
                 <p>{decisao.motivo}</p>
-                <p className="muted">
-                  Regra: <code className="mono">{decisao.regra}</code>
-                </p>
                 {decisao.aprovador_sugerido ? (
                   <p className="muted">
                     Aprovador: <span className="mono">{decisao.aprovador_sugerido}</span>

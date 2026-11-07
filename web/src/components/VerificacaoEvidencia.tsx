@@ -17,16 +17,16 @@ interface Props {
 }
 
 const ROTULO_SINAL: Record<string, string> = {
-  hash_repetido: "Hash repetido",
+  hash_repetido: "Foto repetida de outro pedido",
   captura_antes_da_entrega: "Foto tirada antes da entrega",
   editor_de_imagem: "Editor de imagem",
   personalizacao_divergente: "Personalização divergente",
   produto_divergente: "Produto divergente",
   reenvios_anteriores: "Reenvios anteriores",
-  sem_exif: "Sem EXIF (só informativo)",
+  sem_exif: "Foto sem data de captura",
 };
 
-const rotuloSinal = (tipo: string) => ROTULO_SINAL[tipo] ?? tipo.replaceAll("_", " ");
+export const rotuloSinal = (tipo: string) => ROTULO_SINAL[tipo] ?? tipo.replaceAll("_", " ");
 
 export function VerificacaoEvidencia({
   casos,
@@ -58,8 +58,8 @@ export function VerificacaoEvidencia({
       <header className="verificacao__cabeca">
         <h2 id="verificacao-titulo">Verificação de evidência</h2>
         <p>
-          Casos reais do histórico com foto. FIO confere hash, EXIF, data de entrega e
-          personalização antes de qualquer reenvio ou estorno.
+          Reclamações com foto. Antes de reenviar ou estornar, o FIO confere se a foto é nova,
+          quando foi tirada, a data de entrega e a personalização do pedido.
         </p>
       </header>
       <div className="verificacao__grade">
@@ -158,12 +158,14 @@ function Resultado({ caso }: { caso: Caso }) {
               <dd className="mono">{a.anexo_id}</dd>
               <dt>Descrição</dt>
               <dd>{a.descricao_visual}</dd>
-              <dt>Hash</dt>
-              <dd className="mono">{a.hash_perceptual ?? "—"}</dd>
               <dt>Capturada em</dt>
               <dd className="mono">{formatarDataHora(a.exif_data_captura)}</dd>
-              <dt>Software</dt>
-              <dd>{a.exif_software || "—"}</dd>
+              {a.exif_software ? (
+                <>
+                  <dt>Editada com</dt>
+                  <dd>{a.exif_software}</dd>
+                </>
+              ) : null}
             </dl>
           ))}
         </div>
@@ -197,9 +199,6 @@ function Resultado({ caso }: { caso: Caso }) {
             <>
               <p className="decisao__resultado">{decisao.resultado.replaceAll("_", " ")}</p>
               <p>{decisao.motivo}</p>
-              <p className="muted">
-                Regra: <code className="mono">{decisao.regra}</code>
-              </p>
             </>
           ) : (
             <p className="muted">Sem decisão.</p>

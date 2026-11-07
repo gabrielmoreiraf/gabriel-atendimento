@@ -70,8 +70,10 @@ describe("VerificacaoEvidencia", () => {
     expect(onProcessar).toHaveBeenCalledWith("AT106191");
     await waitFor(() => expect(screen.getAllByTestId("sinal-evidencia")).toHaveLength(2));
     expect(screen.getByText(/Editor de imagem/)).toBeInTheDocument();
-    expect(screen.getByText(/Hash repetido/)).toBeInTheDocument();
-    expect(screen.getByText("suspeita.supervisor_decide")).toBeInTheDocument();
+    expect(screen.getByText(/Foto repetida de outro pedido/)).toBeInTheDocument();
+    expect(screen.getByText("Evidência incoerente")).toBeInTheDocument();
+    // O código interno da regra fica no log, não na tela do atendente.
+    expect(screen.queryByText("suspeita.supervisor_decide")).not.toBeInTheDocument();
     expect(
       screen.getByText("Recebemos sua foto e um especialista vai conferir."),
     ).toBeInTheDocument();

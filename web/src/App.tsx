@@ -21,6 +21,7 @@ import { Mapa360 } from "./components/Mapa360";
 import { Placar } from "./components/Placar";
 import { VerificacaoEvidencia } from "./components/VerificacaoEvidencia";
 import { AGORA_ISO, formatarDataHora } from "./formato";
+import { MascoteMarca } from "./landing/Mascote";
 import PillNav from "./vendor/reactbits/PillNav";
 import { alertasComoMensagens, juntarCanal } from "./vigia";
 
@@ -228,10 +229,9 @@ export default function App({ api, assinar, modo = "api" }: Props) {
       <header className="barra">
         <div className="barra__marca">
           <a className="logo" href="/" aria-label="FIO, voltar ao início">
-            FIO
-            <span className="logo__traco" aria-hidden="true" />
+            <MascoteMarca tamanho={36} />
+            <span>FIO</span>
           </a>
-          <span className="barra__empresa">Gocase / GoBeauté</span>
         </div>
         <div className="barra__nav">
           <PillNav

@@ -2013,3 +2013,15 @@ html {
     max-height: 45vh;
   }
 }
+
+/* Marca do FIO na barra: o mesmo robô da landing ao lado do nome */
+.barra .logo {
+  align-items: center;
+  gap: var(--esp-2);
+  color: var(--texto);
+  text-decoration: none;
+  font-size: 26px;
+}
+.barra .logo svg {
+  flex: none;
+}

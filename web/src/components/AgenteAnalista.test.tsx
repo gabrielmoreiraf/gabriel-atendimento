@@ -31,7 +31,9 @@ describe("AgenteAnalista", () => {
     expect(item).toHaveTextContent("Cobrança em dobro");
     expect(item).toHaveTextContent("3 pedidos");
     expect(item).toHaveTextContent("GBH1");
-    expect(item).toHaveTextContent("pagamentos_gateway");
+    // A evidência aparece; a consulta técnica de origem não.
+    expect(item).toHaveTextContent("pedidos");
+    expect(item).not.toHaveTextContent("pagamentos_gateway");
   });
 
   it("test_HG_19_tratar_mostra_incidente_avisos_e_sem_consentimento", async () => {

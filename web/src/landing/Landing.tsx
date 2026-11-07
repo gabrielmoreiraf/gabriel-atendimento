@@ -69,12 +69,12 @@ const RESULTADOS = [
 ];
 
 const FRENTES = [
-  ["Triagem e SLA", false],
-  ["Resolução em vários sistemas", false],
-  ["Verificação da reclamação", true],
-  ["Autonomia e escalação", true],
-  ["Prevenção de recontato", false],
-] as const;
+  "Triagem e SLA",
+  "Resolução em vários sistemas",
+  "Verificação da reclamação",
+  "Autonomia e escalação",
+  "Prevenção de recontato",
+];
 
 function Seta() {
   return (
@@ -183,12 +183,6 @@ export function Landing() {
         </svg>
       </section>
 
-      <div className="lp-canais" aria-label="Onde o FIO trabalha">
-        {["WhatsApp", "E-mail", "Reclame Aqui", "Slack", "Claude"].map((c) => (
-          <span key={c}>{c}</span>
-        ))}
-      </div>
-
       <section id="problema" className="lp-secao">
         <h2>Resolver um contato quase nunca é só responder uma mensagem.</h2>
         <dl className="lp-lista">
@@ -255,13 +249,10 @@ export function Landing() {
       </section>
 
       <section className="lp-secao">
-        <h2>Pensado para a área inteira, provado em uma frente.</h2>
+        <h2>Pensado para a área inteira de atendimento.</h2>
         <ol className="lp-frentes">
-          {FRENTES.map(([nome, provado], i) => (
-            <li key={nome} data-provado={provado ? "sim" : "nao"}>
-              <span className="mono">F{i + 1}</span> {nome}
-              {provado ? <em>provado na PoC</em> : null}
-            </li>
+          {FRENTES.map((nome) => (
+            <li key={nome}>{nome}</li>
           ))}
         </ol>
       </section>
