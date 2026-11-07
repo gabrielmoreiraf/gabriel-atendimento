@@ -273,7 +273,7 @@ export function Landing() {
 
       <footer className="lp-rodape">
         <span>Gabriel · GoHacks Talent 2026 · Desafio Atendimento ao Cliente</span>
-        <a href="https://github.com/gabrielmoreiraf/fio-atendimento">Código no GitHub</a>
+        <a href="https://github.com/gabrielmoreiraf/gabriel-atendimento">Código no GitHub</a>
       </footer>
     </div>
   );
