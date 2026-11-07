@@ -1,0 +1,22 @@
+# Nada de dado pessoal nem segredo no upload para o Vercel (ADR-002):
+# a base de docs/ mora no Neon; .env* ficam só na máquina.
+docs/
+.env
+.env.*
+!.env.example
+var/
+evidencias/
+.scratch/
+graphify-out/
+ingestao/markdown/
+.venv/
+**/node_modules/
+web/dist/
+.pytest_cache/
+.ruff_cache/
+**/__pycache__/
+tests/
+e2e/
+apresentacao/
+prototipo/
+entrega/
