@@ -109,6 +109,15 @@ export default function App({ api, assinar, modo = "api" }: Props) {
     if (selecionadoRef.current) await carregarCaso(selecionadoRef.current);
   }, [api, carregarCaso]);
 
+  // O canal diz de onde vem: espelhado no Slack quando o backend tem o Slack ligado.
+  const [noSlack, setNoSlack] = useState(false);
+  useEffect(() => {
+    api
+      .saude?.()
+      .then((s) => setNoSlack(Boolean(s.slack)))
+      .catch(() => setNoSlack(false));
+  }, [api]);
+
   useEffect(() => {
     api
       .casosReplay()
@@ -301,6 +310,7 @@ export default function App({ api, assinar, modo = "api" }: Props) {
               relogio={relogio}
               onRodarVigia={rodarVigia}
               onDecidirSuspeita={decidirSuspeita}
+              noSlack={noSlack}
             />
           </main>
         </div>

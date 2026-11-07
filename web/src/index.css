@@ -2142,3 +2142,17 @@ html {
   white-space: nowrap;
   font-size: clamp(18px, 1.4vw, 32px);
 }
+
+/* Origem do canal do time: ponto verde quando está ao vivo no Slack */
+.canal__sala {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+}
+.canal__ao-vivo {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.25);
+}

@@ -26,7 +26,7 @@ def _cliente(tmp_path, monkeypatch, **env):
 
 
 def test_saude_com_regras_e_sem_slack(tmp_path, monkeypatch):
-    monkeypatch.delenv("ATENDIMENTO_SLACK", raising=False)
+    monkeypatch.setenv("ATENDIMENTO_SLACK", "0")  # o .env local não religa o Slack
     cliente = _cliente(tmp_path, monkeypatch, ATENDIMENTO_LLM="0")
 
     saude = cliente.get("/api/saude").json()
@@ -37,7 +37,7 @@ def test_saude_com_regras_e_sem_slack(tmp_path, monkeypatch):
 
 
 def test_saude_mostra_o_leitor_com_claude_e_as_falhas(tmp_path, monkeypatch):
-    monkeypatch.delenv("ATENDIMENTO_SLACK", raising=False)
+    monkeypatch.setenv("ATENDIMENTO_SLACK", "0")  # o .env local não religa o Slack
     cliente = _cliente(
         tmp_path, monkeypatch, ATENDIMENTO_LLM="1", ANTHROPIC_API_KEY="chave-de-teste"
     )
@@ -50,7 +50,7 @@ def test_saude_mostra_o_leitor_com_claude_e_as_falhas(tmp_path, monkeypatch):
 
 
 def test_saude_nunca_mostra_segredos(tmp_path, monkeypatch):
-    monkeypatch.delenv("ATENDIMENTO_SLACK", raising=False)
+    monkeypatch.setenv("ATENDIMENTO_SLACK", "0")  # o .env local não religa o Slack
     cliente = _cliente(
         tmp_path, monkeypatch, ATENDIMENTO_LLM="1", ANTHROPIC_API_KEY="chave-de-teste"
     )
@@ -58,3 +58,23 @@ def test_saude_nunca_mostra_segredos(tmp_path, monkeypatch):
     corpo = json.dumps(cliente.get("/api/saude").json())
 
     assert "chave-de-teste" not in corpo
+
+
+def test_P5_saude_mostra_o_slack_em_socket_mode(tmp_path, monkeypatch):
+    # Na máquina local o Slack roda por WebSocket: sem gancho HTTP, mas está ligado e a tela
+    # precisa dizer isso no canal do time.
+    monkeypatch.delenv("VERCEL", raising=False)
+    cliente = _cliente(
+        tmp_path,
+        monkeypatch,
+        ATENDIMENTO_LLM="0",
+        ATENDIMENTO_SLACK="1",
+        ATENDIMENTO_SLACK_MODO="socket",
+        SLACK_BOT_TOKEN="xoxb-teste",
+        SLACK_APP_TOKEN="xapp-teste",
+        SLACK_CANAL_ID="C123",
+    )
+
+    saude = cliente.get("/api/saude").json()
+
+    assert saude["slack"] == {"modo": "socket", "falhas": 0}

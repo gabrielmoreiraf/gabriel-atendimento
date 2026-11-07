@@ -170,6 +170,7 @@ def criar_app(agente: Agente | None = None) -> FastAPI:
         from atendimento.canal_slack import iniciar as iniciar_slack
 
         slack = iniciar_slack(ag())
+        estado["conexao_slack"] = slack  # /api/saude conta as falhas do Socket Mode
         yield
         desligando_app.set()
         if slack is not None:
@@ -222,14 +223,23 @@ def criar_app(agente: Agente | None = None) -> FastAPI:
         g = gancho()
         canal = getattr(g, "canal", None)
         config = getattr(canal, "config", None)
+        if g is None:
+            # Socket Mode (máquina local): sem gancho HTTP, mas o Slack está ligado
+            from atendimento.canal_slack.config import config_do_ambiente
+
+            config = config_do_ambiente()
+            canal = getattr(estado.get("conexao_slack"), "canal", None)
         return {
             "leitor": "claude" if leitor is not None and hasattr(leitor, "modelo") else "regras",
             "leitor_modelo": getattr(leitor, "modelo", None),
             "leitor_falhas": len(getattr(leitor, "falhas", []) or []),
             "base": "pronta" if os.environ.get("ATENDIMENTO_BASE_PRONTA") else "docs",
             "slack": None
-            if g is None
-            else {"modo": getattr(config, "modo", None), "falhas": len(canal.falhas)},
+            if config is None
+            else {
+                "modo": config.modo,
+                "falhas": len(getattr(canal, "falhas", []) or []),
+            },
         }
 
     @app.get("/api/fila")

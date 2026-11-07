@@ -23,14 +23,14 @@
   },
   "settings": {
     "event_subscriptions": {
-      "request_url": "https://SEU-DOMINIO.vercel.app/api/slack/eventos",
+      "request_url": "https://gabriel-atendimento.vercel.app/api/slack/eventos",
       "bot_events": [
         "app_mention"
       ]
     },
     "interactivity": {
       "is_enabled": true,
-      "request_url": "https://SEU-DOMINIO.vercel.app/api/slack/eventos"
+      "request_url": "https://gabriel-atendimento.vercel.app/api/slack/eventos"
     },
     "org_deploy_enabled": false,
     "socket_mode_enabled": false,

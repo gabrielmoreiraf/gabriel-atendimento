@@ -48,7 +48,15 @@ const post = <T>(caminho: string, corpo?: unknown) =>
     body: corpo === undefined ? undefined : JSON.stringify(corpo),
   });
 
+/** O que está ligado no deploy (GET /api/saude); sem segredos. */
+export interface Saude {
+  leitor: string;
+  slack: { modo: string | null; falhas: number } | null;
+}
+
 export interface Api {
+  /** Opcional: o modo de exemplo não tem backend para dizer o que está ligado. */
+  saude?(): Promise<Saude>;
   fila(): Promise<ItemFila[]>;
   processarFila(): Promise<Placar>;
   processarConversa(id: string): Promise<Caso>;
@@ -75,6 +83,7 @@ export interface Api {
 }
 
 export const apiHttp: Api = {
+  saude: () => pedir("/saude"),
   fila: () => pedir("/fila"),
   processarFila: () => post("/fila/processar"),
   processarConversa: (id) => post(`/conversas/${encodeURIComponent(id)}/processar`),

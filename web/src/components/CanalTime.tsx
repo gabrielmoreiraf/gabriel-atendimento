@@ -13,6 +13,8 @@ interface Props {
     supervisorId: string,
     justificativa: string,
   ) => Promise<unknown>;
+  /** Verdadeiro quando o backend espelha este canal no Slack do time. */
+  noSlack?: boolean;
   /** Relógio da demo (ISO). O vigia roda nesse horário; quem decide os alertas é o backend. */
   relogio?: string;
   onRodarVigia?: (agoraIso: string) => Promise<unknown>;
@@ -38,12 +40,22 @@ export function CanalTime({
   relogio,
   onRodarVigia,
   onDecidirSuspeita,
+  noSlack = false,
 }: Props) {
   return (
     <section className="canal" aria-labelledby="canal-titulo">
       <header className="canal__cabeca">
         <h2 id="canal-titulo">Canal do time</h2>
-        <span className="canal__sala"># atendimento-ops</span>
+        <span className="canal__sala" data-testid="canal-origem">
+          {noSlack ? (
+            <>
+              <span className="canal__ao-vivo" aria-hidden="true" />
+              Ao vivo no Slack · #atendimento-gabriel
+            </>
+          ) : (
+            "Só nesta tela · Slack desligado"
+          )}
+        </span>
         {onRodarVigia && relogio ? <Vigia relogio={relogio} onRodar={onRodarVigia} /> : null}
       </header>
       {mensagens.length === 0 ? (

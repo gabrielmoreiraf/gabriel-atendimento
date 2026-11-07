@@ -25,6 +25,15 @@ describe("CanalTime", () => {
     expect(screen.getByText("Pico de atrasos")).toBeInTheDocument();
   });
 
+  it("test_P5_canal_diz_se_esta_ao_vivo_no_slack", () => {
+    const { rerender } = render(
+      <CanalTime mensagens={msgs} onAprovar={vi.fn()} onRejeitar={vi.fn()} noSlack />,
+    );
+    expect(screen.getByTestId("canal-origem")).toHaveTextContent("Ao vivo no Slack");
+    rerender(<CanalTime mensagens={msgs} onAprovar={vi.fn()} onRejeitar={vi.fn()} />);
+    expect(screen.getByTestId("canal-origem")).toHaveTextContent("Só nesta tela");
+  });
+
   it("test_HP_10_aprovar_envia_o_supervisor_escolhido", async () => {
     const onAprovar = vi.fn().mockResolvedValue(undefined);
     render(<CanalTime mensagens={msgs} onAprovar={onAprovar} onRejeitar={vi.fn()} />);
