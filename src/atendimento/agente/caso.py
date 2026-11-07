@@ -19,6 +19,7 @@ import itertools
 import re
 import threading
 import unicodedata
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
@@ -121,6 +122,14 @@ class Caso:
     tag: str | None = None  # tag de encerramento (categorias.<cat>.tag_equivalente), HP-04
 
 
+PARALELO_LEITURA = 8  # leituras simultâneas do leitor (o do Claude é uma chamada de rede)
+_NAO_LIDA = object()  # _processar sem leitura pronta: lê na hora (só o leitor por regras)
+
+
+class RodadaEmAndamento(RuntimeError):
+    """Já há uma rodada de processamento da fila em andamento (a API responde 409)."""
+
+
 @dataclass
 class Suspeita:
     suspeita_id: str
@@ -178,6 +187,7 @@ class Agente:
         self._ids_canal = itertools.count(1)
         # mesma trava da base (W1): serializa todo acesso à conexão SQLite compartilhada
         self._trava = getattr(base, "trava", None) or threading.RLock()
+        self._rodada = threading.Lock()  # uma rodada da fila por vez
 
     # ---------- eventos e canal ----------
     def emitir(self, tipo: str, payload: dict) -> None:
@@ -233,11 +243,49 @@ class Agente:
         return ordenada
 
     def processar_fila(self) -> dict:
-        with self._trava:  # nunca duas rodadas da fila em paralelo
-            for conversa in self._fila():
-                if conversa["estado"] == "aberta":
-                    self._processar(conversa["conversation_id"])
+        """Lê todas as conversas abertas fora da trava (até 8 em paralelo) e só então decide e
+        executa, conversa a conversa, com a trava; GET /api/fila e /api/placar seguem respondendo."""
+        if not self._rodada.acquire(blocking=False):
+            raise RodadaEmAndamento("já há uma rodada da fila em andamento")
+        try:
+            with self._trava:
+                abertas = [c["conversation_id"] for c in self._fila() if c["estado"] == "aberta"]
+            leituras = self._pre_ler(abertas)
+            for cid in abertas:
+                with self._trava:
+                    if cid not in self.casos:
+                        self._processar(cid, leituras[cid])
             return self.placar()
+        finally:
+            self._rodada.release()
+
+    # ---------- leitura fora da trava ----------
+    def _ler_conversa(self, cid: str, cupons: list[str]):
+        with self._trava:  # leitura rápida do SQLite; solta antes de chamar o leitor
+            textos = [m["texto"] for m in self.base.mensagens(cid) if m.get("autor") == "cliente"]
+        if not any(t and t.strip() for t in textos):
+            return None  # só o bot falou
+        return (self.leitor or ler)("\n".join(textos), cupons=cupons)
+
+    def _pre_ler(self, cids: list[str]) -> dict:
+        """Lê as conversas SEM segurar a trava (nunca chame com a trava segura) e emite o
+        evento SSE `leitura` com {lidas, total} a cada conversa lida."""
+        cupons = self._codigos_cupom()
+        total = len(cids)
+        contagem = {"lidas": 0}
+        trava_contagem = threading.Lock()
+
+        def ler_uma(cid: str):
+            leitura = self._ler_conversa(cid, cupons)
+            with trava_contagem:
+                contagem["lidas"] += 1
+                self.emitir("leitura", {"lidas": contagem["lidas"], "total": total})
+            return cid, leitura
+
+        if total <= 1:
+            return dict(ler_uma(cid) for cid in cids)
+        with ThreadPoolExecutor(max_workers=PARALELO_LEITURA) as pool:
+            return dict(pool.map(ler_uma, cids))
 
     def placar(self) -> dict:
         with self._trava:
@@ -480,9 +528,13 @@ class Agente:
                 raise KeyError(cid)
             if cid in self.casos:
                 return self.casos[cid]
+        leitura = self._pre_ler([cid])[cid]  # fora da trava
+        with self._trava:
+            if cid in self.casos:
+                return self.casos[cid]
             self._conversas_replay[cid] = conversa
             with self._no_momento_da_abertura(cid):
-                return self._processar(cid)
+                return self._processar(cid, leitura)
 
     @contextmanager
     def _no_momento_da_abertura(self, cid: str):
@@ -513,15 +565,21 @@ class Agente:
         with self._trava:
             if cid in self.casos:  # HG-12: caso já tratado não repete ações
                 return self.casos[cid]
-            return self._processar(cid)
+            self._conversa(cid)  # KeyError (404) antes de chamar o leitor
+        leitura = self._pre_ler([cid])[cid]  # fora da trava
+        with self._trava:
+            if cid in self.casos:
+                return self.casos[cid]
+            return self._processar(cid, leitura)
 
-    def _processar(self, cid: str) -> Caso:
+    def _processar(self, cid: str, leitura=_NAO_LIDA) -> Caso:
         conversa = self._conversa(cid)
         caso = Caso(conversation_id=cid, canal=conversa.get("canal"), replay=self._em_replay)
         self.casos[cid] = caso
-        textos = [m["texto"] for m in self.base.mensagens(cid) if m.get("autor") == "cliente"]
+        if leitura is _NAO_LIDA:
+            leitura = self._ler_conversa(cid, self._codigos_cupom())
 
-        if not any(t and t.strip() for t in textos):
+        if leitura is None:
             caso.categoria = "sem_interacao"
             # HP-08: toda conversa tem exatamente uma classificação, inclusive sem interação
             self.executar(
@@ -544,7 +602,6 @@ class Agente:
             self.emitir("caso", self.resumo(caso))
             return caso
 
-        leitura = (self.leitor or ler)("\n".join(textos), cupons=self._codigos_cupom())
         caso.categoria = leitura.categoria
         caso.categoria_secundaria = leitura.categoria_secundaria
         caso.instrucao_embutida = leitura.instrucao_embutida

@@ -93,3 +93,96 @@ def test_HG_11_nenhuma_mensagem_da_base_sobra_com_dado_pessoal():
                 digitos = re.sub(r"\D", "", achado)
                 assert "@" not in achado or "***@" in achado, linha["message_id"]
                 assert "@" in achado or len(digitos) < 8, linha["message_id"]
+
+
+# ---------- HG-11: nome completo do cliente (`nomes=`) ----------
+
+
+def test_HG_11_nome_completo_vira_primeiro_nome_e_inicial():
+    texto = "Atenciosamente, Zuleica Tavendraz"
+    assert mascarar(texto, nomes=("Zuleica Tavendraz",)) == "Atenciosamente, Zuleica T."
+
+
+@pytest.mark.parametrize(
+    "escrito", ["ZULEICA TAVENDRAZ", "zuleica tavendraz", "Zuleica  Tavendraz"]
+)
+def test_HG_11_nome_com_variacao_de_caixa_e_espaco(escrito):
+    assert mascarar(f"Att, {escrito}.", nomes=("Zuleica Tavendraz",)) == "Att, Zuleica T.."
+
+
+def test_HG_11_nome_com_variacao_de_acento():
+    assert mascarar("Att, Odilia Quarembe", nomes=("Odília Quarembe",)) == "Att, Odília Q."
+    assert mascarar("Att, Odília Quarembe", nomes=("Odilia Quarembe",)) == "Att, Odilia Q."
+
+
+def test_HG_11_nome_de_tres_partes_completo_e_primeiro_mais_ultimo():
+    nome = ("Rosimeire Clarinda Vostrel",)
+    assert mascarar("Obrigada, Rosimeire Clarinda Vostrel", nomes=nome) == "Obrigada, Rosimeire V."
+    assert mascarar("Obrigada, Rosimeire Vostrel", nomes=nome) == "Obrigada, Rosimeire V."
+    assert mascarar("Obrigada, Clarinda Vostrel", nomes=nome) == "Obrigada, Rosimeire V."
+
+
+def test_HG_11_so_o_primeiro_nome_fica():
+    nome = ("Rosimeire Clarinda Vostrel",)
+    assert mascarar("Obrigada, Rosimeire Clarinda", nomes=nome) == "Obrigada, Rosimeire Clarinda"
+    assert mascarar("Oi, sou a Zuleica", nomes=("Zuleica Tavendraz",)) == "Oi, sou a Zuleica"
+
+
+def test_HG_11_nome_dentro_de_outra_palavra_nao_e_trocado():
+    assert (
+        mascarar("Zuleica Tavendrazinho", nomes=("Zuleica Tavendraz",)) == "Zuleica Tavendrazinho"
+    )
+
+
+def test_HG_11_nome_junto_com_outros_dados():
+    texto = "Zuleica Tavendraz, CPF 123.456.789-09, ana@x.com"
+    assert mascarar(texto, nomes=("Zuleica Tavendraz",)) == (
+        "Zuleica T., CPF ***.***.***-09, a***@x.com"
+    )
+
+
+@pytest.mark.parametrize("nomes", [(), (None,), ("",), ("Zuleica",)])
+def test_HG_11_sem_nome_completo_comportamento_de_hoje(nomes):
+    texto = "Zuleica Tavendraz, tel (85) 98765-4321"
+    assert (
+        mascarar(texto, nomes=nomes) == mascarar(texto) == "Zuleica Tavendraz, tel (**) *****-4321"
+    )
+
+
+@pytest.mark.integracao
+def test_HG_11_nenhum_nome_completo_de_cliente_sobra_nas_mensagens():
+    clientes = {r["customer_id"]: r["nome"] for r in _csv("clientes.csv")}
+    dono = {r["conversation_id"]: r["customer_id"] for r in _csv("historico_conversas.csv")}
+    dono |= {r["conversation_id"]: r["customer_id"] for r in _csv("fila_aberta.csv")}
+    antes, depois = set(), set()
+    for linha in _csv("historico_mensagens.csv"):
+        nome = clientes.get(dono.get(linha["conversation_id"], ""), "")
+        if linha["autor"] != "cliente" or not nome:
+            continue
+        if _tem_nome_completo(linha["texto"], nome):
+            antes.add(linha["conversation_id"])
+        if _tem_nome_completo(mascarar(linha["texto"], nomes=(nome,)), nome):
+            depois.add(linha["conversation_id"])
+
+    assert len(antes) > 300  # a base tem o problema (revisor: 314 conversas)
+    assert sorted(depois) == []
+
+
+def _csv(nome):
+    with open(DOCS / nome, encoding="utf-8", newline="") as f:
+        return list(csv.DictReader(f))
+
+
+def _sem_acento(texto):
+    import unicodedata
+
+    texto = unicodedata.normalize("NFKD", texto)
+    return "".join(c for c in texto if not unicodedata.combining(c)).lower()
+
+
+def _tem_nome_completo(texto, nome):
+    """Primeiro nome + último sobrenome, ou o nome inteiro, como palavras (sem acento/caixa)."""
+    partes = _sem_acento(nome).split()
+    alvo = _sem_acento(texto)
+    candidatos = {" ".join(partes), f"{partes[0]} {partes[-1]}"}
+    return any(re.search(rf"(?<!\w){re.escape(c)}(?!\w)", alvo) for c in candidatos)

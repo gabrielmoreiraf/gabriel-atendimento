@@ -22,7 +22,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from atendimento.agente.aprovacoes import AprovacaoInvalida, AprovacaoRecusada
-from atendimento.agente.caso import Agente
+from atendimento.agente.caso import Agente, RodadaEmAndamento
 from atendimento.agente.leitor import escolher_leitor, ler
 from atendimento.api.analista import criar_router as criar_router_analista
 from atendimento.api.vigia import criar_router as criar_router_vigia
@@ -167,7 +167,10 @@ def criar_app(agente: Agente | None = None) -> FastAPI:
 
     @app.post("/api/fila/processar")
     def processar_fila() -> dict:
-        return ag().processar_fila()
+        try:
+            return ag().processar_fila()
+        except RodadaEmAndamento as erro:
+            raise HTTPException(409, str(erro)) from erro
 
     @app.post("/api/conversas/{cid}/processar")
     def processar_conversa(cid: str) -> dict:
