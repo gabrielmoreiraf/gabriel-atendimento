@@ -1577,7 +1577,7 @@ body {
   display: none;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 1023px) {
   body {
     font-size: var(--tam-corpo-mobile);
   }
@@ -1780,7 +1780,7 @@ html {
   font-size: var(--tam-corpo);
   text-align: center;
 }
-@media (max-width: 860px) {
+@media (max-width: 1023px) {
   .app > .verificacao,
   .app > .analista,
   .app > .mapa {
@@ -1789,5 +1789,227 @@ html {
   }
   .verificacao__grade {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Ferramenta na altura da tela: cada painel rola sozinho ===== */
+@media (min-width: 1024px) {
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .app > .barra {
+    position: static;
+    flex: none;
+  }
+  .operacao {
+    flex: 1;
+    min-height: 0;
+  }
+  .operacao > .placar {
+    flex: none;
+  }
+  .grade {
+    flex: 1;
+    min-height: 0;
+    grid-template-columns: clamp(260px, 22vw, 340px) minmax(0, 1fr) clamp(280px, 24vw, 380px);
+    grid-template-rows: minmax(0, 1fr);
+    overflow: hidden;
+  }
+  /* Fila: cabeçalho fixo, lista rola */
+  .grade > .fila {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .fila__cabeca {
+    flex: none;
+  }
+  .fila__lista {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  /* Centro: caso em cima, console embaixo, cada um com rolagem própria */
+  .grade > .centro {
+    display: grid;
+    grid-template-rows: minmax(0, 1.5fr) minmax(0, 1fr);
+    min-height: 0;
+    overflow: hidden;
+  }
+  .centro > .caso,
+  .centro > .console {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .centro > .console {
+    display: flex;
+    flex-direction: column;
+  }
+  .console__rolagem {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+  .console__tabela thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--superficie-2);
+  }
+  /* Canal do time: cabeçalho e controles fixos, mensagens rolam */
+  .grade > .canal {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .canal > :not(.canal__lista) {
+    flex: none;
+  }
+  .canal__lista {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: var(--canal-borda) transparent;
+  }
+}
+
+/* Telas largas: placar não estoura e as colunas laterais respiram */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .placar__item dd {
+    font-size: 26px;
+  }
+  .placar__item dt {
+    font-size: 13px;
+  }
+}
+
+/* Celular e tablet: a fila rola dentro de si, para o caso aberto aparecer logo abaixo */
+@media (max-width: 1023px) {
+  .fila__lista {
+    max-height: 52vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .grade > .centro {
+    display: block;
+  }
+  .centro > .caso {
+    min-height: 0;
+  }
+}
+
+/* Evidência, Analista e Mapa no desktop: a moldura ocupa a altura que sobra e o conteúdo rola dentro */
+@media (min-width: 1024px) {
+  .app > .verificacao,
+  .app > .analista,
+  .app > .mapa {
+    flex: 1;
+    min-height: 0;
+    max-width: 1360px;
+    margin: var(--esp-6) auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .verificacao__cabeca,
+  .analista__cabeca,
+  .mapa > h2,
+  .mapa__sub {
+    flex: none;
+  }
+  .verificacao__grade {
+    flex: 1;
+    min-height: 0;
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .verificacao__lista {
+    max-height: none;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .verificacao__resultado {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .analista__lista {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    align-content: start;
+  }
+  .mapa__frentes {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    align-content: start;
+    padding-bottom: var(--esp-2);
+  }
+}
+/* Três colunas do veredicto só quando cabem; abaixo disso, sinais e decisão lado a lado e a foto em cima */
+@media (min-width: 1024px) and (max-width: 1365px) {
+  .verificacao__colunas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .verificacao__colunas > .caso__bloco:first-child {
+    grid-column: 1 / -1;
+    border-bottom: 1px solid var(--borda);
+  }
+  .verificacao__colunas > .caso__bloco:nth-child(2) {
+    border-left: 0;
+  }
+}
+
+/* Mapa 360°: cinco frentes numa linha, sem frente órfã; código acima do título em todos os cartões */
+.mapa__cabeca {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--esp-1);
+}
+.mapa__pessoa {
+  margin-top: auto;
+}
+@media (min-width: 1280px) {
+  .mapa__frentes {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+@media (min-width: 700px) and (max-width: 1279px) {
+  .mapa__frentes {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .mapa__frente {
+    grid-column: span 2;
+  }
+  .mapa__frente:nth-child(n + 4) {
+    grid-column: span 3;
+  }
+}
+@media (max-width: 699px) {
+  .mapa__frentes {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Celular e tablet: o console rola dentro de si em vez de esticar a página */
+@media (max-width: 1023px) {
+  .console__rolagem {
+    max-height: 60vh;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  .verificacao__lista {
+    max-height: 45vh;
   }
 }

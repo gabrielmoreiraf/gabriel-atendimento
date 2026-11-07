@@ -1,4 +1,5 @@
 import "./landing.css";
+import { useSyncExternalStore } from "react";
 
 import PillNav from "../vendor/reactbits/PillNav";
 import { Mascote, MascoteMarca } from "./Mascote";
@@ -85,7 +86,23 @@ function Seta() {
   );
 }
 
+const LARGURA_BARRA_ABERTA = "(min-width: 1100px)";
+
+/** A barra aberta só cabe ao lado do botão de entrar a partir de 1100px; abaixo disso vira menu. */
+function useBarraAberta() {
+  return useSyncExternalStore(
+    (avisar) => {
+      const mq = window.matchMedia?.(LARGURA_BARRA_ABERTA);
+      mq?.addEventListener("change", avisar);
+      return () => mq?.removeEventListener("change", avisar);
+    },
+    () => window.matchMedia?.(LARGURA_BARRA_ABERTA).matches ?? true,
+    () => true,
+  );
+}
+
 export function Landing() {
+  const barraAberta = useBarraAberta();
   return (
     <div className="landing">
       <header className="lp-nav">
@@ -110,6 +127,7 @@ export function Landing() {
           hoverEffect="fill"
           indicator="dot"
           defaultActiveIndex={-1}
+          collapse={barraAberta ? "never" : "always"}
         />
         <a className="pilula pilula--clara" href="/app" data-testid="lp-entrar-topo">
           Entrar no FIO <Seta />
