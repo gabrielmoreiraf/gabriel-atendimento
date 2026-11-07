@@ -23,6 +23,7 @@ import hashlib
 import json
 import logging
 import re
+import threading
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -174,6 +175,7 @@ class LeitorClaude:
         self.acertos_cache = 0
         self.tokens_entrada = 0
         self.tokens_saida = 0
+        self._trava = threading.Lock()  # contadores seguros com chamadas em paralelo
 
     @property
     def custo_usd(self) -> float:
@@ -208,7 +210,8 @@ class LeitorClaude:
             return self._falhou("resposta_invalida", regras)
 
     def _falhou(self, motivo: str, regras: Leitura) -> Leitura:
-        self.falhas.append(motivo)
+        with self._trava:
+            self.falhas.append(motivo)
         log.warning("leitor Claude indisponível (%s): usando o leitor por regras", motivo)
         return regras
 
@@ -223,10 +226,11 @@ class LeitorClaude:
             betas=["server-side-fallback-2026-07-01"],
             fallbacks="default",
         )
-        self.chamadas += 1
         uso = getattr(resposta, "usage", None)
-        self.tokens_entrada += getattr(uso, "input_tokens", 0) or 0
-        self.tokens_saida += getattr(uso, "output_tokens", 0) or 0
+        with self._trava:
+            self.chamadas += 1
+            self.tokens_entrada += getattr(uso, "input_tokens", 0) or 0
+            self.tokens_saida += getattr(uso, "output_tokens", 0) or 0
         if resposta.stop_reason == "refusal":
             raise _Recusa
         if resposta.stop_reason == "max_tokens":
@@ -244,7 +248,8 @@ class LeitorClaude:
         arquivo = self.cache / f"{self._chave(mascarado)}.json"
         if not arquivo.exists():
             return None
-        self.acertos_cache += 1
+        with self._trava:
+            self.acertos_cache += 1
         return json.loads(arquivo.read_text(encoding="utf-8"))
 
     def _gravar_no_cache(self, mascarado: str, dados: object) -> None:
