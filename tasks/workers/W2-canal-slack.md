@@ -1,0 +1,17 @@
+# W2 · Canal do time no Slack (P5, HP-10, HG-10, HG-20)
+
+**Objetivo:** o FIO "mora onde o time já conversa". Tudo o que hoje vai para o Canal do time da interface também vai para um canal do Slack, e o supervisor aprova, rejeita e decide suspeita **pelos botões da mensagem**. A interface continua funcionando igual (plano B). Decisão registrada no SPEC Q8 e no enunciado ("Ideal: ele mora onde o time já conversa"); `docs/ferramentas.csv` cita o Slack em `responder_colaborador`.
+
+**Não faça commit:** o maestro organiza os commits num branch próprio depois. Trabalhe só em arquivos novos, mais um gancho mínimo em `src/atendimento/api/app.py` (só a subida/descida do adaptador no lifespan). Arquivos: `src/atendimento/canal_slack/**`, `tests/test_canal_slack*.py`. `slack-bolt` já está instalado (não rode `uv add`). Manifesto do app: `config/slack_manifest.yml`. Variáveis: `.env.example` (ATENDIMENTO_SLACK, SLACK_BOT_TOKEN, SLACK_APP_TOKEN, SLACK_CANAL_ID, SLACK_SUPERVISORES).
+
+**Skills:** `test-driven-development`; consulte a documentação oficial do slack-bolt (Socket Mode, Block Kit, `app.action`, `client.chat_update`) via `source-driven-development` antes de escrever o código.
+
+**Requisitos:**
+1. Liga só com `ATENDIMENTO_SLACK=1` e os tokens presentes; caso contrário, nada muda e nenhum erro. Tokens nunca lidos para log, impressos ou gravados.
+2. Espelho: cada mensagem do canal do time (aviso, aprovação, suspeita, escalação, incidente, lembrete) vira mensagem no `SLACK_CANAL_ID` com Block Kit legível ("FIO pediu aprovação: reembolso de R$ 118,80 no pedido … — motivo …"). Texto já mascarado (CPF, cartão, telefone, e-mail, nome completo: use `atendimento.privacidade.mascarar` de novo por garantia). Assine o barramento que já existe (veja como a API emite o SSE e `postar_no_canal` no Agente); não duplique mensagens; falha do Slack nunca derruba o fluxo do agente (só registra o motivo).
+3. Botões: aprovação → Aprovar / Rejeitar; suspeita → Procedente / Improcedente (pede justificativa via modal ou usa uma padrão "decidido pelo Slack"). O clique mapeia o member ID do Slack para o colaborador_id por `SLACK_SUPERVISORES` e chama EXATAMENTE os mesmos métodos que a API usa (aprovar/rejeitar/decidir_suspeita do Agente), com as mesmas regras (autoaprovação recusada, quem sinalizou não decide, não supervisor recusado). Resultado: a mensagem original é atualizada (chat_update) com quem decidiu e o desfecho; erro vira mensagem efêmera para quem clicou. Quem não está no mapa recebe efêmera "você não está autorizado".
+4. HG-10: menção a @FIO no canal é um pedido de colaborador; o FIO responde na thread (responder_colaborador) com o que pode fazer, e qualquer pedido que mude política/alçada recebe a resposta de que precisa de aprovação (pedido de colaborador não muda a política). Pode ser simples (status de pedido por número e "abrir aprovação"), sem LLM.
+5. Socket Mode em thread de fundo iniciada no lifespan do FastAPI e encerrada no shutdown (lembre do --reload).
+6. Testes sem rede: cliente Slack falso; cobrem espelho, botões (aprovar ok, autoaprovação 403, não autorizado), suspeita, HG-10, falha do Slack não quebra o agente, e desligado por padrão. Um teste `@pytest.mark.llm`? Não: crie o marcador `slack` no pyproject? NÃO edite o pyproject: peça ao maestro se precisar; um teste real fica para o maestro rodar com os tokens.
+
+**Pronto quando:** suíte padrão verde, `ruff` limpo, e no `worker_done` um passo a passo de teste manual para quando o usuário tiver os tokens.
