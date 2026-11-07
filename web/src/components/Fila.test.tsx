@@ -46,6 +46,14 @@ describe("Fila", () => {
     expect(ids.some((t) => t?.includes("AT1"))).toBe(false);
   });
 
+  it("test_HP_09_filtra_por_estado", async () => {
+    render(<Fila itens={itens} selecionado={null} onAbrir={vi.fn()} />);
+    await userEvent.selectOptions(screen.getByLabelText("Estado"), "suspeita");
+    const textos = screen.getAllByTestId("fila-item").map((b) => b.textContent ?? "");
+    expect(textos).toHaveLength(1);
+    expect(textos[0]).toContain("AT1");
+  });
+
   it("test_HP_09_clicar_abre_o_caso", async () => {
     const onAbrir = vi.fn();
     render(<Fila itens={itens} selecionado={null} onAbrir={onAbrir} />);

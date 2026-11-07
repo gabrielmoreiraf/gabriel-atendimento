@@ -60,29 +60,17 @@ export function Fila({ itens, selecionado, onAbrir }: Props) {
             </button>
           ))}
         </fieldset>
-        <fieldset className="chips" aria-label="Filtrar por estado">
-          <button
-            type="button"
-            className="chip"
-            aria-pressed={filtro === "todas"}
-            onClick={() => setFiltro("todas")}
-          >
-            Todas <span className="mono">{doCanal.length}</span>
-          </button>
-          {estados.map((e) => (
-            <button
-              key={e}
-              type="button"
-              className="chip"
-              data-estado={e}
-              aria-pressed={filtro === e}
-              onClick={() => setFiltro(e)}
-            >
-              <span className="ponto" aria-hidden="true" />
-              {rotuloEstado(e)} <span className="mono">{contagem(e)}</span>
-            </button>
-          ))}
-        </fieldset>
+        <label className="fila__estado">
+          <span>Estado</span>
+          <select value={filtro} onChange={(e) => setFiltro(e.target.value)}>
+            <option value="todas">Todas ({doCanal.length})</option>
+            {estados.map((e) => (
+              <option key={e} value={e}>
+                {rotuloEstado(e)} ({contagem(e)})
+              </option>
+            ))}
+          </select>
+        </label>
       </header>
       {visiveis.length === 0 ? (
         <p className="vazio">

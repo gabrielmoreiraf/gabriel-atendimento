@@ -2455,3 +2455,28 @@ html {
 .canais__opcao {
   border-radius: var(--raio-campo);
 }
+
+/* Filtro de estado compacto: um seletor em vez de várias linhas de chips */
+.fila__estado {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-2);
+  margin-top: var(--esp-2);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--texto-2);
+}
+.fila__estado select {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 0 10px;
+  border: 1.5px solid var(--borda-forte);
+  border-radius: var(--raio-campo);
+  background: var(--superficie);
+  color: var(--texto);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
