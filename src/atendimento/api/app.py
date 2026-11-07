@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import shutil
 import threading
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -96,6 +97,13 @@ class CorpoRejeitar(BaseModel):
     justificativa: str
 
 
+def criar_gancho_slack(agente: Agente):
+    """Gancho do Slack em modo HTTP (Vercel); None se desligado ou em Socket Mode."""
+    from atendimento.canal_slack import criar_gancho
+
+    return criar_gancho(agente)
+
+
 def agente_real() -> Agente:
     from atendimento.dados.carga import carregar
     from atendimento.dados.repositorio import Base
@@ -104,7 +112,13 @@ def agente_real() -> Agente:
     db = Path(os.environ.get("ATENDIMENTO_DB", RAIZ / "var" / "atendimento.db"))
     # HG-12: o estado do agente vive em memória; a base é recriada a cada subida para que
     # um --reload não deixe ações antigas no log e faça a fila ser tratada duas vezes.
-    carregar(Path(os.environ.get("ATENDIMENTO_DOCS", RAIZ / "docs")), db)
+    pronta = os.environ.get("ATENDIMENTO_BASE_PRONTA")
+    if pronta:
+        # Vercel (ADR-002): sem docs/ e com escrita só em /tmp; copia a base pré-gerada.
+        db.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(pronta if Path(pronta).is_absolute() else RAIZ / pronta, db)
+    else:
+        carregar(Path(os.environ.get("ATENDIMENTO_DOCS", RAIZ / "docs")), db)
     base = Base(db)
     # ATENDIMENTO_LLM=1 liga o leitor com Claude; sem ela, o leitor por regras (padrão)
     leitor = escolher_leitor()
@@ -155,11 +169,40 @@ def criar_app(agente: Agente | None = None) -> FastAPI:
         allow_headers=["*"],
     )
 
+    trava_subida = threading.Lock()
+
     def ag() -> Agente:
+        # no Vercel o lifespan pode não rodar: o agente nasce na primeira requisição
+        if "agente" not in estado:
+            with trava_subida:
+                if "agente" not in estado:
+                    estado["agente"] = agente_real()
         return estado["agente"]
+
+    def gancho():
+        if "gancho" not in estado:
+            estado["gancho"] = criar_gancho_slack(ag())
+        return estado["gancho"]
+
+    @app.middleware("http")
+    async def espelhar_no_slack(request: Request, call_next):
+        # P5/HP-10 no modo HTTP: sem thread de espelho, o Slack é atualizado ao fim de cada
+        # requisição que muda o estado (o gancho não duplica e faz chat_update).
+        resposta = await call_next(request)
+        if request.method == "POST" and resposta.status_code < 400:
+            g = gancho()
+            if g is not None:
+                for mensagem in list(ag().canal):
+                    g.mensagem_gravada(mensagem)
+                if request.url.path == "/api/fila/processar":
+                    g.rodada_terminada(ag().placar())
+        return resposta
+
+    from atendimento.api.slack import criar_router as criar_router_slack
 
     app.include_router(criar_router_analista(ag))
     app.include_router(criar_router_vigia(ag))
+    app.include_router(criar_router_slack(ag))
 
     def detalhe(cid: str) -> dict:
         try:
