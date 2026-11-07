@@ -2590,3 +2590,12 @@ html {
 .estado-filtro [data-estado="escalada"] .ponto {
   background: var(--st-escalada-dot);
 }
+
+.abrindo {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  color: var(--texto-2);
+  font-family: var(--fonte);
+  font-size: var(--tam-corpo);
+}

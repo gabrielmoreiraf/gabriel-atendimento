@@ -19,14 +19,18 @@ import { comRotasDeReserva } from "./mocks/replayReserva";
 async function escolherApi(): Promise<{ api: Api; modo: "api" | "mock" }> {
   if (new URLSearchParams(location.search).has("mock"))
     return { api: criarApiMock(), modo: "mock" };
-  try {
-    // sonda com tempo limite: backend reiniciando não pode deixar a tela em branco
-    const resp = await fetch("/api/fila", { signal: AbortSignal.timeout(3000) });
-    if (!resp.ok) throw new Error(String(resp.status));
-    return { api: comRotasDeReserva(apiHttp, criarApiMock()), modo: "api" };
-  } catch {
-    return { api: criarApiMock(), modo: "mock" };
+  // Local: uma tentativa curta. Publicado: a primeira chamada acorda a função do Vercel e pode
+  // levar alguns segundos, então tenta de novo com mais paciência antes de cair nos exemplos.
+  const local = ["localhost", "127.0.0.1"].includes(location.hostname);
+  for (const limite of local ? [3000] : [8000, 15000, 20000]) {
+    try {
+      const resp = await fetch("/api/fila", { signal: AbortSignal.timeout(limite) });
+      if (resp.ok) return { api: comRotasDeReserva(apiHttp, criarApiMock()), modo: "api" };
+    } catch {
+      // tenta de novo com um limite maior
+    }
   }
+  return { api: criarApiMock(), modo: "mock" };
 }
 
 const semEventos = () => () => {};
@@ -41,12 +45,18 @@ if (raiz && !location.pathname.startsWith("/app")) {
     </StrictMode>,
   );
 } else {
-  escolherApi().then(({ api, modo }) => montarApp(api, modo));
+  const raizReact = raiz ? createRoot(raiz) : null;
+  raizReact?.render(<p className="abrindo">Abrindo o Gabriel…</p>);
+  escolherApi().then(({ api, modo }) => montarApp(raizReact, api, modo));
 }
 
-function montarApp(api: Api, modo: "api" | "mock") {
-  if (!raiz) return;
-  createRoot(raiz).render(
+function montarApp(
+  raizReact: ReturnType<typeof createRoot> | null,
+  api: Api,
+  modo: "api" | "mock",
+) {
+  if (!raizReact) return;
+  raizReact.render(
     <StrictMode>
       <App api={api} modo={modo} assinar={modo === "api" ? assinarEventos : semEventos} />
     </StrictMode>,
