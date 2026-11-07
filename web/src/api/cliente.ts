@@ -2,6 +2,7 @@
 import { agrupar } from "./agrupar";
 import type {
   Caso,
+  EventoApi,
   ItemFila,
   ItemReplay,
   MensagemCanal,
@@ -95,13 +96,31 @@ export const apiHttp: Api = {
   rodarVigia: (agoraIso) => post(`/vigia/rodar?agora=${encodeURIComponent(agoraIso)}`),
 };
 
-/** Assina o SSE `/api/eventos`. Devolve a função que fecha a conexão. */
-export function assinarEventos(aoEvento: () => void): () => void {
+function lerEvento(dados: unknown): EventoApi | null {
+  if (typeof dados !== "string") return null;
+  try {
+    const ev = JSON.parse(dados);
+    return ev && typeof ev.tipo === "string" ? (ev as EventoApi) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Assina o SSE `/api/eventos`. Eventos de `leitura` (progresso do leitor) chegam na hora,
+ * com o próprio evento; os demais viram uma recarga agrupada, sem argumento.
+ * Devolve a função que fecha a conexão.
+ */
+export function assinarEventos(aoEvento: (evento?: EventoApi) => void): () => void {
   if (typeof EventSource === "undefined") return () => {};
   // ao conectar, o backend reenvia o histórico: agrupa a rajada numa recarga só
-  const recarregar = agrupar(aoEvento, 250);
+  const recarregar = agrupar(() => aoEvento(), 250);
   const fonte = new EventSource("/api/eventos");
-  fonte.onmessage = () => recarregar();
+  fonte.onmessage = (msg: MessageEvent) => {
+    const ev = lerEvento(msg.data);
+    if (ev?.tipo === "leitura") aoEvento(ev);
+    else recarregar();
+  };
   // eventos nomeados (event: acao / aprovacao / canal) também disparam recarga
   for (const nome of ["acao", "aprovacao", "canal", "placar", "conversa", "incidente", "vigia"]) {
     fonte.addEventListener(nome, () => recarregar());

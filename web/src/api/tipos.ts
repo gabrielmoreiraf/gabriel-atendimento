@@ -144,6 +144,12 @@ export interface EventoApi {
   payload: unknown;
 }
 
+/** Payload do evento SSE `leitura`: quantas conversas o leitor já leu. */
+export interface ProgressoLeitura {
+  lidas: number;
+  total: number;
+}
+
 /** Padrão de causa comum detectado pelo agente analista (`/api/analista/padroes`). */
 export interface PadraoAnalista {
   tipo: string;
