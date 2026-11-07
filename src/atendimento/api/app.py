@@ -97,6 +97,13 @@ class CorpoRejeitar(BaseModel):
     justificativa: str
 
 
+class CorpoMensagemSimulada(BaseModel):
+    customer_id: str
+    texto: str
+    order_id: str | None = None
+    anterior: str | None = None
+
+
 def criar_gancho_slack(agente: Agente):
     """Gancho do Slack em modo HTTP (Vercel); None se desligado ou em Socket Mode."""
     from atendimento.canal_slack import criar_gancho
@@ -291,6 +298,29 @@ def criar_app(agente: Agente | None = None) -> FastAPI:
     @app.post("/api/aprovacoes/{aprovacao_id}/rejeitar")
     def rejeitar(aprovacao_id: str, corpo: CorpoRejeitar) -> dict:
         return _decidir(ag().rejeitar, aprovacao_id, corpo.supervisor_id, corpo.justificativa)
+
+    @app.get("/api/simulador/clientes")
+    def simulador_clientes() -> list[dict]:
+        """Demo do WhatsApp: clientes da base (nome mascarado) com os pedidos de cada um."""
+        from atendimento.simulador import clientes_demo
+
+        return jsonable_encoder(clientes_demo(ag().base))
+
+    @app.post("/api/simulador/mensagem")
+    def simulador_mensagem(corpo: CorpoMensagemSimulada) -> dict:
+        """Demo do WhatsApp: a mensagem entra na fila e o Gabriel responde pelo fluxo normal."""
+        from atendimento.simulador import receber_mensagem
+
+        try:
+            return jsonable_encoder(
+                receber_mensagem(
+                    ag(), corpo.customer_id, corpo.texto, corpo.order_id, corpo.anterior
+                )
+            )
+        except KeyError as erro:
+            raise HTTPException(404, f"cliente ou pedido não encontrado: {erro}") from erro
+        except ValueError as erro:
+            raise HTTPException(422, str(erro)) from erro
 
     @app.get("/api/replay/casos")
     def replay_casos() -> list[dict]:

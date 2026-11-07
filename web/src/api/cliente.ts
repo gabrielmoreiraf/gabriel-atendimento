@@ -48,6 +48,26 @@ const post = <T>(caminho: string, corpo?: unknown) =>
     body: corpo === undefined ? undefined : JSON.stringify(corpo),
   });
 
+/** Demo do WhatsApp: cliente da base (nome mascarado) e os pedidos dele. */
+export interface ClienteSimulado {
+  customer_id: string;
+  nome: string;
+  pedidos: {
+    order_id: string;
+    marca: string;
+    status_entrega: string | null;
+    valor: number | null;
+    descricao_produto: string | null;
+  }[];
+}
+
+export interface RespostaSimulada {
+  conversation_id: string;
+  resposta: string;
+  estado: string;
+  mensagens: { autor: string; texto: string }[];
+}
+
 /** O que está ligado no deploy (GET /api/saude); sem segredos. */
 export interface Saude {
   leitor: string;
@@ -57,6 +77,14 @@ export interface Saude {
 export interface Api {
   /** Opcional: o modo de exemplo não tem backend para dizer o que está ligado. */
   saude?(): Promise<Saude>;
+  /** Opcionais: só o backend real tem o simulador de WhatsApp. */
+  simuladorClientes?(): Promise<ClienteSimulado[]>;
+  simuladorMensagem?(corpo: {
+    customer_id: string;
+    order_id?: string;
+    texto: string;
+    anterior?: string;
+  }): Promise<RespostaSimulada>;
   fila(): Promise<ItemFila[]>;
   processarFila(): Promise<Placar>;
   processarConversa(id: string): Promise<Caso>;
@@ -84,6 +112,8 @@ export interface Api {
 
 export const apiHttp: Api = {
   saude: () => pedir("/saude"),
+  simuladorClientes: () => pedir("/simulador/clientes"),
+  simuladorMensagem: (corpo) => post("/simulador/mensagem", corpo),
   fila: () => pedir("/fila"),
   processarFila: () => post("/fila/processar"),
   processarConversa: (id) => post(`/conversas/${encodeURIComponent(id)}/processar`),

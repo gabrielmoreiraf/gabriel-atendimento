@@ -18,13 +18,14 @@ import { CasoPainel } from "./components/CasoPainel";
 import { ConsoleSistemas } from "./components/ConsoleSistemas";
 import { Fila } from "./components/Fila";
 import { Placar } from "./components/Placar";
+import { SimuladorWhatsApp } from "./components/SimuladorWhatsApp";
 import { VerificacaoEvidencia } from "./components/VerificacaoEvidencia";
 import { AGORA_ISO, formatarDataHora } from "./formato";
 import { MascoteMarca } from "./landing/Mascote";
 import PillNav from "./vendor/reactbits/PillNav";
 import { alertasComoMensagens, juntarCanal } from "./vigia";
 
-type Tela = "operacao" | "evidencia" | "analista";
+type Tela = "operacao" | "whatsapp" | "evidencia" | "analista";
 
 interface Props {
   api: Api;
@@ -227,6 +228,7 @@ export default function App({ api, assinar, modo = "api" }: Props) {
 
   const telas: { id: Tela; rotulo: string }[] = [
     { id: "operacao", rotulo: "Operação" },
+    { id: "whatsapp", rotulo: "WhatsApp" },
     { id: "evidencia", rotulo: "Conferir fotos" },
     { id: "analista", rotulo: "Padrões" },
   ];
@@ -315,6 +317,15 @@ export default function App({ api, assinar, modo = "api" }: Props) {
           </main>
         </div>
       ) : null}
+      {tela === "whatsapp" ? (
+        <SimuladorWhatsApp
+          api={api}
+          onVerCaso={(cid) => {
+            irPara("operacao");
+            recarregar().then(() => abrir(cid));
+          }}
+        />
+      ) : null}
       {tela === "evidencia" ? (
         <VerificacaoEvidencia
           key={`verificacao-${rodadaDemo}`}
@@ -333,6 +344,7 @@ export default function App({ api, assinar, modo = "api" }: Props) {
           [
             ["fila", "Fila"],
             ["canal", "Canal"],
+            ["whatsapp", "WhatsApp"],
             ["evidencia", "Fotos"],
             ["analista", "Padrões"],
           ] as const
