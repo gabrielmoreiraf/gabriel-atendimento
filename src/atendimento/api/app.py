@@ -147,15 +147,24 @@ def criar_app(agente: Agente | None = None) -> FastAPI:
     if agente is not None:
         estado["agente"] = agente
 
+    trava_subida = threading.Lock()
+
+    def ag() -> Agente:
+        # no Vercel o lifespan pode não rodar, ou rodar junto da primeira requisição: o
+        # agente nasce uma vez só, sob a trava (senão duas cópias da base disputam o /tmp)
+        if "agente" not in estado:
+            with trava_subida:
+                if "agente" not in estado:
+                    estado["agente"] = agente_real()
+        return estado["agente"]
+
     @asynccontextmanager
     async def ciclo(_app: FastAPI):
-        if "agente" not in estado:
-            estado["agente"] = agente_real()
-        estado["agente"].obter_analista()  # cria o único Analista do processo na subida
+        ag().obter_analista()  # cria o único Analista do processo na subida
         # P5: espelho do canal do time no Slack; desligado sem ATENDIMENTO_SLACK=1 e tokens
         from atendimento.canal_slack import iniciar as iniciar_slack
 
-        slack = iniciar_slack(estado["agente"])
+        slack = iniciar_slack(ag())
         yield
         desligando_app.set()
         if slack is not None:
@@ -168,16 +177,6 @@ def criar_app(agente: Agente | None = None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-    trava_subida = threading.Lock()
-
-    def ag() -> Agente:
-        # no Vercel o lifespan pode não rodar: o agente nasce na primeira requisição
-        if "agente" not in estado:
-            with trava_subida:
-                if "agente" not in estado:
-                    estado["agente"] = agente_real()
-        return estado["agente"]
 
     def gancho():
         if "gancho" not in estado:
