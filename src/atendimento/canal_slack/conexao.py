@@ -46,6 +46,11 @@ class ConexaoSlack:
         self._thread = threading.Thread(target=self._laco, name="fio-slack-espelho", daemon=True)
 
     def _laco(self) -> None:
+        # a conexão do Socket Mode (rede) acontece aqui, fora da subida da API
+        try:
+            self.handler.connect()
+        except Exception as erro:  # sem Socket Mode não há botões; o espelho tenta mesmo assim
+            self.canal._falhou("socket_mode", erro)
         while not self._parar.is_set():
             try:
                 self.canal.sincronizar()
@@ -66,20 +71,31 @@ class ConexaoSlack:
             self.canal._falhou("fechar", erro)
 
 
+def criar_app_bolt(config):
+    """App do Bolt sem chamada de rede na subida (token_verification_enabled=False: o token é
+    conferido na primeira chamada, não no auth.test do construtor) e com retry de rate limit
+    que respeita o Retry-After (slack_sdk RateLimitErrorRetryHandler; guia:
+    https://docs.slack.dev/tools/python-slack-sdk/web#retryhandler)."""
+    from slack_bolt import App
+    from slack_sdk.http_retry.builtin_handlers import RateLimitErrorRetryHandler
+
+    app = App(token=config.bot_token, token_verification_enabled=False)
+    app.client.retry_handlers.append(RateLimitErrorRetryHandler(max_retry_count=3))
+    return app
+
+
 def iniciar(agente, ambiente: Mapping[str, str] | None = None) -> ConexaoSlack | None:
     """Liga o canal no Slack se `ATENDIMENTO_SLACK=1` e os tokens existem; senão, None."""
     config = config_do_ambiente(ambiente)
     if config is None:
         return None
     try:
-        from slack_bolt import App
         from slack_bolt.adapter.socket_mode import SocketModeHandler
 
-        app = App(token=config.bot_token)
+        app = criar_app_bolt(config)
         canal = CanalSlack(agente, app.client, config)
         registrar_handlers(app, canal)
-        handler = SocketModeHandler(app, config.app_token)
-        handler.connect()
+        handler = SocketModeHandler(app, config.app_token)  # conecta na thread de fundo
     except Exception as erro:  # token inválido, rede fora: o FIO segue sem Slack
         logger.warning("Slack não ligou: %s", type(erro).__name__)
         return None
