@@ -1,7 +1,7 @@
 import "./landing.css";
 
 import PillNav from "../vendor/reactbits/PillNav";
-import { Mascote } from "./Mascote";
+import { Mascote, MascoteMarca } from "./Mascote";
 import { BotaoBrilho } from "./microkit/BotaoBrilho";
 import { type CartaoItem, CartoesDeslizantes } from "./microkit/CartoesDeslizantes";
 
@@ -91,7 +91,7 @@ export function Landing() {
       <header className="lp-nav">
         <PillNav
           ariaLabel="Seções"
-          logo={<Mascote tamanho={28} piscando={false} />}
+          logo={<MascoteMarca tamanho={30} />}
           logoAlt="FIO, início"
           logoHref="/"
           items={[
@@ -101,8 +101,11 @@ export function Landing() {
             { label: "Resultados", href: "#resultados" },
           ]}
           theme="dark"
-          surface="glass"
+          surface="solid"
+          barColor="#1d4683"
+          textColor="#ffffff"
           highlightColor="#d7d900"
+          size="lg"
           itemStyle="plain"
           hoverEffect="fill"
           indicator="dot"

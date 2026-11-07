@@ -49,3 +49,23 @@ export function Mascote({
     </svg>
   );
 }
+
+/** Marca compacta do FIO (só o rosto do mascote), para ícones pequenos como a bolha da navegação. */
+export function MascoteMarca({ tamanho = 28 }: { tamanho?: number }) {
+  return (
+    <svg width={tamanho} height={tamanho} viewBox="0 0 64 64" role="img" aria-label="FIO">
+      <rect x="2" y="6" width="60" height="46" rx="14" fill="#2659a5" />
+      <path d="M18 50 12 62l16-10Z" fill="#2659a5" />
+      <rect x="9" y="13" width="46" height="32" rx="10" fill="#0b1a33" />
+      <ellipse cx="24" cy="27" rx="5" ry="6" fill="#d7d900" />
+      <ellipse cx="40" cy="27" rx="5" ry="6" fill="#d7d900" />
+      <path
+        d="M26 37q6 4 12 0"
+        stroke="#d7d900"
+        strokeWidth="3"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
+  );
+}

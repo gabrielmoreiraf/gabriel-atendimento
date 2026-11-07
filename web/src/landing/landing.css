@@ -652,3 +652,30 @@
     border-radius: 28px;
   }
 }
+
+/* Correções da barra e da moldura do hero */
+.lp-hero {
+  box-shadow: none;
+  border: 14px solid var(--lp-limao);
+  border-bottom: 0;
+}
+.lp-nav {
+  top: 14px;
+}
+.lp-nav .pill-nav__logo {
+  background: #fff;
+}
+.lp-nav .pill-nav__mark {
+  width: 30px;
+  height: 30px;
+}
+@media (max-width: 860px) {
+  .lp-hero {
+    box-shadow: none;
+    border-width: 8px;
+    border-bottom: 0;
+  }
+  .lp-nav {
+    top: 8px;
+  }
+}
