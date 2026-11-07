@@ -1,0 +1,44 @@
+secao,regra,valor
+horario_atendimento_humano,inicio,08:00
+horario_atendimento_humano,fim,20:00
+sla_primeira_resposta,whatsapp.minutos,30
+sla_primeira_resposta,whatsapp.conta_apenas_horario_comercial,True
+sla_primeira_resposta,email.horas,24
+sla_primeira_resposta,reclame_aqui.horas,48
+custo_por_conversa_rs,whatsapp,4.8
+custo_por_conversa_rs,email,7.2
+custo_por_conversa_rs,reclame_aqui,42.0
+limites_por_papel,atendente.reenvio_ou_reimpressao_max_rs,200.0
+limites_por_papel,atendente.reembolso_max_rs,100.0
+limites_por_papel,atendente.troca_max_rs,200.0
+limites_por_papel,atendente.acima_do_limite,solicitar_aprovacao ao supervisor
+limites_por_papel,supervisor.aprova_acima_dos_limites,True
+limites_por_papel,supervisor.nao_aprova_a_propria_acao,True
+categorias,item_faltante.acoes_permitidas,solicitar_foto; reenviar_produto
+categorias,item_faltante.exige_foto,True
+categorias,item_faltante.prazo_dias_corridos_do_recebimento,7
+categorias,avaria_vazamento.acoes_permitidas,solicitar_foto; reenviar_produto
+categorias,avaria_vazamento.exige_foto,True
+categorias,avaria_vazamento.prazo_dias_corridos_do_recebimento,7
+categorias,erro_personalizacao.acoes_permitidas,solicitar_foto; reimprimir_personalizacao
+categorias,erro_personalizacao.exige_foto,True
+categorias,erro_personalizacao.prazo_dias_corridos_do_recebimento,7
+categorias,cobranca_duplicada.acoes_permitidas,reembolsar
+categorias,arrependimento_cancelamento.acoes_permitidas,cancelar_pedido; reembolsar; negar_por_politica
+categorias,arrependimento_cancelamento.prazo_dias_corridos_do_recebimento,7
+categorias,reacao_adversa.acoes_permitidas,orientar_suspensao_uso; registrar_cosmetovigilancia; trocar_produto
+categorias,reacao_adversa.acoes_obrigatorias,orientar_suspensao_uso; registrar_cosmetovigilancia
+categorias,reacao_adversa.prazo_registro_horas,24
+reclamacao_suspeita,quem_decide,supervisor
+reclamacao_suspeita,atendente_e_analista,podem sinalizar (sinalizar_suspeita) com evidências verificáveis; nunca negam sozinhos por suspeita
+categorias,avaria_vazamento.regra,Reenvio sem custo mediante foto em até 7 dias do recebimento.
+categorias,item_faltante.regra,"Reenvio sem custo do item faltante (inclusive brinde de campanha), mediante foto, em até 7 dias do recebimento."
+reclamacao_suspeita,prazo_decisao_horas,24
+categorias,avaria_vazamento.tag_equivalente,Avaria
+categorias,item_faltante.tag_equivalente,Produto faltando
+prazos_entrega,preparo_dias_uteis.gobeaute,1
+prazos_entrega,preparo_dias_uteis.gocase_personalizado,3
+prazos_entrega,preparo_dias_uteis.gocase_sem_personalizacao,1
+prazos_entrega,sla_transportadora_dias_uteis.ViaLog.SE,2
+prazos_entrega,regiao_por_uf.SP,SE
+prazos_entrega,feriados_nacionais,2026-09-07; 2026-10-12; 2026-11-02; 2026-11-15; 2026-11-20; 2026-12-25; 2027-01-01

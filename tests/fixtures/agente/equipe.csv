@@ -1,0 +1,5 @@
+colaborador_id,cargo,turno,supervisor_id,status
+atendente_01,atendente,08h-20h em revezamento,supervisor_02,ativo
+supervisor_01,supervisor,08h-20h em revezamento,,ativo
+supervisor_02,supervisor,08h-17h,,ativo
+supervisor_03,supervisor,08h-17h,,ativo
