@@ -19,7 +19,7 @@ describe("App (com API mock)", () => {
   it("test_EC_16_verificacao_de_evidencia_processa_caso_do_historico", async () => {
     render(<App api={criarApiMock()} assinar={() => () => {}} />);
     await userEvent.click(
-      within(screen.getByRole("navigation", { name: "Telas" })).getByRole("button", {
+      within(screen.getByRole("navigation", { name: "Telas" })).getByRole("link", {
         name: "Evidência",
       }),
     );
@@ -38,7 +38,7 @@ describe("App (com API mock)", () => {
   it("test_HG_19_painel_do_analista_trata_padrao_no_mock", async () => {
     render(<App api={criarApiMock()} assinar={() => () => {}} />);
     await userEvent.click(
-      within(screen.getByRole("navigation", { name: "Telas" })).getByRole("button", {
+      within(screen.getByRole("navigation", { name: "Telas" })).getByRole("link", {
         name: "Analista",
       }),
     );
@@ -61,7 +61,7 @@ describe("App (com API mock)", () => {
   it("test_HG_04_replay_gera_suspeita_que_o_supervisor_decide", async () => {
     render(<App api={criarApiMock()} assinar={() => () => {}} />);
     await userEvent.click(
-      within(screen.getByRole("navigation", { name: "Telas" })).getByRole("button", {
+      within(screen.getByRole("navigation", { name: "Telas" })).getByRole("link", {
         name: "Evidência",
       }),
     );

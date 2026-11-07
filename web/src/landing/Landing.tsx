@@ -1,5 +1,6 @@
 import "./landing.css";
 
+import PillNav from "../vendor/reactbits/PillNav";
 import { Mascote } from "./Mascote";
 import { BotaoBrilho } from "./microkit/BotaoBrilho";
 import { type CartaoItem, CartoesDeslizantes } from "./microkit/CartoesDeslizantes";
@@ -88,16 +89,25 @@ export function Landing() {
   return (
     <div className="landing">
       <header className="lp-nav">
-        <a className="lp-marca" href="/" aria-label="FIO, início">
-          <Mascote tamanho={36} piscando={false} />
-          <span>FIO</span>
-        </a>
-        <nav aria-label="Seções">
-          <a href="#problema">Problema</a>
-          <a href="#como">Como funciona</a>
-          <a href="#slack">Slack</a>
-          <a href="#resultados">Resultados</a>
-        </nav>
+        <PillNav
+          ariaLabel="Seções"
+          logo={<Mascote tamanho={28} piscando={false} />}
+          logoAlt="FIO, início"
+          logoHref="/"
+          items={[
+            { label: "Problema", href: "#problema" },
+            { label: "Como funciona", href: "#como" },
+            { label: "Slack", href: "#slack" },
+            { label: "Resultados", href: "#resultados" },
+          ]}
+          theme="dark"
+          surface="glass"
+          highlightColor="#d7d900"
+          itemStyle="plain"
+          hoverEffect="fill"
+          indicator="dot"
+          defaultActiveIndex={-1}
+        />
         <a className="pilula pilula--clara" href="/app" data-testid="lp-entrar-topo">
           Entrar no FIO <Seta />
         </a>
@@ -105,7 +115,6 @@ export function Landing() {
 
       <section className="lp-hero">
         <div className="lp-hero__texto">
-          <p className="lp-etiqueta">GoHacks Talent 2026 · Atendimento ao Cliente</p>
           <h1>
             O colega de atendimento que <em>confere antes de pagar</em>.
           </h1>
@@ -160,16 +169,15 @@ export function Landing() {
       </div>
 
       <section id="problema" className="lp-secao">
-        <p className="lp-etiqueta lp-etiqueta--escura">O problema</p>
         <h2>Resolver um contato quase nunca é só responder uma mensagem.</h2>
-        <div className="lp-numeros">
+        <dl className="lp-lista">
           {PROBLEMA.map((p) => (
-            <div key={p.numero} className="lp-numero">
-              <strong>{p.numero}</strong>
-              <span>{p.texto}</span>
+            <div key={p.numero} className="lp-linha">
+              <dt>{p.numero}</dt>
+              <dd>{p.texto}</dd>
             </div>
           ))}
-        </div>
+        </dl>
         <p className="lp-destaque">
           O Reclame Aqui tem <b>11,6% das conversas</b> e <b>50,4% do custo</b>. E nem toda avaria é
           real: na base há fotos repetidas em pedidos diferentes, tiradas antes da entrega ou
@@ -178,14 +186,12 @@ export function Landing() {
       </section>
 
       <section id="como" className="lp-secao">
-        <p className="lp-etiqueta lp-etiqueta--escura">Como o FIO trabalha</p>
         <h2>Cinco passos, com uma pessoa no controle de tudo o que passa da alçada.</h2>
         <CartoesDeslizantes itens={PASSOS} rotulo="Os cinco passos do FIO" />
       </section>
 
       <section id="slack" className="lp-escura">
         <div className="lp-escura__texto">
-          <p className="lp-etiqueta">Mora onde o time conversa</p>
           <h2>O supervisor aprova pelo Slack, com um clique.</h2>
           <ul>
             <li>Só vai ao canal o que pede uma pessoa: aprovação, suspeita, escalação e SLA.</li>
@@ -216,20 +222,18 @@ export function Landing() {
       </section>
 
       <section id="resultados" className="lp-secao">
-        <p className="lp-etiqueta lp-etiqueta--escura">Resultados medidos</p>
         <h2>Medido na fila das 8h e reexecutado sobre o histórico da empresa.</h2>
-        <div className="lp-numeros lp-numeros--resultado">
+        <dl className="lp-lista lp-lista--resultado">
           {RESULTADOS.map((r) => (
-            <div key={r.numero} className="lp-numero">
-              <strong>{r.numero}</strong>
-              <span>{r.texto}</span>
+            <div key={r.numero} className="lp-linha">
+              <dt>{r.numero}</dt>
+              <dd>{r.texto}</dd>
             </div>
           ))}
-        </div>
+        </dl>
       </section>
 
       <section className="lp-secao">
-        <p className="lp-etiqueta lp-etiqueta--escura">Visão 360°</p>
         <h2>Pensado para a área inteira, provado em uma frente.</h2>
         <ol className="lp-frentes">
           {FRENTES.map(([nome, provado], i) => (

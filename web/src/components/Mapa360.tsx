@@ -53,9 +53,11 @@ export function Mapa360() {
               {f.provado ? <span className="mapa__selo">provado na PoC</span> : null}
             </div>
             <p>{f.faz}</p>
-            <p className="mapa__pessoa">
-              <b>Onde a pessoa decide:</b> {f.pessoa}
-            </p>
+            {f.pessoa !== "—" ? (
+              <p className="mapa__pessoa">
+                <b>Onde a pessoa decide:</b> {f.pessoa}
+              </p>
+            ) : null}
           </li>
         ))}
       </ol>

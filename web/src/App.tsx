@@ -21,6 +21,7 @@ import { Mapa360 } from "./components/Mapa360";
 import { Placar } from "./components/Placar";
 import { VerificacaoEvidencia } from "./components/VerificacaoEvidencia";
 import { AGORA_ISO, formatarDataHora } from "./formato";
+import PillNav from "./vendor/reactbits/PillNav";
 import { alertasComoMensagens, juntarCanal } from "./vigia";
 
 type Tela = "operacao" | "evidencia" | "analista" | "mapa";
@@ -232,19 +233,27 @@ export default function App({ api, assinar, modo = "api" }: Props) {
           </a>
           <span className="barra__empresa">Gocase / GoBeauté</span>
         </div>
-        <nav className="barra__nav" aria-label="Telas">
-          {telas.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              className="aba"
-              aria-current={tela === t.id ? "page" : undefined}
-              onClick={() => irPara(t.id)}
-            >
-              {t.rotulo}
-            </button>
-          ))}
-        </nav>
+        <div className="barra__nav">
+          <PillNav
+            ariaLabel="Telas"
+            items={telas.map((t) => ({ label: t.rotulo, href: `#${t.id}` }))}
+            activeHref={`#${tela}`}
+            onItemClick={(item, _indice, evento) => {
+              evento.preventDefault();
+              const alvo = telas.find((t) => `#${t.id}` === item.href);
+              if (alvo) irPara(alvo.id);
+            }}
+            theme="light"
+            surface="solid"
+            barColor="#e6ebf3"
+            textColor="#13213a"
+            highlightColor="#2659a5"
+            itemStyle="plain"
+            hoverEffect="fill"
+            indicator="pill"
+            collapse="never"
+          />
+        </div>
         <div className="barra__agora">
           <span>Agora</span>
           <span className="mono">{formatarDataHora(relogio)}</span>

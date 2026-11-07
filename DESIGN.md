@@ -1,36 +1,35 @@
-# DESIGN.md — Demo do agente de atendimento
+# DESIGN.md — FIO, o colega de atendimento
 
-Fonte única dos valores: `tokens.css` (raiz), importado por `web/src/index.css`.
+Fonte única dos valores: `tokens.css` (raiz), importado por `web/src/index.css`. Base visual: **brandbook do Gogroup** (`ingestao/` não guarda o PDF; ele fica com o autor).
 
-## Contexto de uso
+## Identidade (brandbook Gogroup)
 
-Banca de hackathon olhando um projetor, a 3–6 m da tela, em sala iluminada. A tela precisa provar em segundos que o agente **age** (anti-requisito N4): não é painel de métricas. Modo *Operate*: legibilidade e leitura rápida acima de enfeite.
+- **Azul `#2659a5` é a cor protagonista**; **limão `#d7d900`** entra em blocos de cor (moldura, destaques, etiquetas). Apoio: azul-claro `#3dbfef`, rosa `#e61782`, amarelo `#f8ae13`, laranja `#e5381a`.
+- **Contraste do manual:** nunca branco sobre limão ou amarelo; não colocar laranja, vermelho e rosa lado a lado.
+- **Tipografia:** Poppins (bold para títulos, regular para texto); IBM Plex Mono só para dado de sistema (IDs, valores, horários, referências).
+- **Logotipo do Gogroup não é usado** (sem arquivo oficial; o manual proíbe recriar ou distorcer). O nome aparece em texto, grafado "Gogroup".
+- **Mascote do FIO:** balão de conversa azul com olhos e sorriso limão e um fio saindo da cauda (`web/src/landing/Mascote.tsx`).
 
-## Direção
+## Superfícies
 
-- **Tema claro por padrão** (projetor em sala clara lava fundos escuros); escuro disponível por `prefers-color-scheme` ou `data-theme="dark"`.
-- **Tipografia:** IBM Plex Sans no texto, IBM Plex Mono só para dado de sistema (IDs, valores em R$, referências, horários). Corpo 18px; nada abaixo de 13px.
-- **Cor com significado:** um azul-tinta de marca para ações e foco. Os cinco estados da conversa têm cor própria e **sempre** aparecem com o rótulo em texto (nunca só cor):
-  `aberta` (neutro) · `resolvida` (verde) · `aguardando_aprovacao` (âmbar) · `aguardando_cliente` (azul-petróleo: pedimos foto, não conta como resolvida) · `suspeita` (vermelho) · `escalada` (violeta).
-- **Canal do time:** painel escuro próprio, inspirado em ferramentas de chat de equipe, com marca da demo ("Canal #atendimento-ops"). Sem logo ou cores de terceiros.
+| Rota | Modo | O que é |
+| --- | --- | --- |
+| `/` | Persuade | Landing: hero azul com moldura limão, mascote e balões de chat; problema e resultados como listas tipográficas; cinco passos; Slack; visão 360°; chamada final |
+| `/app` | Operate | A ferramenta: abas Operação, Evidência, Analista e Mapa 360° |
 
-## Layout (≥1280px)
+## Ferramenta (`/app`)
 
-```
-┌ Placar (barra no topo, 6 números) ───────────────── [Processar fila] ┐
-├ Fila (lista) ─┬ Caso aberto (chat · evidência · decisão · resposta) ─┤
-│               ├ Console dos sistemas (log ao vivo, tabela mono) ─────┤
-└───────────────┴──────────────────────── Canal do time (coluna direita)┘
-```
-
-Abaixo da primeira tela: **Verificação de evidência** (frente da PoC, em destaque) e **Agente analista** (padrões de causa comum → incidente). O vigia roda pelo canal do time, com o controle "Avançar o relógio para 08:20": o front só passa o horário.
-
-Abaixo de 1100px as colunas empilham.
+- Barra superior com o PillNav (React Bits, `web/src/vendor/reactbits/`), relógio da demo e Reiniciar.
+- Operação: placar em cartões (ponto de cor + rótulo) com **Processar fila**; fila com filtros por estado e sigla do canal; caso + console no centro; **canal do time em azul-marinho** à direita.
+- Evidência, Analista e Mapa: mesma moldura (largura máx. 1200px) e o mesmo título de tela.
+- Celular: barra inferior Fila · Canal · Evidência · Analista.
+- Estados da conversa sempre com rótulo em texto (nunca só cor): aberta, resolvida, aguardando aprovação, aguardando cliente, suspeita, escalada.
 
 ## Regras
 
 - Nenhuma regra de negócio no front (ADR-001): a UI só exibe o que a API devolve e dispara ações.
 - Dados pessoais chegam mascarados da API; a UI não desfaz máscara.
-- Movimento: só a entrada de uma nova linha no console e no canal (realce que esmaece, `--dur-med`). Respeita `prefers-reduced-motion`.
-- Foco de teclado visível (`--color-focus`), alvos de clique ≥ 40px.
-- `data-testid` estáveis para o E2E: `placar`, `btn-processar`, `fila-item`, `console-acao`, `canal-msg`, `btn-aprovar`, `btn-rejeitar`, `replay-item`, `btn-replay`, `sinal-evidencia`, `padrao-item`, `btn-tratar-padrao`, `resultado-padrao`, `btn-rodar-vigia`, `btn-vigia-0820`.
+- Movimento: um momento autoral por superfície (mascote flutuando e piscando na landing; realce de linha nova no console e no canal). Respeita `prefers-reduced-motion`.
+- Seleção de texto, cursor, barra de rolagem e anel de foco vêm da paleta. Alvos de clique ≥ 40px (44px no celular).
+- Microinterações do MicroKit UI (MIT) no botão "Entrar no FIO" e nos cartões dos cinco passos, com aviso de licença junto do código.
+- `data-testid` estáveis para o E2E: `placar`, `btn-processar`, `fila-item`, `console-acao`, `canal-msg`, `btn-aprovar`, `btn-rejeitar`, `replay-item`, `btn-replay`, `sinal-evidencia`, `padrao-item`, `btn-tratar-padrao`, `resultado-padrao`, `btn-rodar-vigia`, `btn-vigia-0820`, `btn-reiniciar`, `lp-entrar`.
