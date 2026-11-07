@@ -4,8 +4,10 @@ version = "0.1.0"
 description = "Agente de atendimento ao cliente Gocase / GoBeauté (GoHacks Talent 2026)"
 requires-python = ">=3.12"
 dependencies = [
+    "anthropic>=2.6.0",
     "fastapi>=0.162.1",
     "pydantic>=2.14.3",
+    "python-dotenv>=1.2.4",
     "uvicorn[standard]>=0.54.0",
 ]
 
@@ -20,8 +22,11 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
-addopts = "-q"
-markers = ["integracao: lê a base real em docs/ (somente leitura)"]
+addopts = "-q -m 'not llm'"
+markers = [
+    "integracao: lê a base real em docs/ (somente leitura)",
+    "llm: chama a API da Anthropic de verdade (rodar com -m llm; precisa de ANTHROPIC_API_KEY)",
+]
 
 [tool.ruff]
 line-length = 100
