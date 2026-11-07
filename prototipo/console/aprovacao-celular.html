@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aprovação no celular · protótipo</title>
+  <meta name="description" content="Protótipo: como a supervisão aprova, recusa ou é barrada de autoaprovar pelo celular, no canal do time.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Montserrat:wght@600;700;800&display=swap">
+  <link rel="stylesheet" href="console.css">
+  <style>
+    .quadro { padding: var(--space-6) var(--space-5) var(--space-7); }
+    .quadro-cabeca { margin: 0 0 var(--space-6); padding-inline: var(--space-5); display: grid; gap: var(--space-2); }
+    .quadro-cabeca h1 { font-size: var(--text-xl); letter-spacing: -0.02em; }
+    .quadro-cabeca p { color: var(--color-text-muted); max-width: 72ch; }
+    .telas { display: flex; gap: var(--space-6); overflow-x: auto; padding: var(--space-2) var(--space-5) var(--space-5); scroll-snap-type: x mandatory; }
+    .tela { flex: none; scroll-snap-align: center; display: grid; gap: var(--space-3); width: 390px; }
+    .tela > h2 { font-size: var(--text-md); }
+    .tela > p { font-size: var(--text-sm); color: var(--color-text-muted); min-height: calc(var(--text-sm) * 1.5 * 4); }
+    .tel {
+      position: relative; width: 390px; height: 844px; border-radius: 44px; overflow: hidden;
+      background: var(--color-canal-bg); color: var(--color-canal-text);
+      border: 10px solid oklch(0.16 0.01 260); box-shadow: 0 2px 4px oklch(0.2 0.02 260 / .12), 0 18px 40px oklch(0.2 0.02 260 / .18);
+      display: flex; flex-direction: column; font-size: var(--text-sm);
+    }
+    .barra-sis { display: flex; justify-content: space-between; padding: 12px 26px 6px; font: var(--weight-bold) 14px var(--font-sans); }
+    .tel-topo { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-4) var(--space-3); border-bottom: 1px solid oklch(1 0 0 / .1); }
+    .tel-topo h3 { font-size: var(--text-md); display: flex; flex-wrap: wrap; align-items: center; gap: 0 4px; }
+    .tel-topo h3 small { flex-basis: 100%; }
+    .tel-topo small { display: block; font-size: var(--text-xs); color: var(--color-canal-muted); font-weight: var(--weight-regular); }
+    .voltar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; border: 0; background: oklch(1 0 0 / .08); color: inherit; }
+    .voltar .ico { rotate: 90deg; }
+    .tel-corpo { flex: 1; overflow: hidden; padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-4); }
+    .tel-base { padding: var(--space-3) var(--space-4) var(--space-5); border-top: 1px solid oklch(1 0 0 / .1); display: grid; grid-template-columns: 1fr 1.4fr; gap: var(--space-3); background: var(--color-canal-bg); }
+    .tel-base .btn { min-height: 52px; font-size: var(--text-md); }
+    .tel .btn { background: transparent; color: var(--color-canal-text); border-color: oklch(1 0 0 / .28); }
+    .tel .btn-pri { background: oklch(0.72 0.12 250); border-color: oklch(0.72 0.12 250); color: oklch(0.16 0.02 260); }
+    .tel .btn[disabled] { opacity: .45; }
+    .valor-grande { font: var(--weight-bold) 2.25rem/1 var(--font-mono); letter-spacing: -0.02em; }
+    .linha-meta { color: var(--color-canal-muted); font-size: var(--text-xs); display: flex; flex-wrap: wrap; gap: 4px 10px; }
+    .citacao { padding: var(--space-3); border-radius: var(--radius-md); background: oklch(1 0 0 / .06); font-size: var(--text-sm); }
+    .citacao small { display: block; color: var(--color-canal-muted); font-size: var(--text-xs); margin-bottom: 4px; }
+    .tel h4 { font-size: var(--text-sm); color: var(--color-canal-muted); font-weight: var(--weight-medium); margin: 0 0 6px; }
+    .tel .alcada-barra { background: oklch(1 0 0 / .1); }
+    .tel .alcada-barra i { background: oklch(0.78 0.13 75); }
+    .tel .alcada-barra em { background: var(--color-canal-text); }
+    .tel .alcada-legenda, .tel .alcada-legenda b { color: var(--color-canal-muted); }
+    .tel .alcada-legenda b { color: var(--color-canal-text); }
+    .tel dl { display: grid; grid-template-columns: auto 1fr; gap: 4px var(--space-3); margin: 0; font-size: var(--text-xs); }
+    .tel dt { color: var(--color-canal-muted); }
+    .tel dd { margin: 0; }
+    .tel textarea { width: 100%; min-height: 120px; padding: var(--space-3); border-radius: var(--radius-md); border: 2px solid oklch(0.8 0.12 25); background: oklch(1 0 0 / .04); color: inherit; font-size: var(--text-md); resize: none; }
+    .tel .erro { color: oklch(0.8 0.12 25); font-size: var(--text-sm); display: flex; gap: 6px; align-items: center; }
+    .aviso-barra { display: flex; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: oklch(0.45 0.09 75 / .35); border: 1px solid oklch(0.78 0.13 75 / .5); font-size: var(--text-sm); }
+    .aviso-barra .ico { width: 22px; height: 22px; color: oklch(0.84 0.12 80); margin-top: 2px; }
+    .ok-grande { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; background: oklch(0.42 0.09 150); margin: var(--space-6) auto var(--space-2); }
+    .ok-grande .ico { width: 36px; height: 36px; }
+    .centro-txt { text-align: center; }
+    .registro { font: var(--text-xs)/1.6 var(--font-mono); background: oklch(0 0 0 / .25); border-radius: var(--radius-md); padding: var(--space-3); }
+    .registro span { color: var(--color-canal-muted); }
+    .tel .post-texto { font-size: var(--text-sm); }
+    .nao-lidas { margin-left: auto; font: var(--weight-bold) var(--text-xs) var(--font-mono); background: oklch(0.72 0.12 250); color: oklch(0.16 0.02 260); padding: 2px 8px; border-radius: 999px; }
+  </style>
+  <link rel="stylesheet" href="marca.css">
+</head>
+<body>
+<!--
+  Protótipo estático de UI/UX: cinco estados da aprovação pelo celular. Caso real da fila das 08h (AT116520,
+  APR-000002 em var/atendimento.db). O caso de autoaprovação (tela 4) é ilustrativo e mostra a regra HG-03.
+  EST-PROTO-01 não existe nos sistemas.
+-->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-agente" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></symbol>
+    <symbol id="i-hash" viewBox="0 0 24 24"><path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/></symbol>
+    <symbol id="i-seta" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-ok" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-alerta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></symbol>
+    <symbol id="i-lei" viewBox="0 0 24 24"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10M12 3v18M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></symbol>
+    <symbol id="i-celular" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/></symbol>
+    <symbol id="i-mapa" viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15M9 3.236v15"/></symbol>
+  </defs>
+</svg>
+
+<header class="topo">
+  <a class="marca" href="mesa.html"><svg class="ico"><use href="#i-agente"/></svg>Colega de atendimento</a>
+  <nav class="nav" aria-label="Telas">
+    <a href="mesa.html">Mesa</a>
+    <a href="aprovacao-celular.html" aria-current="page"><svg class="ico"><use href="#i-celular"/></svg>Aprovação no celular</a>
+    <a href="../index.html"><svg class="ico"><use href="#i-mapa"/></svg>Mapa 360°</a>
+  </nav>
+  <div class="topo-dir"><span class="proto-tag">Protótipo</span><span>Agora <span class="mono">02/11 08:24</span></span></div>
+</header>
+
+<main class="quadro">
+  <div class="quadro-cabeca">
+    <h1>A supervisão aprova de onde estiver, com a evidência na mesma tela</h1>
+    <p>O pedido chega no canal que o time já usa. Quem aprova vê o caso, a regra e a alçada antes de decidir. Recusar exige motivo, e quem pediu a ação não consegue aprová-la.</p>
+  </div>
+
+  <div class="telas">
+    <!-- 1. Canal -->
+    <section class="tela" aria-labelledby="t1">
+      <h2 id="t1">1. O pedido chega no canal</h2>
+      <p>Paula G. abre o #atendimento-ops e vê o pedido com o valor e o motivo, sem precisar entrar em outra ferramenta.</p>
+      <div class="tel" role="img" aria-label="Celular com o canal atendimento-ops e um pedido de aprovação">
+        <div class="barra-sis"><span>8:24</span><span>5G</span></div>
+        <div class="tel-topo"><h3><svg class="ico"><use href="#i-hash"/></svg>atendimento-ops<small>12 pessoas · Colega</small></h3><span class="nao-lidas">3</span></div>
+        <div class="tel-corpo">
+          <div class="post"><div class="avatar"><svg class="ico"><use href="#i-agente"/></svg></div><div>
+            <div class="post-autor">Colega <small>08:00</small></div>
+            <div class="post-texto">Bom dia, time. Peguei a fila das 08h: <b>65 conversas</b>. Resolvi 29 sozinho; 2 reembolsos esperam aprovação.</div></div></div>
+          <div class="post"><div class="avatar"><svg class="ico"><use href="#i-agente"/></svg></div><div>
+            <div class="post-autor">Colega <small>08:00</small></div>
+            <div class="post-texto"><span class="mencao">@Paula G.</span>, preciso da sua aprovação.</div>
+            <div class="bloco"><span class="selo e-aguardando_aprovacao">Pedido de aprovação</span>
+              <div class="bloco-titulo">Reembolso de R$ 155,81 · <span class="mono">AT116520</span></div>
+              <dl><dt>Motivo</dt><dd>Arrependimento, dia 5 de 7</dd><dt>Alçada</dt><dd>limite R$ 100,00</dd></dl>
+              <div class="acoes"><button class="btn btn-pri" type="button">Revisar e decidir</button></div></div></div></div>
+          <div class="post"><div class="avatar"><svg class="ico"><use href="#i-agente"/></svg></div><div>
+            <div class="post-autor">Colega <small>08:00</small></div>
+            <div class="post-texto"><span class="mencao">@Paula G.</span>, reação adversa em AT116568. Já orientei a cliente a suspender o uso.</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Detalhe -->
+    <section class="tela" aria-labelledby="t2">
+      <h2 id="t2">2. Ela revisa antes de decidir</h2>
+      <p>Valor, regra, alçada acumulada no pedido e a mensagem da cliente. O botão diz o que vai acontecer.</p>
+      <div class="tel" role="img" aria-label="Detalhe do pedido de aprovação com valor, regra e alçada">
+        <div class="barra-sis"><span>8:24</span><span>5G</span></div>
+        <div class="tel-topo"><button class="voltar" type="button" aria-label="Voltar"><svg class="ico"><use href="#i-seta"/></svg></button><h3>Pedido de aprovação<small class="mono">APR-000002</small></h3></div>
+        <div class="tel-corpo">
+          <div>
+            <div class="valor-grande">R$ 155,81</div>
+            <div style="font-weight:600;margin-top:6px">Reembolso no cartão de crédito</div>
+            <div class="linha-meta" style="margin-top:4px"><span class="mono">AT116520</span><span>Lescent</span><span>Reclame Aqui</span><span class="mono">GBH469163</span></div>
+          </div>
+          <div class="citacao"><small>Cliente · 31/10 22:40</small>Recebi o kit de miniaturas mas não gostei, quero devolver.</div>
+          <div><h4>Por que o colega pediu</h4>
+            <div style="font-size:var(--text-sm)">Entregue em 26/10: o contato veio no dia 5 de 7 (CDC, art. 49). Cabe a devolução, mas o valor passa do limite do atendente.</div></div>
+          <div class="alcada" style="margin-top:0">
+            <div class="alcada-barra"><i style="width:87%"></i><em style="left:55.8%"></em></div>
+            <div class="alcada-legenda"><span>No pedido <b>R$ 155,81</b></span><span>Limite <b>R$ 100,00</b></span></div>
+          </div>
+          <dl><dt>Já executado no pedido</dt><dd class="mono">R$ 0,00</dd><dt>Produto</dt><dd>Kit Miniaturas 4×15ml + Brinde</dd><dt>Regra</dt><dd class="mono">reembolso_max_rs</dd></dl>
+        </div>
+        <div class="tel-base"><button class="btn" type="button">Rejeitar</button><button class="btn btn-pri" type="button"><svg class="ico"><use href="#i-ok"/></svg>Aprovar R$ 155,81</button></div>
+      </div>
+    </section>
+
+    <!-- 3. Rejeitar -->
+    <section class="tela" aria-labelledby="t3">
+      <h2 id="t3">3. Recusar exige motivo</h2>
+      <p>Sem justificativa a recusa não sai. O motivo vai para o registro e o colega devolve o caso a uma pessoa.</p>
+      <div class="tel" role="img" aria-label="Tela de recusa com o campo de justificativa vazio e mensagem de erro">
+        <div class="barra-sis"><span>8:25</span><span>5G</span></div>
+        <div class="tel-topo"><button class="voltar" type="button" aria-label="Voltar"><svg class="ico"><use href="#i-seta"/></svg></button><h3>Recusar reembolso<small>R$ 155,81 · AT116520</small></h3></div>
+        <div class="tel-corpo">
+          <label for="just" style="font-weight:600">Por que você está recusando?</label>
+          <textarea id="just" aria-invalid="true" aria-describedby="just-erro"></textarea>
+          <p class="erro" id="just-erro"><svg class="ico"><use href="#i-alerta"/></svg>Escreva o motivo. Ele fica no registro e orienta quem vai responder a cliente.</p>
+          <div class="citacao"><small>Depois de recusar</small>O colega não executa nada, avisa no canal e passa o caso para uma pessoa do time responder a cliente com o motivo.</div>
+        </div>
+        <div class="tel-base"><button class="btn" type="button">Cancelar</button><button class="btn btn-pri" type="button">Confirmar recusa</button></div>
+      </div>
+    </section>
+
+    <!-- 4. Autoaprovação barrada -->
+    <section class="tela" aria-labelledby="t4">
+      <h2 id="t4">4. Quem pediu não aprova</h2>
+      <p>Se Roberto M. pediu ao colega um reembolso acima da alçada, o botão de aprovar fica travado para ele e o pedido segue para outra pessoa da supervisão (HG-03).</p>
+      <div class="tel" role="img" aria-label="Pedido de aprovação com o botão de aprovar desativado porque quem vê é o solicitante">
+        <div class="barra-sis"><span>8:31</span><span>5G</span></div>
+        <div class="tel-topo"><button class="voltar" type="button" aria-label="Voltar"><svg class="ico"><use href="#i-seta"/></svg></button><h3>Pedido de aprovação<small>exemplo ilustrativo</small></h3></div>
+        <div class="tel-corpo">
+          <div class="aviso-barra"><svg class="ico"><use href="#i-alerta"/></svg><div><b>Você pediu esta ação.</b> Quem pede não aprova. O colega enviou para Paula G., que está no turno até 20h.</div></div>
+          <div>
+            <div class="valor-grande">R$ 140,00</div>
+            <div style="font-weight:600;margin-top:6px">Reembolso pedido por você ao colega</div>
+            <div class="linha-meta" style="margin-top:4px"><span>Solicitado por Roberto M.</span><span>Aprova: outra pessoa da supervisão</span></div>
+          </div>
+          <dl><dt>Situação</dt><dd>Aguardando Paula G.</dd><dt>Regra</dt><dd class="mono">aprovador ≠ solicitante</dd></dl>
+        </div>
+        <div class="tel-base"><button class="btn" type="button">Voltar ao canal</button><button class="btn btn-pri" type="button" disabled>Aprovar</button></div>
+      </div>
+    </section>
+
+    <!-- 5. Aprovado -->
+    <section class="tela" aria-labelledby="t5">
+      <h2 id="t5">5. O colega executa e mostra o registro</h2>
+      <p>A aprovação vira ação no sistema na mesma hora. Paula vê o protocolo e sabe que a cliente já foi avisada.</p>
+      <div class="tel" role="img" aria-label="Confirmação de aprovação com o registro da ação no gateway">
+        <div class="barra-sis"><span>8:24</span><span>5G</span></div>
+        <div class="tel-topo"><h3><svg class="ico"><use href="#i-hash"/></svg>atendimento-ops</h3></div>
+        <div class="tel-corpo">
+          <div class="ok-grande"><svg class="ico"><use href="#i-ok"/></svg></div>
+          <div class="centro-txt"><div style="font-size:var(--text-lg);font-weight:600">Reembolso aprovado</div>
+            <div class="linha-meta" style="justify-content:center;margin-top:4px"><span>por Paula G. às 08:24</span></div></div>
+          <div class="post"><div class="avatar"><svg class="ico"><use href="#i-agente"/></svg></div><div>
+            <div class="post-autor">Colega <small>08:24</small></div>
+            <div class="post-texto">Feito: reembolso de R$ 155,81 em AT116520 no Gateway de pagamentos. Avisei a cliente.</div></div></div>
+          <div class="registro">
+            <span>08:24</span> Canal do time · aprovar_acao · 155,81 · supervisor_01 · APR-000002<br>
+            <span>08:24</span> Gateway de pagamentos · reembolsar · 155,81 · agente · EST-PROTO-01<br>
+            <span>08:24</span> Central de atendimento · responder_cliente · agente
+          </div>
+        </div>
+        <div class="tel-base" style="grid-template-columns:1fr"><a class="btn" href="mesa.html?processado&caso=AT116520" style="text-decoration:none">Abrir o caso na mesa</a></div>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

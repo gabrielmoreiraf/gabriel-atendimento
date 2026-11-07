@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Triagem das 08h</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="proto.css">
+</head>
+<body>
+<!--
+  Protótipo 360° (W6). F1 Triagem e SLA (HP-01).
+  Prazo de 1ª resposta (politicas.sla_primeira_resposta): WhatsApp 30 min contando só horário comercial (abertas de madrugada → 08:30);
+  e-mail 24 h e Reclame Aqui 48 h a partir de fila_aberta.data_abertura. Custo por canal: politicas.custo_por_conversa_rs (4,80 / 7,20 / 42,00).
+  Ordem: sem 1ª resposta antes de já respondidas; prazo crescente; empate → canal mais caro.
+  "Ação do agente" = categoria da política aplicada ao texto do cliente (historico_mensagens.csv) + dados do pedido; é proposta do protótipo, não saída do motor.
+-->
+<header class="topo">
+  <div class="topo-in">
+    <a class="marca" href="index.html">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg>
+      Colega de atendimento
+    </a>
+    <nav class="nav" aria-label="Telas do protótipo">
+      <a href="index.html">Mapa 360°</a>
+      <a href="triagem.html" aria-current="page">F1 Triagem</a>
+      <a href="jornada.html">F2 Jornada</a>
+      <a href="canal-do-time.html">F3 + F4 Canal do time</a>
+      <a href="prevencao.html">F5 Prevenção</a>
+    </nav>
+    <div class="agora"><span class="selo-proto">Protótipo, não funcional</span><span>Agora <span class="mono" title="Agora no cenário: segunda, 02/11/2026, America/Sao_Paulo">02/11 08:00</span></span></div>
+  </div>
+</header>
+
+<main>
+  <div class="cabeca">
+    <div>
+      <h1><span class="frente">F1</span> A fila das 08h já vem ordenada, e cada linha já tem dono</h1>
+      <p class="lede">O agente ordena as 65 conversas por prazo de 1ª resposta e custo do canal. Ele responde o que está na alçada dele e manda para uma pessoa só o que precisa de decisão.</p>
+    </div>
+    <button class="btn primario" type="button">Processar a fila</button>
+  </div>
+
+  <!-- fonte: M5 (fila_aberta × politicas.sla_primeira_resposta) e M1 / politicas.custo_por_conversa_rs -->
+  <dl class="fatos" style="margin-bottom: var(--space-6)">
+    <div><dt>Na fila agora</dt><dd>65 <small>conversas</small></dd></div>
+    <div><dt>Já fora do prazo</dt><dd>1 <small>e-mail, 24 h</small></dd></div>
+    <div><dt>Vencem às 08:30</dt><dd>18 <small>WhatsApp</small></dd></div>
+    <div><dt>Custo por conversa</dt><dd>R$ 42 <small>no Reclame Aqui, contra R$ 4,80 no WhatsApp</small></dd></div>
+  </dl>
+
+  <div class="duas larga">
+    <section aria-labelledby="t-fila">
+      <h2 id="t-fila">Ordem de ataque</h2>
+      <div class="painel tabela-rolagem">
+        <table class="tabela">
+          <thead>
+            <tr><th>#</th><th>Conversa</th><th>Canal</th><th>Prazo</th><th>O que o cliente quer</th><th>Ação do agente</th></tr>
+          </thead>
+          <tbody>
+            <tr class="grupo"><td colspan="6">Já fora do prazo</td></tr>
+            <!-- AT116480: aberta 31/10 15:58, e-mail, prazo 01/11 15:58; pedido GCH559342 em_transito TransNorte -->
+            <tr data-testid="fila-item"><td class="pos">1</td><td class="mono">AT116480</td><td><span class="canal-tag">e-mail</span></td><td class="prazo critico">01/11 15:58</td><td>Código de rastreio que não chegou</td><td class="acao-agente"><span class="mono">informar_status</span> com o código e a previsão</td></tr>
+
+            <tr class="grupo"><td colspan="6">WhatsApp: 18 vencem às 08:30</td></tr>
+            <tr data-testid="fila-item"><td class="pos">2</td><td class="mono">AT116703</td><td><span class="canal-tag">WhatsApp</span></td><td class="prazo critico">08:30</td><td>Pedido de 16/10 parado; quer o dinheiro se não chegar</td><td><span class="estado aprovacao">Aprovação</span> reenvio de R$ 219,90</td></tr>
+            <tr data-testid="fila-item"><td class="pos">3</td><td class="mono">AT116677</td><td><span class="canal-tag">WhatsApp</span></td><td class="prazo critico">08:30</td><td>Pagou boleto e o cartão também foi cobrado</td><td><span class="estado aprovacao">Aprovação</span> estorno de R$ 118,80</td></tr>
+            <tr data-testid="fila-item"><td class="pos">4</td><td class="mono">AT116682</td><td><span class="canal-tag">WhatsApp</span></td><td class="prazo critico">08:30</td><td>Brinde faltando "pela 2ª vez"</td><td><span class="estado suspeita">Suspeita</span> segura o reenvio</td></tr>
+            <tr data-testid="fila-item"><td class="pos">5</td><td class="mono">AT116695</td><td><span class="canal-tag">WhatsApp</span></td><td class="prazo critico">08:30</td><td>Pedido de 29/10 não chegou</td><td class="acao-agente"><span class="mono">abrir_chamado_transportadora</span> e avisa a previsão</td></tr>
+            <tr data-testid="fila-item"><td class="pos">6</td><td class="mono">AT116700</td><td><span class="canal-tag">WhatsApp</span></td><td class="prazo critico">08:30</td><td>Body mist vazou; já falou em 27/10</td><td class="acao-agente">Lê a conversa anterior antes de agir no pedido</td></tr>
+            <tr data-testid="fila-item"><td class="pos">7</td><td class="mono">AT116666</td><td><span class="canal-tag">WhatsApp</span></td><td class="prazo critico">08:30</td><td>Capinha riscada, 2º contato</td><td class="acao-agente"><span class="mono">solicitar_foto</span> e confere o 1º contato</td></tr>
+            <tr data-testid="fila-item"><td class="pos">8</td><td class="mono">AT116705</td><td><span class="canal-tag">WhatsApp</span></td><td class="prazo critico">08:30</td><td>Quer devolver; mandou o CPF na conversa</td><td class="acao-agente">Mascara o CPF e confere o prazo de 7 dias</td></tr>
+            <tr data-testid="fila-item"><td class="pos">9</td><td class="mono">AT116679</td><td><span class="canal-tag">WhatsApp</span></td><td class="prazo critico">08:30</td><td>Trocar fragrância, achou doce</td><td class="acao-agente"><span class="mono">trocar_produto</span>: dentro de 30 dias e da alçada</td></tr>
+            <tr data-testid="fila-item"><td class="pos">10</td><td class="mono">AT116702</td><td><span class="canal-tag">WhatsApp</span></td><td class="prazo critico">08:30</td><td>Rastreio parado desde 31/10</td><td class="acao-agente"><span class="mono">informar_status</span>: prazo vai até 06/11</td></tr>
+            <tr data-testid="fila-item"><td class="pos">11</td><td class="mono">AT116693</td><td><span class="canal-tag">WhatsApp</span></td><td class="prazo critico">08:30</td><td>Cupom VOLTA15 não descontou</td><td class="acao-agente"><span class="mono">validar_cupom</span></td></tr>
+            <tr data-testid="fila-item"><td class="pos">12</td><td class="mono">AT116669</td><td><span class="canal-tag">WhatsApp</span></td><td class="prazo critico">08:30</td><td>Black Friday; deixou telefone</td><td class="acao-agente">Responde a dúvida sem repetir o telefone</td></tr>
+            <tr data-testid="fila-item"><td class="pos">13</td><td class="mono">AT116673</td><td><span class="canal-tag">WhatsApp</span></td><td class="prazo critico">08:30</td><td>O hidratante é vegano?</td><td class="acao-agente"><span class="mono">responder_duvida</span></td></tr>
+            <tr data-testid="fila-item"><td class="pos">14</td><td class="mono">AT116701</td><td><span class="canal-tag">WhatsApp</span></td><td class="prazo critico">08:30</td><td>Cupom de 1ª compra; uso do óleo</td><td class="acao-agente"><span class="mono">responder_duvida</span></td></tr>
+            <tr data-testid="fila-item"><td class="pos">15–19</td><td class="mono">5 conversas</td><td><span class="canal-tag">WhatsApp</span></td><td class="prazo critico">08:30</td><td>Só o bot falou: o cliente não escreveu</td><td class="acao-agente"><span class="mono">encerrar_conversa</span> sem ação, pela política</td></tr>
+
+            <!-- e-mail: 22 sem resposta (M5) − AT116480 = 21; próximo prazo AT116563 02/11 10:45 -->
+            <tr class="grupo"><td colspan="6">E-mail: mais 21 até 03/11 07:17</td></tr>
+            <tr data-testid="fila-item"><td class="pos">20</td><td class="mono">AT116563</td><td><span class="canal-tag">e-mail</span></td><td class="prazo">10:45</td><td>Incluir complemento no endereço</td><td class="acao-agente"><span class="mono">alterar_endereco</span>: ainda não separado</td></tr>
+
+            <!-- Reclame Aqui: 19 sem resposta (M5); primeiro prazo AT116501 02/11 20:04 -->
+            <tr class="grupo"><td colspan="6">Reclame Aqui: 19 sem resposta, prazo de 48 h, R$ 42 cada</td></tr>
+            <tr data-testid="fila-item"><td class="pos">32</td><td class="mono">AT116501</td><td><span class="canal-tag">Reclame Aqui</span></td><td class="prazo">20:04</td><td>Brinde da promoção não veio</td><td class="acao-agente">Resposta pública sem dado pessoal; <span class="mono">solicitar_foto</span> do que chegou</td></tr>
+
+            <tr class="grupo"><td colspan="6">Já respondidas, aguardando o cliente ou um retorno: 6</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fonte">Fonte: <span class="mono">docs/fila_aberta.csv</span> (65 linhas), <span class="mono">historico_mensagens.csv</span>, <span class="mono">pedidos.csv</span>; prazos e custos de <span class="mono">politicas.csv</span>; contagens de <span class="mono">baseline_metricas.md</span> M5. As linhas 21 a 31 e 33 a 59 seguem a mesma regra e foram recolhidas.</p>
+    </section>
+
+    <aside class="pilha" aria-label="Regras e decisões">
+      <section class="painel">
+        <div class="painel-in">
+          <h2>Por que esta ordem</h2>
+          <ol class="ciclo">
+            <li>O que já passou do prazo vem primeiro.</li>
+            <li>Depois, o que vence na próxima meia hora: WhatsApp aberto de madrugada conta 30 min a partir das 08h. Dentro desse bloco, o que precisa de uma pessoa sobe, para dar tempo à decisão.</li>
+            <li>Em seguida, prazo mais curto antes. No empate, o canal mais caro: Reclame Aqui custa R$ 42 e é público.</li>
+            <li>Conversa que já teve 1ª resposta vai para o fim, mas não sai da vista.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="decisao" aria-labelledby="t-time">
+        <h3 id="t-time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>O que sobra para o time às 08:30</h3>
+        <p>Das 18 conversas de WhatsApp, 3 esperam uma pessoa: duas aprovações acima da alçada e uma suspeita. O agente avisa no canal às 08:20.</p>
+        <div class="acoes">
+          <a class="btn primario" href="canal-do-time.html">Abrir no canal do time</a>
+          <button class="btn" type="button">Pegar a próxima conversa</button>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <nav class="proxima" aria-label="Sequência das telas">
+    <a href="index.html">← Mapa 360°</a>
+    <a href="jornada.html">Próxima: F2, um caso de ponta a ponta →</a>
+  </nav>
+</main>
+</body>
+</html>

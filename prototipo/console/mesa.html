@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mesa do colega · protótipo</title>
+  <meta name="description" content="Protótipo de UI/UX da mesa do agente de atendimento: fila das 08h, caso aberto, console dos sistemas e canal do time.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Montserrat:wght@600;700;800&display=swap">
+  <link rel="stylesheet" href="console.css">
+  <link rel="stylesheet" href="marca.css">
+</head>
+<body>
+<!--
+  Protótipo de UI/UX (sem backend). Os dados vêm de fila-dados.js, exportado de var/atendimento.db
+  (1ª rodada do agente sobre a fila das 08h, 02/11/2026) por .scratch/exporta_console.py, com CPF, cartão,
+  telefone e e-mail mascarados. Aprovar, rejeitar e registrar só mudam esta página: a regra de negócio
+  continua no backend (ADR-001). Referências marcadas PROTO no console não existem nos sistemas.
+-->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-agente" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></symbol>
+    <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+    <symbol id="i-email" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+    <symbol id="i-reclame_aqui" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></symbol>
+    <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-ok" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-boia" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="m4.93 4.93 4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M9.17 14.83l-4.24 4.24"/></symbol>
+    <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4M12 16h.01"/></symbol>
+    <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="i-cartao" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></symbol>
+    <symbol id="i-caminhao" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+    <symbol id="i-balao" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-hash" viewBox="0 0 24 24"><path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m6 3 14 9-14 9V3z"/></symbol>
+    <symbol id="i-seta" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-imagem" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></symbol>
+    <symbol id="i-voltar" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+    <symbol id="i-celular" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/></symbol>
+    <symbol id="i-mapa" viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15M9 3.236v15"/></symbol>
+    <symbol id="i-etiqueta" viewBox="0 0 24 24"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5"/></symbol>
+    <symbol id="i-pessoa" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol>
+    <symbol id="i-lei" viewBox="0 0 24 24"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10M12 3v18M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></symbol>
+  </defs>
+</svg>
+
+<header class="topo">
+  <a class="marca" href="mesa.html"><svg class="ico"><use href="#i-agente"/></svg>Colega de atendimento</a>
+  <nav class="nav" aria-label="Telas">
+    <a href="mesa.html" aria-current="page">Mesa</a>
+    <a href="aprovacao-celular.html"><svg class="ico"><use href="#i-celular"/></svg>Aprovação no celular</a>
+    <a href="../index.html"><svg class="ico"><use href="#i-mapa"/></svg>Mapa 360°</a>
+  </nav>
+  <div class="topo-dir">
+    <span class="proto-tag">Protótipo</span>
+    <button class="btn" type="button" id="recomecar" onclick="location.href='mesa.html'"><svg class="ico"><use href="#i-voltar"/></svg>Recomeçar</button>
+    <span>Agora <span class="mono" title="Agora no cenário: segunda, 02/11/2026, America/Sao_Paulo">02/11 08:24</span></span>
+    <label><span class="rotulo-voce">Você é</span>
+      <select id="identidade">
+        <option value="supervisor_01">Paula G. · supervisão</option>
+        <option value="supervisor_02">Roberto M. · supervisão</option>
+        <option value="supervisor_03">Cristiane L. · supervisão</option>
+        <option value="agente">Colega (o próprio agente)</option>
+      </select>
+    </label>
+  </div>
+</header>
+
+<section class="placar" id="placar" aria-label="Placar da fila"></section>
+
+<div class="mesa">
+  <section class="fila" aria-labelledby="t-fila">
+    <div class="fila-cabeca">
+      <h2 id="t-fila">Fila das 08h <small id="fila-total"></small></h2>
+      <div class="busca">
+        <svg class="ico"><use href="#i-busca"/></svg>
+        <label class="sr-only" for="busca">Buscar na fila</label>
+        <input id="busca" type="search" placeholder="Conversa, pedido ou marca" autocomplete="off">
+      </div>
+      <div class="segmentos" id="canais" role="group" aria-label="Filtrar por canal"></div>
+      <div class="filtro-ativo" id="filtro-ativo" hidden></div>
+    </div>
+    <ul class="lista rola" id="lista"></ul>
+  </section>
+
+  <div class="centro">
+    <article class="caso rola" id="caso" aria-live="polite"></article>
+    <section class="console" aria-labelledby="t-console">
+      <div class="console-cabeca">
+        <h2 id="t-console">Console dos sistemas</h2>
+        <small id="console-sub"></small>
+        <div class="segmentos" role="group" aria-label="Escopo do console">
+          <button type="button" data-escopo="caso" aria-pressed="true">Este caso</button>
+          <button type="button" data-escopo="tudo" aria-pressed="false">Tudo</button>
+        </div>
+      </div>
+      <div class="rola" style="flex:1;min-height:0">
+        <table>
+          <thead><tr><th>Hora</th><th>Conversa</th><th>Sistema</th><th>Ação</th><th class="num">Valor</th><th>Feito por</th><th>Aprovado por</th><th>Referência</th></tr></thead>
+          <tbody id="console"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <aside class="canal" aria-labelledby="t-canal">
+    <div class="canal-cabeca">
+      <h2 id="t-canal"><svg class="ico"><use href="#i-hash"/></svg>atendimento-ops</h2>
+      <p>Canal do time. O colega posta aqui quando precisa de alguém.</p>
+    </div>
+    <div class="canal-lista rola" id="canal"></div>
+    <div class="canal-compor"><div>Mensagem para #atendimento-ops</div></div>
+  </aside>
+</div>
+
+<script src="fila-dados.js"></script>
+<script src="mesa.js"></script>
+</body>
+</html>

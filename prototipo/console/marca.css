@@ -1,0 +1,138 @@
+/*
+ * Identidade Gocase / Gogroup aplicada ao protótipo.
+ * Cores amostradas das páginas oficiais (gocase.com.br e site do Gogroup, capturas de 07/11/2026):
+ *   azul Gocase (botão "Comprar")  #013C97     azul Gogroup (topo)       #0146B5
+ *   azul das faixas Gogroup        #2659A5     azul claro (CTA "Ver vagas") #3DBFEF
+ *   lima Gogroup                   #D7D902     coral (logo Gogroup / busca) #E8654A
+ *   verde "% OFF"                  #1F9D5B     rosa claro Gocase           #FBE4F1 / #FDF4F8
+ *   texto Gocase                   #2B2B38     marinho escuro              #0E1C4F
+ * Tipografia: Montserrat nos títulos, rótulos e botões (geometria próxima dos títulos do Gogroup);
+ * IBM Plex Sans no texto corrido e IBM Plex Mono nos dados de sistema, como no DESIGN.md.
+ * Carregado DEPOIS de console.css; a página fixa data-theme="light" (uso em projetor).
+ */
+:root {
+  --font-display: "Montserrat", var(--font-sans);
+
+  --gc-azul: #013c97;
+  --gc-azul-forte: #012a6e;
+  --gg-azul: #0146b5;
+  --gg-faixa: #2659a5;
+  --gg-ceu: #3dbfef;
+  --gg-lima: #d7d902;
+  --gg-coral: #e8654a;
+  --gc-verde: #1f9d5b;
+  --gc-rosa: #fbe4f1;
+  --gc-marinho: #0e1c4f;
+
+  --color-bg: #f6f4f7;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f1f2f7;
+  --color-border: #dfe1e8;
+  --color-border-strong: #b9bcc8;
+  --color-text: #2b2b38;
+  --color-text-muted: #5f5e6b;
+  --color-accent: var(--gc-azul);
+  --color-accent-strong: var(--gc-azul-forte);
+  --color-on-accent: #ffffff;
+  --color-focus: var(--gg-ceu);
+
+  /* Estados: mesma semântica, tons puxados da marca. Texto sempre com contraste AA sobre o fundo. */
+  --color-aberta: #4a4d63;        --color-aberta-bg: #eceef4;
+  --color-resolvida: #13703f;     --color-resolvida-bg: #e1f4e8;   /* verde "% OFF" */
+  --color-aprovacao: #855400;     --color-aprovacao-bg: #fff1c7;
+  --color-suspeita: #b23a22;      --color-suspeita-bg: #fde8e2;    /* coral escurecido */
+  --color-escalada: #9b2167;      --color-escalada-bg: var(--gc-rosa); /* rosa Gocase */
+
+  /* Canal do time: marinho Gocase */
+  --color-canal-bg: var(--gc-marinho);
+  --color-canal-surface: #182a66;
+  --color-canal-text: #f4f6fc;
+  --color-canal-muted: #b4bddb;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --shadow-1: 0 1px 2px rgb(14 28 79 / .08), 0 4px 12px rgb(14 28 79 / .06);
+  color-scheme: light;
+}
+
+::selection { background: #cdeffc; color: var(--color-text); }
+
+h1, h2, h3, .marca, .btn, .selo, .placar-num span, .segmentos button, .nav a, .bloco-titulo, .post-autor, .desfecho h2, .passos summary, .proto-tag, .lista-grupo, .forca {
+  font-family: var(--font-display);
+}
+h1, h2, h3 { letter-spacing: -0.01em; }
+
+/* Topo no azul do Gogroup, item ativo em lima (como o botão "Ver vagas" do rodapé) */
+.topo { background: var(--gg-azul); border-bottom: 0; color: #fff; }
+.marca { color: #fff; font-weight: 800; letter-spacing: -0.02em; }
+.marca .ico { color: var(--gg-lima); }
+.nav a { color: #dce6ff; }
+.nav a:hover { background: rgb(255 255 255 / .12); color: #fff; }
+.nav a[aria-current="page"] { background: var(--gg-lima); color: var(--gc-marinho); font-weight: 700; }
+.topo-dir { color: #dce6ff; }
+.topo-dir .mono { color: #fff; }
+.topo-dir select { border-color: rgb(255 255 255 / .4); background: rgb(255 255 255 / .1); color: #fff; }
+.topo-dir select option { color: var(--color-text); }
+.topo .btn { background: transparent; color: #fff; border-color: rgb(255 255 255 / .45); }
+.topo .btn:hover { background: rgb(255 255 255 / .12); border-color: #fff; }
+.proto-tag { background: #c4452b; color: #fff; border-radius: 999px; padding: 2px 10px; }
+:focus-visible { outline-color: var(--gg-ceu); }
+.topo :focus-visible { outline-color: var(--gg-lima); }
+
+/* Botões como o "Comprar" da Gocase */
+.btn { border-radius: 10px; font-weight: 700; }
+.btn-pri { background: var(--gc-azul); border-color: var(--gc-azul); }
+.btn-pri:hover { background: var(--gc-azul-forte); border-color: var(--gc-azul-forte); }
+.btn-link { font-weight: 600; }
+
+/* Abas em pílula, ativa preenchida, como "Favoritos / Tote Bags" no site */
+.segmentos { background: transparent; padding: 0; gap: 6px; }
+.segmentos button { border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-surface); color: var(--color-text); font-weight: 600; }
+.segmentos button:hover { border-color: var(--gc-azul); }
+.segmentos button[aria-pressed="true"] { background: var(--gc-azul); border-color: var(--gc-azul); color: #fff; box-shadow: none; }
+
+/* Placar */
+.placar-num b { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; }
+.placar-num[aria-pressed="true"] { border-width: 2px; }
+.placar-num.valor b { color: var(--gc-azul); }
+.placar .btn-pri { border-radius: 999px; }
+.alerta-sla { color: var(--color-suspeita); }
+
+/* Fila e caso */
+.item[aria-current="true"] { border-color: var(--gc-azul); background: #eef3fd; }
+.caso-cabeca h1 { font-family: var(--font-display); font-weight: 800; }
+.selo { border-radius: 999px; }
+.agente-marca, .avatar { background: var(--gg-azul); }
+.agente-marca .ico, .avatar .ico { color: var(--gg-lima); }
+.ref { color: var(--gc-azul); }
+.ref:hover { border-color: var(--gc-azul); }
+.msg.saida .msg-texto { border-color: var(--gc-azul); }
+.cartao, .passos { border-radius: var(--radius-md); }
+.alcada-barra i { background: #e5a300; }
+.alcada-barra i.ok { background: var(--gc-verde); }
+.console tr.marcada td { background: #eaf7fd; }
+@keyframes realce { from { background: #f4f5b0; } to { background: transparent; } }
+
+/* Canal do time em marinho, ação principal em lima */
+.canal-cabeca h2 .ico { color: var(--gg-lima); }
+.bloco { border-radius: var(--radius-md); }
+.bloco .btn-pri, .tel .btn-pri { background: var(--gg-lima); border-color: var(--gg-lima); color: var(--gc-marinho); }
+.bloco .btn-pri:hover, .tel .btn-pri:hover { background: #e6e83a; border-color: #e6e83a; }
+.bloco .btn-link, .post-texto .mencao { color: var(--gg-ceu); }
+.bloco.foco { outline-color: var(--gg-lima); }
+@keyframes realce-escuro { from { background: #24408a; } to { background: transparent; } }
+.canal .selo.e-aguardando_aprovacao { --c: #2b2100; --bg: #f2c94c; }
+.canal .selo.e-suspeita { --c: #fff; --bg: #c4452b; }
+.canal .selo.e-escalada { --c: #fff; --bg: #b0307a; }
+.canal .selo.e-resolvida { --c: #fff; --bg: #1a7a48; }
+.canal .selo.e-aberta { --c: #fff; --bg: #3a4a7e; }
+
+/* Telas de celular */
+.tel { border-color: #0a1438; }
+.tel .alcada-barra i { background: #f2c94c; }
+.nao-lidas { background: var(--gg-lima); color: var(--gc-marinho); }
+.ok-grande { background: var(--gc-verde); }
+.aviso-barra { background: rgb(242 201 76 / .16); border-color: rgb(242 201 76 / .5); }
+.aviso-barra .ico { color: #f2c94c; }
+.valor-grande { font-family: var(--font-display); font-weight: 800; }
+.quadro-cabeca h1 { color: var(--gg-faixa); font-family: var(--font-display); font-weight: 800; }

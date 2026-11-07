@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Canal do time</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="proto.css">
+</head>
+<body>
+<!--
+  Protótipo 360° (W6). Canal do time: estilo de chat de equipe, SEM logo ou cores de terceiros (DESIGN.md).
+  Estático: os botões não disparam nada. Casos são conversas reais da fila (docs/fila_aberta.csv).
+  Clientes: só primeiro nome + inicial. Colaboradores: primeiro nome + inicial + id de equipe_atendimento.csv.
+-->
+<header class="topo">
+  <div class="topo-in">
+    <a class="marca" href="index.html">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg>
+      Colega de atendimento
+    </a>
+    <nav class="nav" aria-label="Telas do protótipo">
+      <a href="index.html">Mapa 360°</a>
+      <a href="triagem.html">F1 Triagem</a>
+      <a href="jornada.html">F2 Jornada</a>
+      <a href="canal-do-time.html" aria-current="page">F3 + F4 Canal do time</a>
+      <a href="prevencao.html">F5 Prevenção</a>
+    </nav>
+    <div class="agora"><span class="selo-proto">Protótipo, não funcional</span><span>Agora <span class="mono" title="Agora no cenário: segunda, 02/11/2026, America/Sao_Paulo">02/11 08:24</span></span></div>
+  </div>
+</header>
+
+<main>
+  <div class="cabeca">
+    <div>
+      <h1>O agente mora no canal onde o time já conversa</h1>
+      <p class="lede">Ele avisa antes de o prazo estourar, pede aprovação com a evidência na mesma mensagem, levanta a mão quando a reclamação não fecha e responde quem é de outra área sem abrir exceção à política.</p>
+    </div>
+    <span class="estado escalada">F3 + F4: frentes da PoC</span>
+  </div>
+
+  <div class="canal-wrap">
+    <aside class="canal-lado" aria-label="Canais">
+      <h2>Atendimento Go</h2>
+      <p class="grupo">Canais</p>
+      <a href="#" class="ativo"># atendimento-ops</a>
+      <a href="#" class="nao-lido"># logistica</a>
+      <a href="#"># qualidade</a>
+      <a href="#"># financeiro</a>
+      <p class="grupo">Mensagens diretas</p>
+      <a href="#">Colega de atendimento</a>
+      <a href="#">Paula G. · supervisão</a>
+      <a href="#">Roberto M. · supervisão</a>
+    </aside>
+
+    <section class="canal" aria-label="Canal #atendimento-ops">
+      <div class="canal-topo">
+        <h2># atendimento-ops</h2>
+        <p>Supervisão, atendentes e o agente. Turno das 08h.</p>
+      </div>
+
+      <div class="msgs">
+        <div class="separador-dia">Segunda, 02 de novembro</div>
+
+        <!-- 08:00 · início do turno -->
+        <!-- fonte: docs/fila_aberta.csv (65 linhas; canal); ingestao/baseline_metricas.md M5 (1 e-mail já fora do SLA de 24 h = AT116480, aberto 31/10 15:58) -->
+        <article class="msg" data-testid="canal-msg">
+          <div class="avatar agente" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg></div>
+          <div>
+            <div class="msg-cab"><strong>Colega de atendimento</strong><span class="bot">agente</span><span class="hora">08:00</span></div>
+            <div class="msg-corpo">
+              <p>Bom dia, time. Peguei a fila: <strong>65 conversas</strong> (19 WhatsApp, 22 e-mail, 24 Reclame Aqui). Um e-mail já passou das 24 h, o <span class="mono">AT116480</span>, e vai primeiro. Hoje é feriado nacional: prazos de transportadora não contam o dia.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- 08:06 · pedido de aprovação (HP-10, HG-05) -->
+        <!-- fonte: fila_aberta AT116703 (CH811700, GCH551605); pedidos.csv GCH551605 valor 219.90, Expressa Já, PE, data_prometida 2026-10-16, personalizacao iniciais;
+             rastreio_portais_transportadoras: último evento 2026-10-24 06:37 chegada_unidade_destino "unidade PE";
+             atraso 16/10 → 02/11 = 10 dias úteis (feriados de politicas.prazos_entrega.feriados_nacionais) > 7 → atraso_entrega.regra: reenviar ou reembolsar;
+             limite: politicas.limites_por_papel atendente.reenvio_ou_reimpressao_max_rs 200 e reembolso_max_rs 100; supervisor_01 turno 08h-20h (equipe_atendimento.csv) -->
+        <article class="msg" data-testid="canal-msg">
+          <div class="avatar agente" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg></div>
+          <div>
+            <div class="msg-cab"><strong>Colega de atendimento</strong><span class="bot">agente</span><span class="hora">08:06</span></div>
+            <div class="msg-corpo">
+              <p><strong>@Paula G.</strong>, preciso da sua aprovação: reenvio de <span class="mono">R$ 219,90</span>, acima do meu limite de <span class="mono">R$ 200</span>.</p>
+              <div class="bloco">
+                <dl>
+                  <dt>Conversa</dt><dd><span class="mono">AT116703</span> · WhatsApp · Gocase · Larissa R.</dd>
+                  <dt>Pedido</dt><dd><span class="mono">GCH551605</span> · capa personalizada com iniciais · Caruaru (PE)</dd>
+                  <dt>Por quê</dt><dd>Prometido para <span class="mono">16/10</span>. No portal da Expressa Já, o último evento é a chegada à unidade PE em <span class="mono">24/10</span>, sem nada depois. São 10 dias úteis de atraso; a política manda reenviar ou reembolsar, à escolha da cliente.</dd>
+                  <dt>Já fiz</dt><dd>Abri chamado com a transportadora e avisei a cliente que o caso está com a supervisão.</dd>
+                  <dt>Proposta</dt><dd><span class="mono">reenviar_produto</span> com nova produção das iniciais. Se ela preferir o dinheiro, o reembolso também passa do meu limite de <span class="mono">R$ 100</span>.</dd>
+                </dl>
+              </div>
+              <div class="acoes" aria-label="Decisão (já tomada)">
+                <span class="estado resolvida">Aprovado por Paula G. às 08:11</span>
+              </div>
+              <p class="fio">2 respostas · Feito: reenvio registrado no OMS com o id da aprovação, cliente avisada.</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- 08:09 · suspeita com evidência (F3; HG-04, HG-07, HG-22) -->
+        <!-- fonte: fila_aberta AT116682 (CH197813, GBH464417); pedidos.csv GBH464417 valor 139.80, entregue 2026-10-21, inclui Brinde Necessaire GoBeauté;
+             trocas_reenvios OMS000599 (conversa AT115694): reenvio do brinde GBT-9001, entregue 2026-10-29;
+             anexos_conversas IMG000330 (AT115694): exif_software "Editor de Fotos do Galaxy";
+             custo de aceitar o falso = 45% × 139,80 = R$ 62,91; custo de sinalizar = R$ 6 (docs/parametros.md); decisão do supervisor em até 24 h (politicas.reclamacao_suspeita.prazo_decisao_horas) -->
+        <article class="msg" data-testid="canal-msg">
+          <div class="avatar agente" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg></div>
+          <div>
+            <div class="msg-cab"><strong>Colega de atendimento</strong><span class="bot">agente</span><span class="hora">08:09</span></div>
+            <div class="msg-corpo">
+              <p><span class="estado suspeita">Suspeita</span> Segurei um reenvio que a evidência não sustenta. Não neguei nada: a decisão é da supervisão.</p>
+              <div class="bloco">
+                <dl>
+                  <dt>Conversa</dt><dd><span class="mono">AT116682</span> · WhatsApp · Auá · Gisele C.</dd>
+                  <dt>Pedido</dt><dd><span class="mono">GBH464417</span> · <span class="mono">R$ 139,80</span> · entregue em <span class="mono">21/10</span></dd>
+                  <dt>Pedido do cliente</dt><dd>Reenviar a necessaire de brinde que faltou; diz que é a 2ª vez.</dd>
+                </dl>
+                <p style="margin-top: var(--space-3)"><strong>O que não fecha</strong></p>
+                <ul>
+                  <li>O mesmo brinde já foi reenviado: <span class="mono">OMS000599</span>, aberto em 26/10, entregue em <span class="mono">29/10</span>.</li>
+                  <li>A foto daquela reclamação (<span class="mono">IMG000330</span>) passou por editor de imagem, segundo os metadados.</li>
+                  <li>Aceitar se não proceder custa <span class="mono">R$ 62,91</span>; olhar o caso custa <span class="mono">R$ 6</span>.</li>
+                </ul>
+              </div>
+              <p>Para a cliente eu disse só que a solicitação está em análise. Prazo para decidir: <span class="mono">03/11 08:09</span>.</p>
+              <div class="acoes">
+                <button class="btn primario" type="button">Procede: reenviar</button>
+                <button class="btn perigo" type="button">Não procede</button>
+                <button class="btn" type="button">Pedir nova foto</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 08:14 · reação adversa: levantar a mão (HG-06, acionar_pessoa) -->
+        <!-- fonte: fila_aberta AT116568 (Reclame Aqui, aberto 2026-11-01 11:02:29, GBH471000); itens_pedido GBH471000-1 RTU-5007 Greens Superfood Maçã Verde 200g, lote LT2609-D;
+             politicas.categorias.reacao_adversa: orientar_suspensao_uso + registrar_cosmetovigilancia em até 24 h; supervisor.registra_cosmetovigilancia; supervisor_02 turno 08h-17h -->
+        <article class="msg" data-testid="canal-msg">
+          <div class="avatar agente" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg></div>
+          <div>
+            <div class="msg-cab"><strong>Colega de atendimento</strong><span class="bot">agente</span><span class="hora">08:14</span></div>
+            <div class="msg-corpo">
+              <p><span class="estado escalada">Escalada</span> <strong>@Roberto M.</strong>, reação adversa no Reclame Aqui: rosto inchado depois de começar o Greens Superfood (<span class="mono">AT116568</span>, pedido <span class="mono">GBH471000</span>, lote <span class="mono">LT2609-D</span>).</p>
+              <p>Já orientei a cliente a suspender o uso. O registro de cosmetovigilância é seu e vence hoje às <span class="mono">11:02</span>, 24 h depois da mensagem. A troca que ela pediu não substitui o registro.</p>
+              <div class="acoes">
+                <button class="btn primario" type="button">Registrar cosmetovigilância</button>
+                <button class="btn" type="button">Assumir o caso</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 08:20 · aviso proativo de SLA, 10 min antes (HG-20; Q9) -->
+        <!-- fonte: M5 (18 WhatsApp sem 1ª resposta humana; SLA 30 min contando só horário comercial → vencem 08:30);
+             AT116677 / GBH491723: pagamentos_gateway TRX00005946 boleto paga R$ 118,80 + TRX00005947 cartão capturada R$ 118,80, sem estorno (EC-24) -->
+        <article class="msg" data-testid="canal-msg">
+          <div class="avatar agente" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg></div>
+          <div>
+            <div class="msg-cab"><strong>Colega de atendimento</strong><span class="bot">agente</span><span class="hora">08:20</span></div>
+            <div class="msg-corpo">
+              <p><span class="estado aprovacao">SLA em 10 min</span> Às <span class="mono">08:30</span> vence o prazo de 30 min das <strong>18 conversas de WhatsApp</strong> que chegaram de madrugada. O que cabe na minha alçada já tem resposta. Estas duas esperam alguém do time:</p>
+              <div class="bloco">
+                <ul style="margin-top: 0">
+                  <li><span class="mono">AT116682</span> · suspeita acima, aguardando supervisão.</li>
+                  <li><span class="mono">AT116677</span> · cobrança em dobro no pedido <span class="mono">GBH491723</span>: boleto pago e cartão capturado, <span class="mono">R$ 118,80</span> cada. O estorno passa do meu limite de <span class="mono">R$ 100</span>.</li>
+                </ul>
+              </div>
+              <div class="acoes">
+                <button class="btn primario" type="button">Aprovar estorno de R$ 118,80</button>
+                <button class="btn" type="button">Assumir AT116677</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 08:23 · pedido de colaborador (HG-10, responder_colaborador) -->
+        <!-- Cenário HG-10 de REQUISITOS.md, ilustrado com um caso real da fila. O pedido do colaborador é exemplo (o ambiente entrega esses pedidos ao longo da semana: docs/parametros.md).
+             fonte: fila_aberta AT116559 (Reclame Aqui, GBH466364); pedidos.csv GBH466364 valor 249.90, ViaLog SP, data_prometida 2026-10-21;
+             rastreio: último evento 2026-10-30 20:39 chegada_unidade_destino "unidade SP" -->
+        <article class="msg" data-testid="canal-msg">
+          <div class="avatar" aria-hidden="true">CO</div>
+          <div>
+            <div class="msg-cab"><strong>Pessoa do comercial</strong><span class="hora">08:23</span></div>
+            <div class="msg-corpo">
+              <p>Agente, faz o reembolso integral do <span class="mono">GBH466364</span>? O cliente reclamou no Reclame Aqui e o pedido é de R$ 249,90. Quero resolver hoje.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="msg" data-testid="canal-msg">
+          <div class="avatar agente" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg></div>
+          <div>
+            <div class="msg-cab"><strong>Colega de atendimento</strong><span class="bot">agente</span><span class="hora">08:24</span></div>
+            <div class="msg-corpo">
+              <p>Consigo adiantar, mas não executar sozinho: reembolso acima de <span class="mono">R$ 100</span> precisa de supervisor, mesmo a pedido de outra área. Abri o pedido de aprovação para <strong>@Paula G.</strong> com o caso <span class="mono">AT116559</span>.</p>
+              <p>Enquanto isso, o pacote chegou à unidade SP da ViaLog em <span class="mono">30/10</span> e o prazo era <span class="mono">21/10</span>. Ofereço ao cliente reenvio ou reembolso assim que a aprovação sair.</p>
+              <div class="acoes"><span class="estado aprovacao">Aguardando aprovação</span></div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="canal-entrada" aria-hidden="true">Mensagem para #atendimento-ops</div>
+    </section>
+
+    <aside class="anotacoes" aria-labelledby="t-notas">
+      <h2 id="t-notas">O que a banca vê aqui</h2>
+      <ol>
+        <li><strong>Aprovação com a evidência junto</strong>O supervisor decide pelo próprio canal, sem abrir outro sistema. Depois do sim, o agente executa e confirma. <span class="ref">HP-10 · HG-05</span></li>
+        <li><strong>Suspeita sem acusação</strong>Fatos verificáveis, custo dos dois erros e prazo. Quem sinalizou não decide. <span class="ref">F3 · HG-04 · HG-07 · HG-22</span></li>
+        <li><strong>Caso sensível vai para a pessoa certa</strong>Reação adversa: suspensão já orientada, registro com o supervisor do turno. <span class="ref">HG-06</span></li>
+        <li><strong>Aviso antes de estourar</strong>O agente fala sem ser chamado, 10 min antes do SLA, e diz de quem espera o quê. <span class="ref">HG-20 · EC-24</span></li>
+        <li><strong>Pedido de colega não muda a regra</strong>Outra área pede, o agente ajuda dentro da política e abre a aprovação. <span class="ref">HG-10</span></li>
+      </ol>
+      <p class="fonte">Casos reais de <span class="mono">docs/fila_aberta.csv</span>. Valores de <span class="mono">pedidos.csv</span> e <span class="mono">pagamentos_gateway.csv</span>; limites e prazos de <span class="mono">politicas.csv</span>; custos de <span class="mono">parametros.md</span>. O pedido do comercial é exemplo do cenário HG-10.</p>
+    </aside>
+  </div>
+
+  <nav class="proxima" aria-label="Sequência das telas">
+    <a href="jornada.html">← F2, um caso de ponta a ponta</a>
+    <a href="prevencao.html">Próxima: F5, prevenção →</a>
+  </nav>
+</main>
+</body>
+</html>

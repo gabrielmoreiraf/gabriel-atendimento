@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prevenção de recontato</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="proto.css">
+</head>
+<body>
+<!--
+  Protótipo 360° (W6). F5 Prevenção de recontato: padrão → incidente → aviso proativo (HG-17, HG-19, HG-23; anti-requisito N4).
+  Consulta reproduzível (python3 -I sobre docs/):
+    pedidos.status_entrega = em_transito, data_hora_pedido < 2026-11-02 08:00, transportadora = Expressa Já;
+    último evento em rastreio_portais_transportadoras.data_hora_evento há >= 3 dias úteis de 02/11
+    (dias úteis sem sáb/dom e sem politicas.prazos_entrega.feriados_nacionais; limiar de 3 d.u. = politicas.categorias.onde_esta_pedido.regra).
+  Resultado: BA 23 de 55, PE 18 de 44, CE 4 de 31, PB 3 de 14, RN 2 de 14. BA+PE = 41 pedidos, R$ 4.628,19 (pedidos.valor).
+-->
+<header class="topo">
+  <div class="topo-in">
+    <a class="marca" href="index.html">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg>
+      Colega de atendimento
+    </a>
+    <nav class="nav" aria-label="Telas do protótipo">
+      <a href="index.html">Mapa 360°</a>
+      <a href="triagem.html">F1 Triagem</a>
+      <a href="jornada.html">F2 Jornada</a>
+      <a href="canal-do-time.html">F3 + F4 Canal do time</a>
+      <a href="prevencao.html" aria-current="page">F5 Prevenção</a>
+    </nav>
+    <div class="agora"><span class="selo-proto">Protótipo, não funcional</span><span>Agora <span class="mono" title="Agora no cenário: segunda, 02/11/2026, America/Sao_Paulo">02/11 08:30</span></span></div>
+  </div>
+</header>
+
+<main>
+  <div class="cabeca">
+    <div>
+      <h1><span class="frente">F5</span> Quatro conversas parecidas viram um incidente e 41 avisos</h1>
+      <p class="lede">O agente de atendimento percebe que a fila repete a mesma causa e passa o caso ao agente analista. O analista mede o escopo, abre o incidente e prepara o aviso aos clientes antes que eles escrevam. Quem libera o envio é uma pessoa.</p>
+    </div>
+  </div>
+
+  <div class="duas">
+    <section aria-labelledby="t-fluxo">
+      <h2 id="t-fluxo">Do padrão ao aviso</h2>
+      <ol class="passos">
+        <!-- fonte: fila_aberta.csv × pedidos.csv (Expressa Já, UF BA/PE) × rastreio parado; as 4 conversas estão no conjunto de 41 -->
+        <li>
+          <span class="marco" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg></span>
+          <div>
+            <div class="passo-cab"><h3>O agente de atendimento vê a repetição</h3><span class="quem agente">agente de atendimento</span><span class="hora">08:12</span></div>
+            <div class="passo-corpo">
+              <p>Quatro conversas da fila de hoje falam de pedidos da Expressa Já na Bahia e em Pernambuco sem movimento no portal há 3 dias úteis ou mais: <span class="mono">AT116160</span>, <span class="mono">AT116507</span>, <span class="mono">AT116538</span>, <span class="mono">AT116703</span>.</p>
+              <p class="muted">Ele continua tratando cada uma, mas não fica nisso: a causa é da transportadora, não do cliente.</p>
+            </div>
+          </div>
+        </li>
+
+        <!-- HG-19: handoff entre agentes, cada um com as ferramentas do próprio papel (ferramentas.csv papeis_permitidos) -->
+        <li>
+          <span class="marco" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h14M13 6l6 6-6 6"/></svg></span>
+          <div>
+            <div class="passo-cab"><h3>Passa o caso ao agente analista</h3><span class="sistema">P4 · HG-19</span><span class="hora">08:12</span></div>
+            <div class="passo-corpo">
+              <div class="registro">handoff → agente_analista
+fator_comum   transportadora = "Expressa Já"; uf ∈ {BA, PE}
+sinal         último evento no portal há ≥ 3 dias úteis
+conversas     AT116160  AT116507  AT116538  AT116703
+pedidos       GBH473217 GBH469698 GBH454865 GCH551605
+permissões    as do papel analista; nada herdado do atendente</div>
+            </div>
+          </div>
+        </li>
+
+        <!-- fonte: consulta descrita no comentário do topo; chamados_transportadora.order_id; historico_conversas.order_id -->
+        <li>
+          <span class="marco" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg></span>
+          <div>
+            <div class="passo-cab"><h3>O analista mede o escopo</h3><span class="quem agente">agente analista</span><span class="sistema">buscar_conversas</span><span class="sistema">portal Expressa Já</span></div>
+            <div class="passo-corpo">
+              <p><strong>41 de 99</strong> pedidos da Expressa Já em trânsito para BA e PE estão parados. 22 pararam no centro de distribuição da transportadora e 19 chegaram à unidade de destino e não saíram para entrega.</p>
+              <p>20 desses pedidos já geraram conversa antes e 17 já têm chamado com a transportadora. Avisar um a um, quando o cliente escreve, é o recontato que F5 quer cortar.</p>
+            </div>
+          </div>
+        </li>
+
+        <!-- ferramentas.csv: abrir_incidente (analista), parâmetros tipo*, escopo*, evidencias* -->
+        <li>
+          <span class="marco" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg></span>
+          <div>
+            <div class="passo-cab"><h3>Abre o incidente</h3><span class="quem agente">agente analista</span><span class="sistema">abrir_incidente</span><span class="hora">08:15</span></div>
+            <div class="passo-corpo">
+              <div class="registro">tipo        transportadora/UF
+escopo      Expressa Já · BA (23 pedidos) · PE (18 pedidos)
+evidencias  último evento por pedido no portal; 4 conversas da fila;
+            17 chamados já abertos; valor em trânsito R$ 4.628,19
+acionar     logística, pelo #logistica</div>
+            </div>
+          </div>
+        </li>
+
+        <!-- Decisão humana: politicas.limites_por_papel.analista.*; turno analistas 09h-18h (equipe_atendimento.csv) -->
+        <li>
+          <span class="marco pessoa" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span>
+          <div>
+            <div class="passo-cab"><h3>Uma pessoa libera o aviso</h3><span class="quem pessoa">analista do turno</span><span class="hora">a partir das 09:00</span></div>
+            <div class="passo-corpo">
+              <div class="decisao">
+                <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Marcelo T., confira o escopo antes do envio</h3>
+                <p>Os analistas entram às 09h. Até lá o incidente fica aberto e os chamados seguem; nenhum aviso sai sem essa validação.</p>
+                <p><strong>41 avisos</strong> cabem no limite de <span class="mono">300</span> por dia. Os 41 clientes aceitam contato por pelo menos um canal: 38 por WhatsApp e 35 por e-mail. Ninguém fica de fora por falta de consentimento.</p>
+                <div class="acoes">
+                  <button class="btn primario" type="button">Validar e enviar 41 avisos</button>
+                  <button class="btn" type="button">Reduzir o escopo</button>
+                  <button class="btn perigo" type="button">Não enviar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <!-- ferramentas.csv: notificar_clientes (analista), max_por_dia 300; HG-23 consentimento: clientes.aceita_comunicacao_whatsapp / _email -->
+        <li>
+          <span class="marco espera" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg></span>
+          <div>
+            <div class="passo-cab"><h3>Aviso proativo, no canal que o cliente aceitou</h3><span class="sistema">notificar_clientes</span><span class="estado aberta">depois da validação</span></div>
+            <div class="passo-corpo">
+              <blockquote class="citacao">
+                <p>Oi, Bruna. Seu pedido GBH4…217 está parado na Expressa Já desde a última atualização do rastreio. Já cobramos a transportadora e voltamos a falar com você assim que ela responder. Você não precisa abrir outro atendimento.</p>
+                <footer>Prévia para <span class="mono">AT116160</span> · WhatsApp · número do pedido parcial, sem CPF, telefone ou endereço</footer>
+              </blockquote>
+            </div>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <aside class="pilha" aria-label="Evidência e outros padrões">
+      <section class="painel">
+        <div class="painel-in">
+          <h2>Expressa Já: pedidos em trânsito parados</h2>
+          <!-- fonte: consulta do comentário do topo (pedidos.csv × rastreio_portais_transportadoras.csv) -->
+          <div class="barra-uf"><span>Bahia</span><span class="trilho" role="img" aria-label="23 de 55 parados"><span class="parado" style="width: 41.8%"></span></span><span class="num">23 de 55</span></div>
+          <div class="barra-uf"><span>Pernambuco</span><span class="trilho" role="img" aria-label="18 de 44 parados"><span class="parado" style="width: 40.9%"></span></span><span class="num">18 de 44</span></div>
+          <div class="barra-uf"><span>Ceará</span><span class="trilho" role="img" aria-label="4 de 31 parados"><span class="parado" style="width: 12.9%"></span></span><span class="num">4 de 31</span></div>
+          <div class="barra-uf"><span>Paraíba</span><span class="trilho" role="img" aria-label="3 de 14 parados"><span class="parado" style="width: 21.4%"></span></span><span class="num">3 de 14</span></div>
+          <div class="barra-uf"><span>Rio G. do Norte</span><span class="trilho" role="img" aria-label="2 de 14 parados"><span class="parado" style="width: 14.3%"></span></span><span class="num">2 de 14</span></div>
+          <p class="fonte">Vermelho: último evento no portal há 3 dias úteis ou mais. Em BA e PE, perto de 4 em cada 10 pedidos estão parados; o incidente cobre só essas duas UFs. Fonte: <span class="mono">pedidos.csv</span>, <span class="mono">rastreio_portais_transportadoras.csv</span>.</p>
+        </div>
+      </section>
+
+      <section class="painel">
+        <div class="painel-in">
+          <h2>Outros padrões que seguem o mesmo fluxo</h2>
+          <ul class="lista-padroes">
+            <!-- fonte: M7 e M11 (pagamentos_gateway por order_id) -->
+            <li>
+              <span><strong>Cobrança em dobro no gateway</strong></span>
+              <span class="n">12</span>
+              <span class="muted">pedidos com duas cobranças e nenhum estorno. Até R$ 100 (6 casos) o agente estorna sozinho; acima (6 casos) pede aprovação.</span>
+            </li>
+            <!-- fonte: M4 (historico_conversas por customer_id + order_id) -->
+            <li>
+              <span><strong>Pedido que volta à fila</strong></span>
+              <span class="n">13</span>
+              <span class="muted">das 65 conversas de hoje são sobre um pedido que já teve conversa. No histórico, 453 pares cliente e pedido somam 982 conversas.</span>
+            </li>
+          </ul>
+          <p class="fonte">Fonte: <span class="mono">ingestao/baseline_metricas.md</span> M4, M7, M11. Máquina de personalização e lote de produção usam o mesmo caminho e não foram desenhados aqui.</p>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <nav class="proxima" aria-label="Sequência das telas">
+    <a href="canal-do-time.html">← F3 + F4, canal do time</a>
+    <a href="index.html">Voltar ao mapa 360° →</a>
+  </nav>
+</main>
+</body>
+</html>

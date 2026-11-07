@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FIO, o colega de atendimento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Valores copiados de tokens.css (raiz) para o deck abrir sozinho, sem servidor. */
+:root {
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --color-bg: oklch(0.975 0.004 85);
+  --color-surface: oklch(1 0 0);
+  --color-surface-sunken: oklch(0.955 0.006 85);
+  --color-border: oklch(0.86 0.008 85);
+  --color-border-strong: oklch(0.7 0.01 85);
+  --color-text: oklch(0.2 0.015 260);
+  --color-text-muted: oklch(0.42 0.015 260);
+  --color-accent: oklch(0.45 0.13 250);
+  --color-accent-strong: oklch(0.38 0.14 250);
+  --color-on-accent: oklch(0.99 0 0);
+  --color-focus: oklch(0.6 0.17 250);
+  --color-resolvida: oklch(0.42 0.12 150);
+  --color-resolvida-bg: oklch(0.94 0.05 150);
+  --color-aprovacao: oklch(0.45 0.11 70);
+  --color-aprovacao-bg: oklch(0.95 0.06 85);
+  --color-suspeita: oklch(0.47 0.17 25);
+  --color-suspeita-bg: oklch(0.94 0.04 25);
+  --color-escalada: oklch(0.44 0.14 300);
+  --color-escalada-bg: oklch(0.94 0.035 300);
+  --color-canal-bg: oklch(0.23 0.03 265);
+  --color-canal-surface: oklch(0.28 0.035 265);
+  --color-canal-text: oklch(0.95 0.01 265);
+  --color-canal-muted: oklch(0.78 0.02 265);
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: oklch(0.18 0.012 260);
+    --color-surface: oklch(0.22 0.014 260);
+    --color-surface-sunken: oklch(0.16 0.012 260);
+    --color-border: oklch(0.32 0.015 260);
+    --color-border-strong: oklch(0.45 0.015 260);
+    --color-text: oklch(0.95 0.005 260);
+    --color-text-muted: oklch(0.76 0.012 260);
+    --color-accent: oklch(0.72 0.12 250);
+    --color-accent-strong: oklch(0.8 0.1 250);
+    --color-on-accent: oklch(0.16 0.02 260);
+    --color-resolvida: oklch(0.8 0.13 150);
+    --color-resolvida-bg: oklch(0.3 0.05 150);
+    --color-aprovacao: oklch(0.84 0.12 80);
+    --color-aprovacao-bg: oklch(0.32 0.05 80);
+    --color-suspeita: oklch(0.8 0.12 25);
+    --color-suspeita-bg: oklch(0.32 0.07 25);
+    --color-escalada: oklch(0.82 0.1 300);
+    --color-escalada-bg: oklch(0.31 0.06 300);
+    --color-canal-bg: oklch(0.14 0.02 265);
+    --color-canal-surface: oklch(0.2 0.025 265);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --color-bg: oklch(0.18 0.012 260);
+  --color-surface: oklch(0.22 0.014 260);
+  --color-surface-sunken: oklch(0.16 0.012 260);
+  --color-border: oklch(0.32 0.015 260);
+  --color-border-strong: oklch(0.45 0.015 260);
+  --color-text: oklch(0.95 0.005 260);
+  --color-text-muted: oklch(0.76 0.012 260);
+  --color-accent: oklch(0.72 0.12 250);
+  --color-accent-strong: oklch(0.8 0.1 250);
+  --color-on-accent: oklch(0.16 0.02 260);
+  --color-resolvida: oklch(0.8 0.13 150);
+  --color-resolvida-bg: oklch(0.3 0.05 150);
+  --color-aprovacao: oklch(0.84 0.12 80);
+  --color-aprovacao-bg: oklch(0.32 0.05 80);
+  --color-suspeita: oklch(0.8 0.12 25);
+  --color-suspeita-bg: oklch(0.32 0.07 25);
+  --color-escalada: oklch(0.82 0.1 300);
+  --color-escalada-bg: oklch(0.31 0.06 300);
+  --color-canal-bg: oklch(0.14 0.02 265);
+  --color-canal-surface: oklch(0.2 0.025 265);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--color-canal-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+/* Cada slide é 16:9 e escala com a janela; tamanhos em cqw (1cqw = 1% da largura do slide). */
+.deck { width: min(100vw, 177.78vh); aspect-ratio: 16 / 9; position: relative; }
+.slide {
+  position: absolute; inset: 0;
+  container-type: inline-size;
+  background: var(--color-bg);
+  padding: 4.5cqw 5.5cqw 4cqw;
+  display: none;
+  flex-direction: column;
+  gap: 2cqw;
+  overflow: hidden;
+}
+.slide.ativo { display: flex; }
+.slide > .rodape {
+  position: absolute; left: 5.5cqw; right: 5.5cqw; bottom: 1.8cqw;
+  display: flex; justify-content: space-between;
+  font: 400 0.95cqw/1 var(--font-mono); color: var(--color-text-muted);
+}
+
+h1 { font-size: 4.6cqw; line-height: 1.08; font-weight: 600; letter-spacing: -0.02em; max-width: 30ch; }
+h2 { font-size: 3cqw; line-height: 1.12; font-weight: 600; letter-spacing: -0.015em; max-width: 36ch; }
+h3 { font-size: 1.55cqw; line-height: 1.25; font-weight: 600; }
+p, li { font-size: 1.5cqw; line-height: 1.45; }
+.sobre { font: 500 1.05cqw/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent); }
+.muted { color: var(--color-text-muted); }
+.mono { font-family: var(--font-mono); }
+ul { padding-left: 1.3em; }
+li + li { margin-top: 0.5cqw; }
+
+.grade { display: grid; gap: 1.6cqw; flex: 1; min-height: 0; }
+.g2 { grid-template-columns: 1fr 1fr; }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+.cartao {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.6cqw 1.8cqw;
+  display: flex; flex-direction: column; gap: 0.8cqw;
+}
+.numero { font: 600 4.2cqw/1 var(--font-mono); letter-spacing: -0.03em; color: var(--color-accent-strong); }
+.numero small { font-size: 0.45em; font-weight: 500; color: var(--color-text-muted); letter-spacing: 0; }
+.legenda { font-size: 1.3cqw; line-height: 1.4; color: var(--color-text-muted); }
+
+/* Capa */
+.capa { background: var(--color-canal-bg); color: var(--color-canal-text); justify-content: center; }
+.capa .sobre { color: var(--color-canal-muted); }
+.marca { font: 600 7cqw/1 var(--font-mono); letter-spacing: 0.04em; color: var(--color-canal-text); }
+.marca span { font: 400 1.6cqw/1 var(--font-sans); letter-spacing: 0; color: var(--color-canal-muted); margin-left: 1.5cqw; }
+.capa .muted { color: var(--color-canal-muted); }
+.capa .rodape { color: var(--color-canal-muted); }
+
+/* Barras de custo por canal */
+.barras { display: flex; flex-direction: column; gap: 1.1cqw; }
+.barra { display: grid; grid-template-columns: 15cqw 1fr 9cqw; align-items: center; gap: 1cqw; font-size: 1.35cqw; }
+.barra .trilho { height: 2.2cqw; background: var(--color-surface-sunken); border-radius: var(--radius-sm); position: relative; overflow: hidden; }
+.barra .cheio { position: absolute; inset: 0 auto 0 0; background: var(--color-border-strong); border-radius: var(--radius-sm); }
+.barra.destaque .cheio { background: var(--color-suspeita); }
+.barra .valor { font-family: var(--font-mono); text-align: right; }
+
+/* É / não é */
+.lista-sim li::marker { content: "✓  "; color: var(--color-resolvida); font-weight: 600; }
+.lista-nao li::marker { content: "✕  "; color: var(--color-suspeita); font-weight: 600; }
+.cartao.sim { border-top: 0.4cqw solid var(--color-resolvida); }
+.cartao.nao { border-top: 0.4cqw solid var(--color-suspeita); }
+
+/* Frentes 360° */
+.frentes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1cqw; flex: 1; }
+.frente { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.3cqw; display: flex; flex-direction: column; gap: 0.8cqw; }
+.frente .id { font: 600 1.2cqw/1 var(--font-mono); color: var(--color-text-muted); }
+.frente p { font-size: 1.2cqw; }
+.frente .pessoa { margin-top: auto; padding-top: 0.8cqw; border-top: 1px dashed var(--color-border-strong); font-size: 1.15cqw; color: var(--color-text-muted); }
+.frente .pessoa b { color: var(--color-text); font-weight: 600; }
+.frente.provada { border: 0.25cqw solid var(--color-accent); background: var(--color-surface); }
+.frente.provada .id { color: var(--color-accent); }
+.selo { align-self: flex-start; font: 600 0.95cqw/1 var(--font-mono); padding: 0.45cqw 0.7cqw; border-radius: var(--radius-sm); background: var(--color-accent); color: var(--color-on-accent); }
+
+/* Estados (sempre com texto) */
+.estado { display: inline-flex; align-items: center; gap: 0.5cqw; font: 600 1.1cqw/1 var(--font-mono); padding: 0.5cqw 0.8cqw; border-radius: var(--radius-sm); }
+.estado::before { content: ""; width: 0.8cqw; height: 0.8cqw; border-radius: 50%; background: currentColor; }
+.e-resolvida { color: var(--color-resolvida); background: var(--color-resolvida-bg); }
+.e-aprovacao { color: var(--color-aprovacao); background: var(--color-aprovacao-bg); }
+.e-suspeita { color: var(--color-suspeita); background: var(--color-suspeita-bg); }
+.e-escalada { color: var(--color-escalada); background: var(--color-escalada-bg); }
+
+/* Sinais de evidência */
+.sinais { display: grid; grid-template-columns: auto 1fr; gap: 0.9cqw 1.4cqw; align-items: baseline; }
+.sinais .n { font: 600 2.4cqw/1 var(--font-mono); color: var(--color-suspeita); text-align: right; }
+.sinais p { font-size: 1.35cqw; }
+.regra { background: var(--color-surface-sunken); border-left: 0.35cqw solid var(--color-accent); padding: 1.2cqw 1.5cqw; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+.regra p { font-size: 1.35cqw; }
+.regra code { font-family: var(--font-mono); font-size: 0.95em; }
+
+/* Fluxo do caso */
+.fluxo { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.8cqw; }
+.passo { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.1cqw; position: relative; }
+.passo .k { font: 600 1cqw/1 var(--font-mono); color: var(--color-accent); }
+.passo p { font-size: 1.2cqw; margin-top: 0.5cqw; }
+.passo:not(:last-child)::after { content: "→"; position: absolute; right: -0.95cqw; top: 50%; transform: translateY(-50%); font-size: 1.3cqw; color: var(--color-text-muted); }
+
+/* Canal do time */
+.canal { background: var(--color-canal-bg); color: var(--color-canal-text); border-radius: var(--radius-md); padding: 1.4cqw 1.6cqw; display: flex; flex-direction: column; gap: 1cqw; }
+.canal .titulo { font: 600 1.15cqw/1 var(--font-mono); color: var(--color-canal-muted); }
+.msg { background: var(--color-canal-surface); border-radius: var(--radius-md); padding: 1.1cqw 1.3cqw; }
+.msg .quem { font: 600 1.1cqw/1.2 var(--font-sans); }
+.msg .quem span { font-weight: 400; color: var(--color-canal-muted); font-family: var(--font-mono); font-size: 0.9em; margin-left: 0.6cqw; }
+.msg p { font-size: 1.2cqw; margin-top: 0.5cqw; color: var(--color-canal-text); }
+.msg .botoes { display: flex; gap: 0.8cqw; margin-top: 0.9cqw; }
+.msg .botao { font: 600 1.05cqw/1 var(--font-sans); padding: 0.7cqw 1.1cqw; border-radius: var(--radius-sm); background: var(--color-accent); color: var(--color-on-accent); }
+.msg .botao.sec { background: transparent; border: 1px solid var(--color-canal-muted); color: var(--color-canal-text); }
+
+/* Console de ações */
+.console { font: 400 1.1cqw/1.6 var(--font-mono); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.1cqw 1.3cqw; }
+.console div { display: grid; grid-template-columns: 9cqw 1fr 8cqw; gap: 1cqw; }
+.console .cab { color: var(--color-text-muted); border-bottom: 1px solid var(--color-border); padding-bottom: 0.4cqw; margin-bottom: 0.4cqw; }
+.console .v { text-align: right; }
+
+/* Demo */
+.tela { flex: 1; min-height: 0; border: 0.2cqw dashed var(--color-border-strong); border-radius: var(--radius-md); display: grid; place-items: center; background: var(--color-surface-sunken); position: relative; overflow: hidden; }
+.tela img, .tela video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: var(--color-surface); }
+.tela .aviso { text-align: center; color: var(--color-text-muted); }
+.tela .aviso p { font-size: 1.3cqw; }
+.roteiro { display: flex; gap: 1.2cqw; flex-wrap: wrap; }
+.roteiro span { font-size: 1.2cqw; }
+
+/* Resultados */
+.resultado .numero { font-size: 3.6cqw; }
+.pendente { color: var(--color-text-muted); }
+
+/* Notas do apresentador: tecla N mostra; ficam fora do slide na tela. */
+.notas { display: none; }
+body.com-notas .slide.ativo .notas {
+  display: block; position: absolute; left: 0; right: 0; bottom: 0;
+  max-height: 34%; overflow: auto;
+  background: var(--color-canal-bg); color: var(--color-canal-text);
+  padding: 1.2cqw 5.5cqw; border-top: 0.25cqw solid var(--color-accent);
+  font-size: 1.15cqw; line-height: 1.5; z-index: 5;
+}
+.notas b { color: var(--color-canal-muted); font-weight: 600; }
+.notas code { font-family: var(--font-mono); font-size: 0.95em; }
+
+.ajuda {
+  position: fixed; right: 12px; top: 10px; font: 400 12px/1.3 var(--font-mono);
+  color: var(--color-canal-muted); opacity: 0.8; transition: opacity 600ms;
+}
+.ajuda.some { opacity: 0; }
+:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+
+/* Exportar para PDF: Ctrl/Cmd+P, paisagem, sem margens. Um slide por página. */
+@page { size: 1280px 720px; margin: 0; }
+@media print {
+  html, body { height: auto; overflow: visible; background: var(--color-bg); display: block; }
+  .deck { width: 1280px; aspect-ratio: auto; }
+  .slide { position: relative; display: flex !important; width: 1280px; height: 720px; break-after: page; }
+  .ajuda { display: none; }
+  .tela video { display: none !important; }
+  .tela img:not([hidden]), .tela video:not([hidden]) ~ img { display: block !important; }
+  body:not(.com-notas) .notas { display: none !important; }
+  body.com-notas .notas { display: block !important; position: static; max-height: none; break-before: page; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .slide.ativo { animation: entra 220ms cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes entra { from { opacity: 0; } to { opacity: 1; } }
+}
+</style>
+</head>
+<body>
+<main class="deck" aria-live="polite">
+
+<!-- 1. Capa -->
+<section class="slide capa ativo" aria-label="Capa">
+  <p class="sobre">GoHacks Talent 2026 · Atendimento ao Cliente · Gocase / GoBeauté</p>
+  <p class="marca">FIO<span>o colega de atendimento</span></p>
+  <h1>Confere a reclamação antes de mexer no dinheiro</h1>
+  <p class="muted" style="font-size:1.8cqw; max-width:52ch">Ele trabalha a fila, age nos sistemas dentro da alçada e chama o supervisor no canal do time quando a decisão não é dele.</p>
+  <div class="rodape"><span>Base: 02/11/2026, 08h</span><span>1 / 10</span></div>
+  <aside class="notas">
+    <b>Fala:</b> este é o FIO. O nome vem de seguir o fio do pedido pelos sistemas, do ERP ao portal da transportadora, e de achar a causa comum dos contatos repetidos. O resto do pitch explica por que ele começa pela verificação e pela alçada.<br>
+    <b>Fonte:</b> o "agora" do projeto é 02/11/2026 08:00 (<code>AGENTS.md</code>, <code>docs/parametros.md</code>). Os dados são sintéticos e não há dado pessoal neste deck.
+  </aside>
+</section>
+
+<!-- 2. Problema -->
+<section class="slide" aria-label="O problema em números">
+  <p class="sobre">O problema</p>
+  <h2>Um canal com 11,6% das conversas leva metade do custo</h2>
+  <div class="grade g2">
+    <div class="cartao">
+      <h3>Custo por conversa e custo total na amostra</h3>
+      <div class="barras">
+        <div class="barra"><span>WhatsApp<br><span class="mono muted">R$ 4,80/conversa</span></span><div class="trilho"><div class="cheio" style="width:32.7%"></div></div><span class="valor">R$ 9.422</span></div>
+        <div class="barra"><span>E-mail<br><span class="mono muted">R$ 7,20/conversa</span></span><div class="trilho"><div class="cheio" style="width:16.9%"></div></div><span class="valor">R$ 4.860</span></div>
+        <div class="barra destaque"><span>Reclame Aqui<br><span class="mono muted">R$ 42,00/conversa</span></span><div class="trilho"><div class="cheio" style="width:50.4%"></div></div><span class="valor">R$ 14.532</span></div>
+      </div>
+      <p class="legenda">Amostra de 2.984 conversas (1 em cada 4 clientes, de agosto a novembro de 2026). Total: R$ 28.814,40. O Reclame Aqui tem 346 conversas e 50,4% do custo.</p>
+    </div>
+    <div class="grade g2" style="gap:1.2cqw">
+      <div class="cartao"><div class="numero">32,9%</div><p class="legenda">das conversas são recontato: o mesmo cliente volta a falar do mesmo pedido</p></div>
+      <div class="cartao"><div class="numero">12,2<small> min</small></div><p class="legenda">de trabalho humano, em média, por conversa</p></div>
+      <div class="cartao"><div class="numero">11</div><p class="legenda">sistemas diferentes no log de ações; 1,83 por conversa, até 4</p></div>
+      <div class="cartao"><div class="numero">~4.000</div><p class="legenda">conversas por mês por WhatsApp, e-mail e Reclame Aqui</p></div>
+    </div>
+  </div>
+  <div class="rodape"><span>Fonte nas notas (N)</span><span>2 / 10</span></div>
+  <aside class="notas">
+    <b>Fala:</b> além do volume, pesa onde o custo cai. O canal mais caro custa quase 9 vezes o WhatsApp, e um terço das conversas é gente voltando pelo mesmo pedido.<br>
+    <b>Fontes:</b> custo por canal: <code>docs/parametros.md</code> e <code>politicas.csv</code> (<code>custo_por_conversa_rs</code>). Conversas e custo por canal: <code>ingestao/baseline_metricas.md</code> M1 (<code>historico_conversas.canal</code>); 11,6% e 50,4%: M12. Recontato 32,9% (982 conversas em 453 pares cliente+pedido): M4. 12,2 min (média de <code>tempo_por_conversa.minutos_trabalhados</code>), 1,83 e 11 sistemas: M3. ~4.000/mês: <code>docs/parametros.md</code>. Largura das barras = participação no custo total (32,7% / 16,9% / 50,4%, calculado de M1).
+  </aside>
+</section>
+
+<!-- 3. Colega -->
+<section class="slide" aria-label="O colega de trabalho">
+  <p class="sobre">O que construímos</p>
+  <h2>FIO é um colega de trabalho que age nos sistemas da empresa</h2>
+  <div class="grade g2">
+    <div class="cartao sim">
+      <h3>O que ele é</h3>
+      <ul class="lista-sim">
+        <li>Pega a fila das 8h sozinho e trata uma conversa por vez</li>
+        <li>Executa nos sistemas: reenvio, estorno, chamado na transportadora, cada um com número de referência no log</li>
+        <li>Sabe quando parar: acima da alçada, caso sensível ou foto que não bate, ele chama uma pessoa</li>
+        <li>Fala com o time no canal do time, onde o supervisor aprova com um clique</li>
+      </ul>
+    </div>
+    <div class="cartao nao">
+      <h3>O que ele não é</h3>
+      <ul class="lista-nao">
+        <li>Um chatbot que só responde: o caso termina com ação registrada ou com escalação</li>
+        <li>Uma busca em documentos: a decisão sai do motor de políticas, lendo pedido, pagamento e anexo por ID</li>
+        <li>Uma automação de um passo: consulta, confere, decide, executa, responde e registra</li>
+        <li>Um painel: o console lista as ações que ele já executou</li>
+      </ul>
+    </div>
+  </div>
+  <div class="rodape"><span>Requisitos P1 a P5 e N1 a N4</span><span>3 / 10</span></div>
+  <aside class="notas">
+    <b>Fala:</b> o enunciado define o colega pelo que ele faz e pelo que ele não é. Cada linha à direita tem um teste de aceite que reprova a entrega se ela virar chatbot ou painel.<br>
+    <b>Fontes:</b> <code>ingestao/desafio/enunciado.md</code> ("Um agente é um colega de trabalho" e "O que não é"); <code>REQUISITOS.md</code> §1.0: P1 a P5 e N1 a N4, com os testes HP-09 (N1), HG-01 (N2), HP-11 (N3), HG-17/HG-20 (N4).
+  </aside>
+</section>
+
+<!-- 4. 360 -->
+<section class="slide" aria-label="Visão 360 graus">
+  <p class="sobre">Pense 360°</p>
+  <h2>Cinco frentes, e em cada uma está claro onde a pessoa decide</h2>
+  <div class="frentes">
+    <div class="frente"><span class="id">F1 · D1 D6</span><h3>Triagem e SLA</h3><p>Classifica, prioriza pelo prazo e pelo custo do canal, dá a primeira resposta.</p><p class="pessoa"><b>Pessoa:</b> não precisa entrar</p></div>
+    <div class="frente"><span class="id">F2 · D2</span><h3>Resolução nos sistemas</h3><p>Consulta pedido, portal e pagamento. Abre chamado, reenvia, troca e reembolsa dentro da alçada.</p><p class="pessoa"><b>Pessoa:</b> aprova acima de R$ 100 / R$ 200</p></div>
+    <div class="frente provada"><span class="selo">PROVADA HOJE</span><span class="id">F3 · D3</span><h3>Verificação da reclamação</h3><p>Cruza foto, metadados, hash, pedido, personalização e histórico. Sinaliza com evidência, sem acusar.</p><p class="pessoa"><b>Pessoa:</b> supervisor decide a suspeita em até 24 h</p></div>
+    <div class="frente provada"><span class="selo">PROVADA HOJE</span><span class="id">F4 · D4</span><h3>Alçada e escalação</h3><p>Aplica a política, pede aprovação e chama a pessoa certa do turno no canal do time.</p><p class="pessoa"><b>Pessoa:</b> supervisor, qualidade, jurídico</p></div>
+    <div class="frente"><span class="id">F5 · D5</span><h3>Prevenção de recontato</h3><p>Detecta padrão por transportadora e UF, máquina, lote ou gateway. Abre incidente e avisa os clientes antes.</p><p class="pessoa"><b>Pessoa:</b> analista valida o escopo; até 300 avisos/dia</p></div>
+  </div>
+  <p class="legenda">F3 trava o dinheiro de F2 até a decisão. F4 atravessa as outras quatro. F5 reduz o que entra em F1.</p>
+  <div class="rodape"><span>REQUISITOS.md §1.2</span><span>4 / 10</span></div>
+  <aside class="notas">
+    <b>Fala:</b> o plano cobre a área inteira. Provamos F3 e F4 porque é onde o erro custa dinheiro nos dois sentidos, e F2 entra como executor no fim de cada caso.<br>
+    <b>Fontes:</b> frentes F1 a F5 e "onde a pessoa decide": <code>REQUISITOS.md</code> §1.2. Alçadas R$ 100 (reembolso) e R$ 200 (reenvio, reimpressão, troca): <code>politicas.csv</code> <code>limites_por_papel.atendente.*</code>. 300 avisos/dia: <code>limites_por_papel.analista.notificacoes_proativas_por_dia</code>. Suspeita em 24 h: <code>politicas.csv</code> <code>reclamacao_suspeita.*</code>. Escolha da PoC: <code>SPEC.md</code> Q1. A visão está desenhada em <code>prototipo/index.html</code>.
+  </aside>
+</section>
+
+<!-- 5. F3 -->
+<section class="slide" aria-label="Verificação da reclamação">
+  <p class="sobre">Frente provada · F3</p>
+  <h2>Antes de reenviar, ele confere se a foto é deste pedido</h2>
+  <div class="grade g2">
+    <div class="cartao">
+      <h3>O que os 382 anexos do histórico mostram</h3>
+      <div class="sinais">
+        <span class="n">17</span><p>fotos com o mesmo hash usadas em pedidos diferentes</p>
+        <span class="n">11</span><p>fotos tiradas antes da data de entrega do pedido</p>
+        <span class="n">10</span><p>fotos que passaram por editor de imagem</p>
+        <span class="n" style="color:var(--color-text-muted)">212</span><p>fotos sem metadados de captura (55,5%). É o normal no WhatsApp, e sozinho não indica nada</p>
+      </div>
+    </div>
+    <div class="grade" style="grid-template-rows:auto auto 1fr; gap:1.2cqw">
+      <div class="regra">
+        <p><b>Errar custa dos dois lados.</b> Aceitar uma reclamação que não procede custa 45% do valor do pedido. Negar uma verdadeira custa metade do LTV do cliente e 30% de chance de virar Reclame Aqui. Mandar para o supervisor custa R$ 6.</p>
+      </div>
+      <div class="regra">
+        <p><b>Regra do agente:</b> marca como suspeita quando há ao menos um sinal verificável e 45% do pedido passa de R$ 6. Foto sem metadados, sozinha, nunca vira suspeita.</p>
+      </div>
+      <div class="cartao" style="justify-content:center">
+        <p><span class="estado e-suspeita">suspeita</span> &nbsp;vai para o supervisor com as evidências. Ao cliente, uma resposta neutra, sem acusação.</p>
+      </div>
+    </div>
+  </div>
+  <div class="rodape"><span>Cenários EC-15 a EC-19, HG-07, HG-08</span><span>5 / 10</span></div>
+  <aside class="notas">
+    <b>Fala:</b> o enunciado avisa que "há casos de avaria que não é real". O agente cruza a foto com o que os sistemas já têm, e a conta de custo diz quando vale chamar o supervisor.<br>
+    <b>Fontes:</b> 382 anexos, 212 sem EXIF (55,5%), 17 com hash repetido (8 hashes), 11 com captura antes da entrega, 10 com <code>exif_software</code>: <code>ingestao/baseline_metricas.md</code> M6 (<code>anexos_conversas</code> × <code>pedidos.data_entrega</code>). Custos de errar (45%, ½ LTV, 30% × R$ 42, R$ 6): <code>docs/parametros.md</code>, "Reclamações que não procedem". Regra de suspeita: <code>SPEC.md</code> Q15. Resposta sem acusação: HG-07.
+  </aside>
+</section>
+
+<!-- 6. F4 -->
+<section class="slide" aria-label="Alçada">
+  <p class="sobre">Frente provada · F4</p>
+  <h2>A alçada vale por pedido, somando o que já foi feito</h2>
+  <div class="grade g3">
+    <div class="cartao">
+      <h3>Limites do atendente</h3>
+      <div class="numero">R$ 200</div><p class="legenda">reenvio, reimpressão ou troca</p>
+      <div class="numero">R$ 100</div><p class="legenda">reembolso</p>
+      <p class="legenda">Acima disso, o supervisor aprova. Ele não aprova a própria ação.</p>
+    </div>
+    <div class="cartao">
+      <h3>O furo que o histórico mostra</h3>
+      <div class="numero">64</div>
+      <p class="legenda">casos em que cada ação cabia no limite, mas a soma no mesmo pedido passou dele, sem aprovação</p>
+      <p class="legenda">Cada ação veio em uma conversa diferente, então quem olhava uma conversa por vez não via a soma.</p>
+      <p><span class="estado e-resolvida"><!--av:m11_barrados-->64<!--/av--> de <!--av:m11_total-->64<!--/av--> barrados</span></p><p class="legenda">Reexecutado sobre esses casos, o motor segura antes de o dinheiro sair: <!--av:m11_pedir_aprovacao-->37<!--/av--> pedem aprovação, <!--av:m11_escalar-->19<!--/av--> são escalados, <!--av:m11_negar-->8<!--/av--> são negados.</p>
+    </div>
+    <div class="cartao">
+      <h3>Como o agente decide</h3>
+      <p><span class="estado e-resolvida">resolvida</span></p><p class="legenda">cabe na alçada: executa sozinho</p>
+      <p><span class="estado e-aprovacao">aguardando_aprovacao</span></p><p class="legenda">passa do limite: pede ao supervisor do turno</p>
+      <p><span class="estado e-escalada">escalada</span></p><p class="legenda">reação adversa: orienta suspender o uso e aciona a qualidade</p>
+    </div>
+  </div>
+  <div class="rodape"><span>Cenários EC-01, EC-02, EC-22, HG-03, HG-05, HG-06, HG-22</span><span>6 / 10</span></div>
+  <aside class="notas">
+    <b>Fala:</b> no histórico, as 132 ações acima do limite tiveram aprovação. O problema estava na soma: 64 vezes o mesmo pedido recebeu ações que, somadas, passavam do limite. O agente soma o histórico do pedido antes de agir: reexecutado sobre esses casos, ele barra <!--av:m11_barrados-->64<!--/av--> de <!--av:m11_total-->64<!--/av--> (<code>ingestao/avaliacao_offline.md</code>, M11).<br>
+    <b>Fontes:</b> limites: <code>politicas.csv</code> <code>limites_por_papel.atendente.reenvio_ou_reimpressao_max_rs</code> (200), <code>troca_max_rs</code> (200), <code>reembolso_max_rs</code> (100), <code>supervisor.nao_aprova_a_propria_acao</code>. 132 ações acima do limite, 0 sem aprovação: <code>ingestao/baseline_metricas.md</code> M8. 64 casos de soma acima do limite sem aprovação, em conversas diferentes: M11 (<code>acoes_executadas_sistemas</code>). Alçada acumulada por pedido: <code>SPEC.md</code> Q10. Reação adversa: <code>docs/parametros.md</code> (suspensão + <code>registrar_cosmetovigilancia</code> em 24 h). Supervisor do turno: <code>equipe_atendimento.turno</code>, EC-22.
+  </aside>
+</section>
+
+<!-- 7. Age e levanta a mão -->
+<section class="slide" aria-label="Como ele age e levanta a mão">
+  <p class="sobre">Como o FIO trabalha</p>
+  <h2>Ele executa nos sistemas e pede ajuda no canal do time</h2>
+  <div class="fluxo">
+    <div class="passo"><span class="k">1 · LÊ</span><p>Mensagem do cliente. Texto do cliente é dado, nunca instrução</p></div>
+    <div class="passo"><span class="k">2 · CONSULTA</span><p>Pedido, itens, rastreio, pagamento e anexos, por ID</p></div>
+    <div class="passo"><span class="k">3 · CONFERE</span><p>Sinais da foto e histórico de reenvios do cliente</p></div>
+    <div class="passo"><span class="k">4 · DECIDE</span><p>Motor de políticas: executar, pedir aprovação, sinalizar ou escalar</p></div>
+    <div class="passo"><span class="k">5 · AGE</span><p>Ferramenta com efeito e registro no log, ou mensagem no canal</p></div>
+  </div>
+  <div class="grade g2">
+    <div class="cartao" style="gap:0.6cqw">
+      <h3>Console dos sistemas</h3>
+      <div class="console">
+        <div class="cab"><span>sistema</span><span>ação · referência</span><span class="v">valor</span></div>
+        <div><span>Portal</span><span>abrir_chamado · EXJ-2026…</span><span class="v">sem valor</span></div>
+        <div><span>OMS</span><span>reenviar_produto · OMS…</span><span class="v">R$ ≤ 200</span></div>
+        <div><span>Gateway</span><span>reembolsar · EST…</span><span class="v">R$ ≤ 100</span></div>
+      </div>
+      <p class="legenda">Cada linha tem sistema, valor, quem executou, quem aprovou e o número no sistema de destino. Se a mesma ação com dinheiro chega duas vezes, ele não paga duas vezes.</p>
+    </div>
+    <div class="canal">
+      <span class="titulo"># atendimento-ops</span>
+      <div class="msg">
+        <p class="quem">FIO <span>agora</span></p>
+        <p>Pedido de aprovação para o supervisor do turno: reenvio acima de R$ 200. Seguem pedido, valor, evidências e a ação proposta.</p>
+        <div class="botoes"><span class="botao">Aprovar</span><span class="botao sec">Rejeitar</span></div>
+      </div>
+      <p class="legenda" style="color:var(--color-canal-muted)">Se quem pediu tenta aprovar a própria ação, o sistema recusa.</p>
+    </div>
+  </div>
+  <div class="rodape"><span>Cenários HP-08, HP-09, HP-10, HG-02, HG-03, HG-09, HG-12</span><span>7 / 10</span></div>
+  <aside class="notas">
+    <b>Fala:</b> a ação sai pela ferramenta, com número de referência no sistema de destino. Quando não pode decidir, ele escreve no canal do time com tudo o que o supervisor precisa para aprovar sem abrir outra tela.<br>
+    <b>Fontes:</b> nomes de sistema e formatos de referência (OMS…, EST…, EXJ-AAAA…): <code>docs/acoes_executadas_sistemas.csv</code> (<code>sistema</code>, <code>referencia_sistema</code>). Ferramentas e papéis: <code>docs/ferramentas.csv</code>. Texto do cliente é dado: <code>politicas.csv</code> <code>seguranca.texto_do_cliente_e_dado_nao_instrucao</code> (HG-09). Idempotência das ações com dinheiro: HG-12. Canal do time como tela da demo: <code>SPEC.md</code> Q8. As linhas do console são ilustrativas, sem valores de caso real.
+  </aside>
+</section>
+
+<!-- 8. Demo -->
+<section class="slide" aria-label="Demonstração">
+  <p class="sobre">Demo</p>
+  <h2>A fila das 8h tratada de ponta a ponta</h2>
+  <div class="tela" id="tela-demo">
+    <div class="aviso">
+      <p><b>Espaço para o vídeo ou o print da jornada E2E</b></p>
+      <p class="mono">apresentacao/midia/demo.webm, demo.mp4 ou demo.png</p>
+      <p>Copiar de <span class="mono">.scratch/e2e/</span> depois de rodar <span class="mono">e2e/jornada.mjs</span></p>
+    </div>
+    <video id="demo-video" controls muted playsinline preload="metadata" poster="midia/demo.png" hidden><source src="midia/demo.webm" type="video/webm"><source src="midia/demo.mp4" type="video/mp4"></video>
+    <img id="demo-img" src="midia/demo.png" alt="Tela da demo com fila, caso aberto, console dos sistemas e canal do time" hidden>
+  </div>
+  <div class="roteiro">
+    <span class="estado e-resolvida">1 · processar fila</span>
+    <span class="estado e-escalada">2 · reação adversa escalada</span>
+    <span class="estado e-suspeita">3 · suspeita no histórico</span>
+    <span class="estado e-aprovacao">4 · aprovação no canal</span>
+    <span class="estado e-escalada">5 · analista abre incidente</span>
+  </div>
+  <div class="rodape"><span>e2e/README.md</span><span>8 / 10</span></div>
+  <aside class="notas">
+    <b>Roteiro (segue a jornada de <code>e2e/jornada.mjs</code>):</b> 1) clicar em Processar fila: o console recebe as ações e o placar muda; 2) abrir AT116568, a única reação adversa da fila: estado escalada, com a decisão da política; 3) a fila das 8h não tem caso suspeito, então mostrar a Verificação de evidência no caso real AT104936 do histórico: captura antes da entrega, hash repetido e reenvios anteriores, com resposta neutra ao cliente; quem sinalizou não consegue decidir (HTTP 403) e o supervisor decide a suspeita na tela; 4) no canal do time, a autoaprovação é recusada (HTTP 403) e outro supervisor aprova; a ação aparece no console com o aprovador; 5) o agente analista trata o padrão, abre um incidente e avisa só os clientes com consentimento.<br>
+    <b>Fontes:</b> <code>.scratch/e2e/relatorio.json</code> (26 verificações, 0 falhas, na execução das 11h20); vídeo copiado de <code>.scratch/e2e/jornada.webm</code> e <code>jornada.mp4</code>. AT116568 é a única conversa da fila com possível reação adversa: <code>ingestao/baseline_metricas.md</code> M10. As telas mostram dados pessoais já mascarados pela API.
+  </aside>
+</section>
+
+<!-- 9. Resultados -->
+<section class="slide" aria-label="Resultados e salvaguardas">
+  <p class="sobre">Resultados · motor reexecutado sobre o histórico</p>
+  <h2>Reexecutado sobre o histórico, o motor segura o dinheiro que a política não cobre</h2>
+  <div class="grade g4 resultado">
+    <div class="cartao"><div class="numero"><!--av:m11_barrados-->64<!--/av--><small> de <!--av:m11_total-->64<!--/av--></small></div><p class="legenda">somas acima da alçada sem aprovação barradas antes de o dinheiro sair</p></div>
+    <div class="cartao"><div class="numero"><!--av:susp_dinheiro-->23<!--/av--></div><p class="legenda">reenvios em reclamação com foto suspeita iriam antes ao supervisor</p></div>
+    <div class="cartao"><div class="numero">R$ <!--av:susp_custo_arred-->1.357<!--/av--></div><p class="legenda">custo evitado estimado nesses <!--av:susp_dinheiro-->23<!--/av--> casos (45% do valor do pedido). Suspeita não é fraude confirmada</p></div>
+    <div class="cartao"><div class="numero"><!--av:obj_n-->93<!--/av--><small> de <!--av:acoes_total-->790<!--/av--></small></div><p class="legenda">ações com dinheiro (R$ <!--av:obj_valor_arred-->11.204<!--/av-->) que ele não executaria sozinho por regra objetiva: soma da alçada, prazo, antes da entrega, 2ª troca</p></div>
+  </div>
+  <div class="grade g2" style="flex:0 0 auto">
+    <div class="cartao">
+      <h3>Na fila de agora</h3>
+      <ul>
+        <li>65 conversas: 34 resolvidas sozinho, 2 aguardando aprovação, 18 aguardando foto, 11 escaladas</li>
+        <li>A única reação adversa (AT116568) é escalada com orientação de suspensão e pedido de cosmetovigilância</li>
+        <li>CPF, cartão e telefone saem mascarados em resposta, log e tela</li>
+      </ul>
+    </div>
+    <div class="cartao">
+      <h3>Travas que não dependem do modelo</h3>
+      <ul>
+        <li>Papel fora de <span class="mono">ferramentas.csv</span>: a chamada é recusada e registrada</li>
+        <li>Ninguém aprova a própria ação; ação com dinheiro repetida não paga duas vezes</li>
+      </ul>
+    </div>
+  </div>
+  <div class="rodape"><span>ingestao/avaliacao_offline.md</span><span>9 / 10</span></div>
+  <aside class="notas">
+    <b>Fala:</b> rodamos o motor de políticas e o verificador sobre as ações com dinheiro que o time já executou. Cada divergência mostrada tem regra objetiva: soma da alçada no pedido, prazo, entrega ainda não registrada, segunda troca.<br>
+    <b>Fontes:</b> <code>ingestao/avaliacao_offline.md</code>, gerado por <code>uv run python -m atendimento.avaliacao</code>. §1: <!--av:acoes_total-->790<!--/av--> ações com dinheiro; divergências por regra objetiva: <!--av:motivos--><code>alcada_acumulada</code> 51, <code>prazo</code> 24, <code>antes_do_recebimento</code> 10, <code>troca_repetida</code> 8<!--/av-->, somando <!--av:obj_n-->93<!--/av--> ações (<!--av:obj_pct-->11,8<!--/av-->%) e R$ <!--av:obj_valor-->11.204,37<!--/av-->. M11: <!--av:m11_barrados-->64<!--/av--> de <!--av:m11_total-->64<!--/av--> somas acima da alçada barradas (<!--av:m11_pedir_aprovacao-->37<!--/av--> pedem aprovação, <!--av:m11_escalar-->19<!--/av--> escalam, <!--av:m11_negar-->8<!--/av--> negam). §2: <!--av:susp_anexo-->280<!--/av--> conversas com anexo, <!--av:susp_marcadas-->25<!--/av--> suspeitas, <!--av:susp_dinheiro-->23<!--/av--> receberam reenvio; custo evitado estimado R$ <!--av:susp_custo-->1.356,91<!--/av--> (valor do pedido × 0,45, <code>parametros.md</code>), valor esperado e não fraude confirmada. Placar da fila: <code>POST /api/fila/processar</code> e <code>GET /api/placar</code> em base nova (34/2/18/0 suspeitas/11; custo evitado R$ 636,00 = custo por conversa do canal nas resolvidas sozinho, <code>src/atendimento/agente/caso.py</code>). AT116568: única reação adversa da fila (<code>baseline_metricas.md</code> M10), escalada na jornada E2E (<code>.scratch/e2e/relatorio.json</code>). Máscara de dado pessoal: <code>AGENTS.md</code> regra 6, HG-11. Travas: HG-02, HG-03, HG-12, com testes em <code>tests/</code>.<br>
+    <b>Fora do slide de propósito:</b> o total de divergências do relatório inclui <code>acao_nao_permitida</code>, que depende da tag humana da conversa; o próprio relatório trata esse número como teto. O leitor de mensagens acerta a categoria da tag humana em <!--av:cat_acertos-->1595<!--/av--> de <!--av:cat_lidas-->2654<!--/av--> conversas (<!--av:cat_pct-->60,1<!--/av-->%, §3); nos casos sensíveis, ele marca como reação adversa os 27 relatos que viraram cosmetovigilância no histórico (27 de 27).
+  </aside>
+</section>
+
+<!-- 10. Próximos passos -->
+<section class="slide" aria-label="Próximos passos">
+  <p class="sobre">Próximos passos</p>
+  <h2>Da frente provada para a área inteira</h2>
+  <div class="grade g2">
+    <div class="cartao">
+      <h3>Próximas semanas</h3>
+      <ul>
+        <li><b>F1:</b> priorizar a fila pelo prazo. Às 8h, 18 conversas de WhatsApp sem resposta humana vencem o SLA às 8h30</li>
+        <li><b>F5:</b> padrão de atraso por transportadora e UF vira incidente e aviso antes de o cliente escrever. Rastreio e atraso somam 36,3% dos contatos</li>
+        <li><b>Cobrança em dobro:</b> 12 pedidos com duas cobranças e nenhum estorno</li>
+      </ul>
+    </div>
+    <div class="cartao">
+      <h3>Para sair da demo</h3>
+      <ul>
+        <li>Canal do time no Slack, com o mesmo pedido de aprovação da demo</li>
+        <li>Leitor de mensagens melhor: hoje acerta a categoria em <!--av:cat_pct-->60,1<!--/av-->% das conversas e erra mais em Outros, Dúvida e Reclamação de produto. O LLM entra atrás da mesma interface, e a decisão continua no motor de políticas</li>
+        <li>Ligar as ferramentas às APIs reais de OMS, gateway e portais, mantendo o log e as alçadas</li>
+      </ul>
+    </div>
+  </div>
+  <div class="rodape"><span>Obrigado</span><span>10 / 10</span></div>
+  <aside class="notas">
+    <b>Fala:</b> fechar voltando ao começo: o custo está no Reclame Aqui e no recontato. F5 ataca o recontato, e F3 com F4 evitam pagar o que não procede sem travar quem tem razão.<br>
+    <b>Fontes:</b> 18 WhatsApp sem resposta humana e SLA de 30 min: <code>ingestao/baseline_metricas.md</code> M5, <code>politicas.csv</code> <code>sla_primeira_resposta.whatsapp.minutos</code>. Rastreio + Atraso = 36,3%: M12 (M2). 12 pedidos com 2+ cobranças sem estorno: M7. Slack e LLM: <code>SPEC.md</code> Q8 e "LLM". Acerto do leitor: <code>ingestao/avaliacao_offline.md</code> §3 (<code>atendimento.agente.leitor.ler</code> contra <code>historico_conversas.tag_agente</code>).
+  </aside>
+</section>
+
+</main>
+<p class="ajuda">← → navegar · N notas · P imprimir/PDF</p>
+
+<script>
+(function () {
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var atual = 0;
+  function ir(i) {
+    atual = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, k) { s.classList.toggle("ativo", k === atual); });
+    try { history.replaceState(null, "", "#" + (atual + 1)); } catch (e) {}
+  }
+  document.addEventListener("keydown", function (ev) {
+    if (["ArrowRight", "PageDown", " ", "Enter"].indexOf(ev.key) >= 0) { ev.preventDefault(); ir(atual + 1); }
+    else if (["ArrowLeft", "PageUp", "Backspace"].indexOf(ev.key) >= 0) { ev.preventDefault(); ir(atual - 1); }
+    else if (ev.key === "Home") ir(0);
+    else if (ev.key === "End") ir(slides.length - 1);
+    else if (ev.key === "n" || ev.key === "N") document.body.classList.toggle("com-notas");
+    else if (ev.key === "p" || ev.key === "P") window.print();
+  });
+  document.querySelector(".deck").addEventListener("click", function (ev) {
+    if (ev.target.closest("video, a, button")) return;
+    ir(ev.clientX > window.innerWidth / 3 ? atual + 1 : atual - 1);
+  });
+  function pelaUrl() {
+    var n = parseInt((location.hash || "").slice(1), 10);
+    if (n && n - 1 !== atual) ir(n - 1);
+  }
+  window.addEventListener("hashchange", pelaUrl);
+  pelaUrl();
+  setTimeout(function () { document.querySelector(".ajuda").classList.add("some"); }, 6000);
+
+  // Mídia da demo: aparece só se o arquivo existir em apresentacao/midia/.
+  var video = document.getElementById("demo-video");
+  var img = document.getElementById("demo-img");
+  function mostrarMidia() {
+    if (video.readyState >= 1) { video.hidden = false; img.hidden = true; }
+    else if (img.complete && img.naturalWidth) { img.hidden = false; }
+  }
+  video.addEventListener("loadedmetadata", mostrarMidia);
+  img.addEventListener("load", mostrarMidia);
+  mostrarMidia();
+})();
+</script>
+</body>
+</html>

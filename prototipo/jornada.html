@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jornada de um caso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="proto.css">
+</head>
+<body>
+<!--
+  Protótipo 360° (W6). F2 Resolução multissistema (HP-11, anti-requisito N3).
+  Caso real: fila_aberta AT116612 (e-mail, Gocase, aberta 2026-11-01 16:18:28, cliente CH229655 → "Aline V.").
+  pedidos.csv GCH553818: valor 94.41, Case Infinite Air / iPhone 17 Pro Max Personalizada Foto, Rápido Sul, PR, Londrina,
+    data_pedido 2026-10-12, data_separacao 2026-10-15 CD2, data_prometida 2026-10-20, status em_transito.
+  rastreio_portais_transportadoras GCH553818: 15/10 14:38 coletado CD2; 16/10 11:54 em_transferencia; 24/10 04:32 chegada_unidade_destino "unidade PR".
+  chamados_transportadora, historico_conversas, acoes_executadas_sistemas: nenhum registro para GCH553818.
+  Dias úteis (sem fim de semana e sem 02/11, feriado em politicas.prazos_entrega): atraso 20/10 → 02/11 = 8; sem evento desde 24/10 = 5.
+  Regras: atraso_entrega > 7 d.u. → reenviar ou reembolsar à escolha do cliente; onde_esta_pedido ≥ 3 d.u. parado → abrir chamado;
+    limites atendente: reembolso ≤ R$ 100, reenvio ≤ R$ 200; preparo gocase_personalizado = 3 d.u.
+-->
+<header class="topo">
+  <div class="topo-in">
+    <a class="marca" href="index.html">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg>
+      Colega de atendimento
+    </a>
+    <nav class="nav" aria-label="Telas do protótipo">
+      <a href="index.html">Mapa 360°</a>
+      <a href="triagem.html">F1 Triagem</a>
+      <a href="jornada.html" aria-current="page">F2 Jornada</a>
+      <a href="canal-do-time.html">F3 + F4 Canal do time</a>
+      <a href="prevencao.html">F5 Prevenção</a>
+    </nav>
+    <div class="agora"><span class="selo-proto">Protótipo, não funcional</span><span>Agora <span class="mono" title="Agora no cenário: segunda, 02/11/2026, America/Sao_Paulo">02/11 08:36</span></span></div>
+  </div>
+</header>
+
+<main>
+  <div class="cabeca">
+    <div>
+      <h1><span class="frente">F2</span> Um e-mail, quatro sistemas, nenhuma pessoa no meio</h1>
+      <p class="lede">A conversa <span class="mono">AT116612</span> pede "uma solução" para uma capa personalizada que não chegou. O agente faz o caminho que hoje um atendente faz abrindo aba por aba, e deixa cada passo no log.</p>
+    </div>
+    <span class="estado resolvida">Dentro da alçada</span>
+  </div>
+
+  <div class="duas">
+    <section aria-labelledby="t-passos">
+      <h2 id="t-passos">O caminho do caso</h2>
+      <ol class="passos">
+        <li>
+          <span class="marco" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg></span>
+          <div>
+            <div class="passo-cab"><h3>Lê a conversa</h3><span class="sistema">Plataforma de atendimento</span><span class="hora">08:31</span></div>
+            <div class="passo-corpo">
+              <blockquote class="citacao">
+                <p>"Meu pedido GCH553818 era pra ter chegado até 20/10 e até agora nada. Quero uma solução."</p>
+                <footer>Aline V. · e-mail · 01/11 16:18 · prazo de resposta até 02/11 16:18</footer>
+              </blockquote>
+            </div>
+          </div>
+        </li>
+
+        <li>
+          <span class="marco" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span>
+          <div>
+            <div class="passo-cab"><h3>Consulta o pedido</h3><span class="sistema">ERP de pedidos</span><span class="mono muted">consultar_pedido</span><span class="hora">08:31</span></div>
+            <div class="passo-corpo">
+              <p>Capa iPhone 17 Pro Max personalizada com foto, <span class="mono">R$ 94,41</span>. Separada no CD2 em 15/10, com a Rápido Sul para Londrina (PR). Prometida para <span class="mono">20/10</span>: 8 dias úteis de atraso.</p>
+            </div>
+          </div>
+        </li>
+
+        <li>
+          <span class="marco" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg></span>
+          <div>
+            <div class="passo-cab"><h3>Olha o rastreio</h3><span class="sistema">Portal Rápido Sul</span><span class="mono muted" title="Leitura fora de ferramentas.csv, presente no log; ver REQUISITOS.md Q17">consultar_rastreio</span><span class="hora">08:32</span></div>
+            <div class="passo-corpo">
+              <div class="registro">15/10 14:38  coletado                 CD2
+16/10 11:54  em transferência         centro de distribuição da transportadora
+24/10 04:32  chegada à unidade        unidade PR
+             (nenhum evento depois: 5 dias úteis parado)</div>
+            </div>
+          </div>
+        </li>
+
+        <li>
+          <span class="marco" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg></span>
+          <div>
+            <div class="passo-cab"><h3>Confere o que já foi feito</h3><span class="sistema">Chamados</span><span class="sistema">Log de ações</span><span class="hora">08:32</span></div>
+            <div class="passo-corpo">
+              <p>Nenhum chamado aberto para esse pedido, nenhuma conversa anterior e nenhuma ação com dinheiro. Não há nada para repetir, e a alçada está inteira.</p>
+            </div>
+          </div>
+        </li>
+
+        <li>
+          <span class="marco" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg></span>
+          <div>
+            <div class="passo-cab"><h3>Abre chamado com a transportadora</h3><span class="sistema">Portal Rápido Sul</span><span class="mono muted">abrir_chamado_transportadora</span><span class="hora">08:33</span></div>
+            <div class="passo-corpo">
+              <p>Motivo: rastreio sem atualização desde 24/10. A transportadora tem de explicar onde o pacote parou, mesmo que a cliente escolha outra saída.</p>
+            </div>
+          </div>
+        </li>
+
+        <li>
+          <span class="marco" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.4A8 8 0 1 1 21 12z"/></svg></span>
+          <div>
+            <div class="passo-cab"><h3>Responde com duas saídas, as duas dentro da alçada</h3><span class="sistema">E-mail</span><span class="hora">08:34</span></div>
+            <div class="passo-corpo">
+              <blockquote class="citacao">
+                <p>Oi, Aline. Seu pedido está parado na unidade da Rápido Sul no Paraná desde 24/10, e já abrimos um chamado com eles. Como o atraso passou de 7 dias úteis, você escolhe: produzimos e enviamos uma nova capa com a sua foto, sem custo (3 dias úteis para produzir), ou devolvemos os R$ 94,41. É só responder com a opção.</p>
+                <footer>Sem CPF, telefone ou endereço na resposta</footer>
+              </blockquote>
+            </div>
+          </div>
+        </li>
+
+        <li>
+          <span class="marco espera" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v6M18 14v6M6 10a6 6 0 0 0 6 6h6M6 10a6 6 0 0 1 6-6h6"/></svg></span>
+          <div>
+            <div class="passo-cab"><h3>Quando a cliente escolher, executa</h3><span class="estado aberta">aguardando a cliente</span></div>
+            <div class="passo-corpo">
+              <p>Qualquer uma das saídas sai pela ferramenta, sem rascunho para um atendente repetir em outro sistema.</p>
+              <div class="acoes">
+                <button class="btn" type="button"><span class="mono">reenviar_produto</span> · OMS de trocas e reenvios</button>
+                <button class="btn" type="button"><span class="mono">reembolsar R$ 94,41</span> · gateway</button>
+              </div>
+              <p class="muted">Reembolso: limite de R$ 100 para o atendente. Reenvio: limite de R$ 200. Os dois cabem.</p>
+            </div>
+          </div>
+        </li>
+      </ol>
+
+      <h3 style="margin: var(--space-2) 0 var(--space-3)">Log de ações, como fica gravado</h3>
+      <!-- formato das colunas de docs/acoes_executadas_sistemas.csv; referencia_sistema vem do sistema na execução, por isso aparece como "(do sistema)" -->
+      <div class="registro">conversation_id  order_id   hora   sistema                    acao                          executado_por
+AT116612         GCH553818  08:31  ERP de pedidos             consultar_pedido              agente
+AT116612         GCH553818  08:32  Portal Rápido Sul          consultar_rastreio            agente
+AT116612         GCH553818  08:33  Portal Rápido Sul          abrir_chamado_transportadora  agente  ref (do sistema)
+AT116612         GCH553818  08:34  Plataforma de atendimento  responder_cliente             agente</div>
+    </section>
+
+    <aside class="pilha" aria-label="Tempo economizado">
+      <section class="painel">
+        <div class="painel-in">
+          <h2>Tempo humano</h2>
+          <!-- fonte: M3 (tempo_por_conversa.minutos_trabalhados: média 12,2; sistemas_acessados: média 1,83, máximo 4) -->
+          <dl class="fatos" style="grid-template-columns: minmax(0, 1fr)">
+            <div><dt>Média por conversa no histórico</dt><dd>12,2 <small>min de trabalho humano</small></dd></div>
+            <div><dt>Sistemas neste caso</dt><dd>4 <small>a média é 1,83; o máximo do histórico é 4</small></dd></div>
+            <div><dt>Minutos de pessoa neste caso</dt><dd>0 <small>até a cliente responder</small></dd></div>
+          </dl>
+          <!-- conta: 65 conversas (fila_aberta.csv) × 12,2 min (M3) = 793 min ≈ 13 h 13 min. É teto, não previsão: casos com aprovação, suspeita ou escalação ainda gastam tempo de pessoa. -->
+          <p style="margin-top: var(--space-4); font-size: var(--text-sm)">Na fila de hoje, 65 conversas × 12,2 min dão <strong>793 min, cerca de 13 h</strong> de trabalho de atendente. É o teto do ganho: os casos que sobem para aprovação, suspeita ou escalação continuam pedindo uma pessoa.</p>
+          <p class="fonte">Fonte: <span class="mono">ingestao/baseline_metricas.md</span> M3 (<span class="mono">tempo_por_conversa.csv</span>); <span class="mono">fila_aberta.csv</span>.</p>
+        </div>
+      </section>
+
+      <section class="decisao" aria-labelledby="t-limite">
+        <h3 id="t-limite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Se o valor passasse da alçada</h3>
+        <p>O mesmo caminho, com um passo a mais antes de executar: pedido de aprovação no canal do time, com o rastreio e o atraso já anexados. Foi o que aconteceu com <span class="mono">AT116703</span>, um reenvio de R$ 219,90.</p>
+        <div class="acoes"><a class="btn" href="canal-do-time.html">Ver a aprovação no canal</a></div>
+      </section>
+    </aside>
+  </div>
+
+  <nav class="proxima" aria-label="Sequência das telas">
+    <a href="triagem.html">← F1, a fila das 08h</a>
+    <a href="canal-do-time.html">Próxima: F3 + F4, canal do time →</a>
+  </nav>
+</main>
+</body>
+</html>

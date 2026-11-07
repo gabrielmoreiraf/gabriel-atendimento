@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mapa 360° do colega</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="proto.css">
+</head>
+<body>
+<!--
+  Protótipo 360° (camada 2, W6). Estático e NÃO funcional: nenhuma regra roda aqui.
+  "Agora" = 02/11/2026 08:00 (America/Sao_Paulo). Dados pessoais abreviados ou omitidos.
+-->
+<header class="topo">
+  <div class="topo-in">
+    <a class="marca" href="index.html">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg>
+      Colega de atendimento
+    </a>
+    <nav class="nav" aria-label="Telas do protótipo">
+      <a href="index.html" aria-current="page">Mapa 360°</a>
+      <a href="triagem.html">F1 Triagem</a>
+      <a href="jornada.html">F2 Jornada</a>
+      <a href="canal-do-time.html">F3 + F4 Canal do time</a>
+      <a href="prevencao.html">F5 Prevenção</a>
+    </nav>
+    <div class="agora"><span class="selo-proto">Protótipo, não funcional</span><span>Agora <span class="mono" title="Agora no cenário: segunda, 02/11/2026, America/Sao_Paulo">02/11 08:00</span></span></div>
+  </div>
+</header>
+
+<main>
+  <div class="cabeca">
+    <div>
+      <h1>Um colega que cobre a área inteira, e sabe quando chamar alguém</h1>
+      <!-- fonte: volume de ~4.000 conversas/mês (~130/dia): docs/parametros.md; 65 na fila: docs/fila_aberta.csv (M5) -->
+      <p class="lede">O agente pega as 65 conversas abertas às 08h e age nos sistemas dentro da alçada de atendente. Cada linha amarela abaixo é um ponto onde uma pessoa decide, e o agente não passa por cima dela.</p>
+    </div>
+    <span class="quem pessoa">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+      Amarelo = pessoa no controle
+    </span>
+  </div>
+
+  <section class="secao" aria-labelledby="t-mapa">
+    <h2 id="t-mapa" class="sr-only">As cinco frentes</h2>
+    <div class="mapa" role="table" aria-label="Frentes do agente, ações e decisões humanas">
+      <!-- Linha 1: cabeçalhos das frentes, com a dor que cada uma ataca -->
+      <div class="cab vazio" role="columnheader"></div>
+
+      <div class="cab" role="columnheader">
+        <span class="frente">F1</span>
+        <h3>Triagem e SLA</h3>
+        <!-- fonte: ingestao/baseline_metricas.md M5 (fila_aberta + politicas.sla_primeira_resposta) -->
+        <p class="dor"><strong>18 de 19</strong>conversas de WhatsApp sem 1ª resposta vencem às 08:30</p>
+        <span class="seta-fluxo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
+      </div>
+
+      <div class="cab" role="columnheader">
+        <span class="frente">F2</span>
+        <h3>Resolução multissistema</h3>
+        <!-- fonte: M3 (acoes_executadas_sistemas.sistema; tempo_por_conversa.sistemas_acessados) -->
+        <p class="dor"><strong>11 sistemas</strong>no log de ações; até 4 numa única conversa</p>
+        <span class="seta-fluxo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
+      </div>
+
+      <div class="cab poc" role="columnheader">
+        <span class="frente">F3</span> <span class="selo-poc">Provado na PoC</span>
+        <h3>Verificação da reclamação</h3>
+        <!-- fonte: M6 (anexos_conversas.hash_perceptual, exif_*; pedidos.data_entrega) -->
+        <p class="dor"><strong>17 anexos</strong>com a mesma foto em pedidos diferentes; 10 passaram por editor</p>
+        <span class="seta-fluxo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
+      </div>
+
+      <div class="cab poc" role="columnheader">
+        <span class="frente">F4</span> <span class="selo-poc">Provado na PoC</span>
+        <h3>Autonomia e escalação</h3>
+        <!-- fonte: M8 (acoes_executadas_sistemas × politicas.limites_por_papel); M10 (27 relatos de reação adversa) -->
+        <p class="dor"><strong>132 ações</strong>com dinheiro acima do limite do atendente no histórico</p>
+        <span class="seta-fluxo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
+      </div>
+
+      <div class="cab" role="columnheader">
+        <span class="frente">F5</span>
+        <h3>Prevenção de recontato</h3>
+        <!-- fonte: M4 (historico_conversas por customer_id + order_id) -->
+        <p class="dor"><strong>32,9%</strong>do histórico são conversas repetidas sobre o mesmo pedido (982)</p>
+      </div>
+
+      <!-- Linha 2: o que o agente faz sozinho (REQUISITOS.md §1.2) -->
+      <div class="faixa" role="rowheader">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg>
+        Agente faz sozinho
+      </div>
+      <div class="cel" role="cell" data-faixa="Agente faz sozinho">
+        <ul>
+          <li>Classifica e prioriza por prazo e custo do canal</li>
+          <li>Dá a 1ª resposta antes de o SLA vencer</li>
+          <li>Avisa o time do que vai estourar</li>
+        </ul>
+      </div>
+      <div class="cel" role="cell" data-faixa="Agente faz sozinho">
+        <ul>
+          <li>Consulta pedido, portal da transportadora e pagamento</li>
+          <li>Abre chamado; reenvia, troca ou reembolsa dentro da alçada</li>
+          <li>Registra cada passo no log</li>
+        </ul>
+      </div>
+      <div class="cel poc" role="cell" data-faixa="Agente faz sozinho">
+        <ul>
+          <li>Cruza foto, EXIF, hash, pedido, personalização e histórico</li>
+          <li>Sinaliza suspeita com evidência, sem acusar o cliente</li>
+          <li>Trava o reenvio até a decisão</li>
+        </ul>
+      </div>
+      <div class="cel poc" role="cell" data-faixa="Agente faz sozinho">
+        <ul>
+          <li>Aplica a política e a alçada acumulada por pedido</li>
+          <li>Pede aprovação no canal do time</li>
+          <li>Aciona a pessoa certa do turno</li>
+        </ul>
+      </div>
+      <div class="cel" role="cell" data-faixa="Agente faz sozinho">
+        <ul>
+          <li>Detecta causa comum (transportadora + UF, máquina, lote, gateway)</li>
+          <li>Chama o agente analista, que abre o incidente</li>
+          <li>Prepara o aviso proativo aos clientes</li>
+        </ul>
+      </div>
+
+      <!-- Linha 3: onde a pessoa decide (REQUISITOS.md §1.2; politicas.csv limites_por_papel e reclamacao_suspeita) -->
+      <div class="faixa" role="rowheader">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+        Pessoa decide
+      </div>
+      <div class="cel pessoa nada" role="cell" data-faixa="Pessoa decide">Nenhuma decisão de dinheiro aqui. O time só recebe o aviso de SLA.</div>
+      <div class="cel pessoa" role="cell" data-faixa="Pessoa decide">
+        <strong>Supervisor</strong> aprova reembolso acima de <span class="mono">R$ 100</span> e reenvio, troca ou reimpressão acima de <span class="mono">R$ 200</span>
+      </div>
+      <div class="cel pessoa poc" role="cell" data-faixa="Pessoa decide">
+        <strong>Supervisor</strong> decide a suspeita em até <span class="mono">24 h</span>; nunca quem a sinalizou
+      </div>
+      <div class="cel pessoa poc" role="cell" data-faixa="Pessoa decide">
+        <strong>Supervisor</strong>, <strong>qualidade</strong> (cosmetovigilância) e <strong>jurídico</strong>, cada um no seu caso
+      </div>
+      <div class="cel pessoa" role="cell" data-faixa="Pessoa decide">
+        <strong>Analista</strong> valida o escopo do incidente; no máximo <span class="mono">300</span> avisos por dia
+      </div>
+
+      <!-- Linha 4: como se ligam -->
+      <div class="faixa" role="rowheader">Liga com</div>
+      <div class="cel liga" role="cell" data-faixa="Liga com">Alimenta F2 a F5</div>
+      <div class="cel liga" role="cell" data-faixa="Liga com">Passa por F3 antes de mexer com dinheiro</div>
+      <div class="cel liga poc" role="cell" data-faixa="Liga com">Trava F2 até o supervisor decidir</div>
+      <div class="cel liga poc" role="cell" data-faixa="Liga com">Atravessa todas as frentes</div>
+      <div class="cel liga" role="cell" data-faixa="Liga com">Reduz a entrada de F1</div>
+
+      <!-- Linha 5: telas -->
+      <div class="faixa" role="rowheader">Ver na tela</div>
+      <div class="cel tela" role="cell" data-faixa="Ver na tela"><a href="triagem.html">Fila das 08h →</a></div>
+      <div class="cel tela" role="cell" data-faixa="Ver na tela"><a href="jornada.html">Um caso de ponta a ponta →</a></div>
+      <div class="cel tela poc" role="cell" data-faixa="Ver na tela"><a href="canal-do-time.html">Suspeita no canal →</a></div>
+      <div class="cel tela poc" role="cell" data-faixa="Ver na tela"><a href="canal-do-time.html">Aprovação no canal →</a></div>
+      <div class="cel tela" role="cell" data-faixa="Ver na tela"><a href="prevencao.html">Padrão vira incidente →</a></div>
+    </div>
+    <p class="fonte">Fontes: <span class="mono">REQUISITOS.md §1.2</span>; números de <span class="mono">ingestao/baseline_metricas.md</span> (M3, M4, M5, M6, M8); alçadas de <span class="mono">docs/politicas.csv</span> (<span class="mono">limites_por_papel</span>, <span class="mono">reclamacao_suspeita</span>). O histórico é amostra de 1 em cada 4 clientes; a fila está em volume cheio.</p>
+  </section>
+
+  <section class="secao poc-chamada" aria-labelledby="t-poc">
+    <div class="painel">
+      <div class="painel-in">
+        <h2 id="t-poc">O que a PoC prova hoje: F3 + F4, com F2 executando</h2>
+        <p>A demo funcional processa a fila real das 08h. Para cada caso, o agente confere a evidência, consulta a política e escolhe um de quatro caminhos: age sozinho, pede aprovação, sinaliza suspeita ou escala.</p>
+        <p class="muted">As outras três frentes deste protótipo usam o mesmo motor de políticas e o mesmo canal do time. Nenhuma delas pede regra nova, só mais ferramentas de leitura e o papel de analista.</p>
+        <div class="acoes" style="margin-top: var(--space-5)">
+          <a class="btn primario" href="canal-do-time.html">Ver o canal do time</a>
+          <a class="btn" href="http://localhost:5173" title="Interface funcional da PoC (W5), roda com pnpm --dir web dev">Abrir a demo funcional</a>
+        </div>
+      </div>
+    </div>
+    <div class="painel">
+      <div class="painel-in">
+        <h3 style="margin-bottom: var(--space-3)">O ciclo de cada conversa</h3>
+        <!-- fonte: SPEC.md (Objetivo) e REQUISITOS.md P2, P3, N1 -->
+        <ol class="ciclo">
+          <li>Lê a conversa e o histórico do pedido, por ID</li>
+          <li>Confere a evidência (F3)</li>
+          <li>Aplica política e alçada acumulada (F4)</li>
+          <li>Age no sistema e grava no log (F2), ou levanta a mão no canal</li>
+          <li>Responde ao cliente sem CPF, telefone ou cartão</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <nav class="proxima" aria-label="Sequência das telas">
+    <span class="muted">Tela 1 de 5</span>
+    <a href="triagem.html">Próxima: F1, a fila das 08h →</a>
+  </nav>
+</main>
+</body>
+</html>
