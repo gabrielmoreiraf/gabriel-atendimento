@@ -14,13 +14,13 @@ export function Mascote({
     >
       <defs>
         <linearGradient id="fio-corpo" x1="0" y1="1" x2="1" y2="0">
-          <stop offset="0" stopColor="#6d3be0" />
-          <stop offset="0.55" stopColor="#c44ad8" />
-          <stop offset="1" stopColor="#f7a98a" />
+          <stop offset="0" stopColor="#1d4683" />
+          <stop offset="0.55" stopColor="#2659a5" />
+          <stop offset="1" stopColor="#3dbfef" />
         </linearGradient>
         <linearGradient id="fio-rosto" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#1b1029" />
-          <stop offset="1" stopColor="#2b1840" />
+          <stop offset="0" stopColor="#0b1a33" />
+          <stop offset="1" stopColor="#10284d" />
         </linearGradient>
       </defs>
       <path
@@ -28,13 +28,13 @@ export function Mascote({
         fill="url(#fio-corpo)"
       />
       <rect x="62" y="74" width="196" height="132" rx="34" fill="url(#fio-rosto)" />
-      <g className={piscando ? "mascote__olhos" : undefined} fill="#ffffff">
+      <g className={piscando ? "mascote__olhos" : undefined} fill="#d7d900">
         <ellipse cx="124" cy="138" rx="17" ry="21" />
         <ellipse cx="196" cy="138" rx="17" ry="21" />
       </g>
       <path
         d="M140 176q20 14 40 0"
-        stroke="#f7a98a"
+        stroke="#d7d900"
         strokeWidth="7"
         strokeLinecap="round"
         fill="none"

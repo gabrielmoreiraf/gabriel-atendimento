@@ -1,13 +1,13 @@
 /*
- * Design system do FIO (Gocase / GoBeauté), "FIO design system completo".
- * Paleta de tom jovem ajustada para projetor: texto e bordas escuros, fundo quente.
- * Fontes: Figtree (texto) e IBM Plex Mono (dado de sistema).
+ * Design system do FIO, sobre o brandbook do Gogroup: azul #2659a5 protagonista, limão #d7d900
+ * em blocos de cor e Poppins bold. Texto e bordas escuros para projetor.
+ * Fontes: Poppins (texto) e IBM Plex Mono (dado de sistema). Nunca branco sobre limão.
  * Tema claro por padrão; escuro só com [data-tema="escuro"].
  * Os nomes --color-* / --space-* / --text-* da primeira versão são apelidos dos novos.
  */
 :root {
   /* fontes */
-  --fonte: "Figtree", system-ui, sans-serif;
+  --fonte: "Poppins", system-ui, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, monospace;
   --tam-placar: 40px;
   --tam-tela: 28px;
@@ -18,27 +18,34 @@
   --tam-min: 13px;
 
   /* superfícies e texto (claro) */
-  --fundo: #f5f3f1;
+  --fundo: #f2f4f8;
   --superficie: #ffffff;
-  --superficie-2: #ece8e5;
-  --borda: #cfc8c2;
-  --borda-forte: #6b6560;
-  --texto: #1b1820;
-  --texto-2: #4a4550;
-  --primaria: #b0145f;
-  --primaria-hover: #8c0f4b;
+  --superficie-2: #e6ebf3;
+  --borda: #c9d2e1;
+  --borda-forte: #4f5d75;
+  --texto: #13213a;
+  --texto-2: #46536b;
+  --primaria: #2659a5;
+  --primaria-hover: #1d4683;
   --primaria-tx: #ffffff;
   --foco: #1f55d6;
-  --realce: #ffeaa0;
-  --fio-bg: #fae3ee;
-  --sel-bg: #fbeef4;
+  --realce: #d7d900;
+  --realce-tx: #13213a;
+  --gg-limao: #d7d900;
+  --gg-azul: #2659a5;
+  --gg-azul-claro: #3dbfef;
+  --gg-rosa: #e61782;
+  --gg-amarelo: #f8ae13;
+  --gg-laranja: #e5381a;
+  --fio-bg: #e3ecf8;
+  --sel-bg: #eaf0f9;
 
   /* canal do time */
-  --canal-fundo: #1c1922;
-  --canal-sup: #2a2631;
-  --canal-borda: #433d4d;
+  --canal-fundo: #10284d;
+  --canal-sup: #1b3a68;
+  --canal-borda: #2f5185;
   --canal-tx: #f3f0f6;
-  --canal-tx2: #c9c2d1;
+  --canal-tx2: #c4d3ea;
   --canal-erro-bg: #4a1219;
   --canal-erro-tx: #ffc2c8;
   --canal-ok-bg: #103522;
@@ -147,9 +154,9 @@
   --borda-forte: #8a8494;
   --texto: #f4f2f6;
   --texto-2: #c6c0cd;
-  --primaria: #f472b0;
-  --primaria-hover: #f99ac6;
-  --primaria-tx: #1d0712;
+  --primaria: #7fb0ff;
+  --primaria-hover: #a6c8ff;
+  --primaria-tx: #0b1a33;
   --foco: #7aa5ff;
   --realce: #4a3d0c;
   --fio-bg: #3a1528;

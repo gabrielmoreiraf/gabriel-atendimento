@@ -47,7 +47,7 @@
   top: -3px;
   border-width: 3px;
   background: linear-gradient(transparent, transparent) padding-box,
-    linear-gradient(91.88deg, rgba(196, 74, 216, 0.25) 46.45%, #7b3fe4 98.59%) border-box;
+    linear-gradient(91.88deg, rgba(61, 191, 239, 0.25) 46.45%, #2659a5 98.59%) border-box;
   filter: blur(15px);
 }
 
@@ -59,9 +59,9 @@
   background: linear-gradient(transparent, transparent) padding-box,
     linear-gradient(
       97.68deg,
-      rgba(244, 114, 176, 0) 38.1%,
-      rgba(244, 114, 176, 0.25) 82.47%,
-      #c44ad8 93.3%
+      rgba(215, 217, 0, 0) 38.1%,
+      rgba(215, 217, 0, 0.25) 82.47%,
+      #d7d900 93.3%
     )
     border-box;
   filter: blur(2px);
@@ -77,9 +77,9 @@
   background: linear-gradient(transparent, transparent) padding-box,
     linear-gradient(
       103.7deg,
-      rgba(196, 74, 216, 0.1) 38.66%,
-      rgba(244, 114, 176, 0.15) 68.55%,
-      #f472b0 85.01%,
+      rgba(61, 191, 239, 0.1) 38.66%,
+      rgba(215, 217, 0, 0.15) 68.55%,
+      #d7d900 85.01%,
       #fff 92.12%
     )
     border-box;
@@ -98,9 +98,9 @@
   background: linear-gradient(transparent, transparent) padding-box,
     linear-gradient(
       91.96deg,
-      rgba(244, 114, 176, 0) 6.11%,
-      rgba(244, 114, 176, 0.25) 53.57%,
-      #c44ad8 93.6%
+      rgba(215, 217, 0, 0) 6.11%,
+      rgba(215, 217, 0, 0.25) 53.57%,
+      #d7d900 93.6%
     )
     border-box;
   filter: blur(7px);
@@ -119,7 +119,7 @@
   border-radius: 9999px;
   background: #ffffff;
   padding: 0 3.25rem;
-  color: #1b1029;
+  color: #13213a;
   font-family: var(--fonte);
   font-size: 15px;
   font-weight: 700;
@@ -152,11 +152,11 @@
   height: 121px;
   background: radial-gradient(
     50% 50% at 50% 50%,
-    #fff7fb 3.5%,
-    #f7a8cf 26.5%,
-    #f9c9a8 37.5%,
-    rgba(196, 74, 216, 0.35) 49%,
-    rgba(123, 63, 228, 0) 92.5%
+    #fffff2 3.5%,
+    #eef08a 26.5%,
+    #b9e6f9 37.5%,
+    rgba(61, 191, 239, 0.35) 49%,
+    rgba(38, 89, 165, 0) 92.5%
   );
   transform: translateY(-50%);
 }
@@ -168,9 +168,9 @@
   height: 103px;
   background: radial-gradient(
     43.3% 44.23% at 50% 49.51%,
-    #fff8fc 29%,
-    #fde3f0 48.5%,
-    #f6d0e4 60.71%,
+    #fffff7 29%,
+    #f4f6c4 48.5%,
+    #dcecf8 60.71%,
     rgba(214, 211, 210, 0) 100%
   );
   filter: blur(5px);
@@ -181,10 +181,10 @@
   width: 17px;
   height: 9px;
   flex: none;
-  color: #1b1029;
+  color: #13213a;
 }
 
 .edge-light-button__control:focus-visible {
-  outline: 2px solid #f472b0;
+  outline: 2px solid #d7d900;
   outline-offset: 8px;
 }

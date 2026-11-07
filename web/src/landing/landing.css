@@ -1,12 +1,14 @@
-/* Landing do FIO: hero escuro com gradiente roxo → rosa → pêssego, ondas e balões de chat. */
+/* Landing do FIO no brandbook do Gogroup: azul #2659a5 protagonista, limão #d7d900 em blocos
+ * de cor, Poppins bold. Nunca branco sobre limão. */
 .landing {
-  --lp-escuro: #120b1d;
-  --lp-escuro-2: #1d1230;
-  --lp-claro: #f7f3fb;
-  --lp-roxo: #6d3be0;
-  --lp-rosa: #c44ad8;
-  --lp-pessego: #f7a98a;
-  --lp-gradiente: linear-gradient(120deg, var(--lp-roxo), var(--lp-rosa) 55%, var(--lp-pessego));
+  --lp-escuro: #10284d;
+  --lp-escuro-2: #10284d;
+  --lp-claro: #f2f4f8;
+  --lp-roxo: #2659a5;
+  --lp-rosa: #3dbfef;
+  --lp-pessego: #d7d900;
+  --lp-gradiente: linear-gradient(120deg, #2659a5, #2f6fc4 55%, #3dbfef);
+  --lp-limao: #d7d900;
   min-height: 100vh;
   background: var(--lp-claro);
   color: var(--texto);
@@ -94,8 +96,8 @@
   align-items: center;
   gap: 24px;
   padding: 130px max(24px, calc((100vw - 1200px) / 2 + 24px)) 150px;
-  background: radial-gradient(60% 70% at 85% 30%, rgba(196, 74, 216, 0.45), transparent 70%),
-    radial-gradient(50% 60% at 10% 90%, rgba(109, 59, 224, 0.5), transparent 70%), var(--lp-escuro);
+  background: radial-gradient(60% 70% at 85% 30%, rgba(61, 191, 239, 0.45), transparent 70%),
+    radial-gradient(50% 60% at 10% 90%, rgba(16, 40, 77, 0.5), transparent 70%), var(--lp-escuro);
   color: #fff;
 }
 .lp-etiqueta {
@@ -128,7 +130,7 @@
   margin-top: 22px;
   font-size: 19px;
   line-height: 1.55;
-  color: #ddd2ec;
+  color: #e3ecf8;
 }
 .lp-hero__acoes {
   display: flex;
@@ -166,7 +168,7 @@
   left: 6%;
 }
 .mascote {
-  filter: drop-shadow(0 30px 40px rgba(109, 59, 224, 0.45));
+  filter: drop-shadow(0 30px 40px rgba(16, 40, 77, 0.45));
 }
 .lp-hero .mascote {
   animation: lp-flutua 6s ease-in-out infinite;
@@ -187,7 +189,7 @@
   color: var(--lp-escuro);
   font-size: 13px;
   line-height: 1.35;
-  box-shadow: 0 18px 40px rgba(18, 11, 29, 0.35);
+  box-shadow: 0 18px 40px rgba(16, 40, 77, 0.35);
   animation: lp-flutua 7s ease-in-out infinite;
 }
 .lp-chat b {
@@ -268,7 +270,7 @@
   padding: 24px;
   border-radius: 24px;
   background: #fff;
-  border: 1px solid #e7dff0;
+  border: 1px solid #d5deec;
 }
 .lp-numero strong {
   font-family: var(--mono);
@@ -287,7 +289,7 @@
   color: #fff;
 }
 .lp-numeros--resultado .lp-numero span {
-  color: #fff4fb;
+  color: #e3ecf8;
 }
 .lp-destaque {
   max-width: 820px;
@@ -303,7 +305,7 @@
   gap: 48px;
   align-items: center;
   padding: 90px max(24px, calc((100vw - 1200px) / 2 + 24px));
-  background: radial-gradient(50% 70% at 100% 0%, rgba(196, 74, 216, 0.35), transparent 70%),
+  background: radial-gradient(50% 70% at 100% 0%, rgba(61, 191, 239, 0.35), transparent 70%),
     var(--lp-escuro-2);
   color: #fff;
   border-radius: 48px 48px 0 0;
@@ -319,7 +321,7 @@
   list-style: none;
   font-size: 18px;
   line-height: 1.5;
-  color: #e3d8f1;
+  color: #dbe6f6;
 }
 .lp-escura li::before {
   content: "●";
@@ -394,7 +396,7 @@
   gap: 10px;
   padding: 14px 20px;
   border-radius: 999px;
-  border: 1.5px solid #d9cfe6;
+  border: 1.5px solid #c9d2e1;
   background: #fff;
   font-size: 18px;
   font-weight: 700;
@@ -422,7 +424,7 @@
   margin: 24px auto 40px;
   padding: 48px 56px;
   border-radius: 48px;
-  background: radial-gradient(60% 90% at 90% 50%, rgba(196, 74, 216, 0.55), transparent 70%),
+  background: radial-gradient(60% 90% at 90% 50%, rgba(61, 191, 239, 0.55), transparent 70%),
     var(--lp-escuro);
   color: #fff;
 }
@@ -432,7 +434,7 @@
 .lp-final p {
   margin: 14px 0 28px;
   font-size: 18px;
-  color: #ddd2ec;
+  color: #e3ecf8;
 }
 .lp-rodape {
   display: flex;
@@ -507,6 +509,59 @@
 }
 
 .landing .edge-light-button__control {
-  color: #1b1029;
+  color: #13213a;
   text-decoration: none;
+}
+
+/* ===== Brandbook Gogroup: color blocking azul + limão ===== */
+.lp-hero {
+  background: radial-gradient(60% 70% at 85% 30%, rgba(61, 191, 239, 0.45), transparent 70%),
+    #2659a5;
+  box-shadow: inset 0 0 0 14px var(--lp-limao);
+}
+.lp-etiqueta {
+  border: 0;
+  background: var(--lp-limao);
+  color: #13213a;
+}
+.lp-etiqueta--escura {
+  background: #2659a5;
+  color: #fff;
+}
+.lp-hero h1 em {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: var(--lp-limao);
+}
+.lp-bolha--a {
+  background: var(--lp-limao);
+}
+.lp-bolha--b {
+  background: #e61782;
+}
+.lp-numeros--resultado .lp-numero:nth-child(even) {
+  background: var(--lp-limao);
+  color: #13213a;
+}
+.lp-numeros--resultado .lp-numero:nth-child(even) span {
+  color: #13213a;
+}
+.lp-frentes li[data-provado="sim"] {
+  background: var(--lp-limao);
+  color: #13213a;
+}
+.lp-frentes em {
+  background: #2659a5;
+  color: #fff;
+}
+.lp-final {
+  background: radial-gradient(60% 90% at 90% 50%, rgba(61, 191, 239, 0.5), transparent 70%), #2659a5;
+  box-shadow: inset 0 0 0 12px var(--lp-limao);
+}
+.lp-escura li::before {
+  color: var(--lp-limao);
+}
+.pilula__seta {
+  background: #2659a5;
 }
